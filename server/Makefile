@@ -21,20 +21,10 @@ INC_DIR		=	include
 
 # Sources — adjust paths to match your actual file tree
 SRCS		=	$(SRC_DIR)/main.cpp					\
-# 				$(SRC_DIR)/server/Server.cpp			\
-# 				$(SRC_DIR)/server/Client.cpp			\
-# 				$(SRC_DIR)/server/CommandHandler.cpp	\
-# 				$(SRC_DIR)/game/World.cpp				\
-# 				$(SRC_DIR)/game/Tile.cpp				\
-# 				$(SRC_DIR)/game/Player.cpp				\
-# 				$(SRC_DIR)/game/Team.cpp				\
-# 				$(SRC_DIR)/game/Egg.cpp					\
-# 				$(SRC_DIR)/game/Resources.cpp			\
-# 				$(SRC_DIR)/game/Incantation.cpp			\
-# 				$(SRC_DIR)/protocol/AIProtocol.cpp		\
-# 				$(SRC_DIR)/protocol/GUIProtocol.cpp		\
-# 				$(SRC_DIR)/utils/Args.cpp				\
-# 				$(SRC_DIR)/utils/Clock.cpp
+				$(SRC_DIR)/utils/args.cpp			\
+				$(SRC_DIR)/server/server.cpp			\
+				$(SRC_DIR)/server/client.cpp			\
+				$(SRC_DIR)/command/commandHandler.cpp
 
 OBJS		=	$(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 

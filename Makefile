@@ -23,8 +23,9 @@ CYAN	=	\033[0;36m
 RESET	=	\033[0m
 
 .PHONY: all server gui ai clean fclean re help \
-		clean_server clean_gui clean_ai \
-		fclean_server fclean_gui fclean_ai
+        clean_server clean_gui clean_ai \
+        fclean_server fclean_gui fclean_ai \
+        tests test
 
 ##
 ## DEFAULT RULES
@@ -49,6 +50,20 @@ zappy_ai:
 	@$(MAKE) -C $(AI_DIR) --no-print-directory
 	@cp $(AI_DIR)/$(AI_BIN) ./$(AI_BIN)
 	@echo "$(GREEN)[✓]$(RESET) $(AI_BIN) built successfully."
+
+##
+## TEST RULES
+##
+tests:
+	@echo "[Tests] Installing Criterion if needed..."
+	@which dpkg > /dev/null && sudo apt-get install -y libcriterion-dev 2>/dev/null || true
+	@$(MAKE) -C server/tests all
+	@echo "[Tests] Running server tests..."
+	@./server/tests/test_args --verbose
+	@./server/tests/test_client --verbose
+
+## Alias — CI calls 'make test' (singular)
+test: tests
 
 ##
 ## CLEAN RULES
@@ -89,8 +104,8 @@ fclean_zappy_ai:
 	@$(RM) ./$(AI_BIN)
 
 fclean: fclean_server fclean_gui fclean_ai
+	@$(MAKE) -C server/tests fclean --no-print-directory
 	@echo "$(GREEN)[✓]$(RESET) All binaries and object files removed."
-
 ##
 ## RE RULES
 ##
