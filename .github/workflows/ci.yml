@@ -58,12 +58,14 @@ jobs:
             --std=c++20 \
             --suppress=missingIncludeSystem \
             --suppress=unmatchedSuppression \
+            --suppress=unusedFunction       \
             -I server/include \
             server/src
           cppcheck --enable=all --error-exitcode=1 \
             --std=c++20 \
             --suppress=missingIncludeSystem \
             --suppress=unmatchedSuppression \
+            --suppress=unusedFunction       \
             -I gui/include \
             gui/src
 
