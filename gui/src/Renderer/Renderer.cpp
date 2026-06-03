@@ -1,6 +1,8 @@
 #include "Renderer.hpp"
+#include "../Constants.hpp"
+#include <raylib.h>
 
-void Renderer::drawMap(const Map& map) {
+void Renderer::drawMap(const Map& map, const Character::CharacterFactory& factory) {
     for (int y = 0; y < map.getHeight(); y++) {
         for (int x = 0; x < map.getWidth(); x++) {
             const Tile& tile = map.getTile(x, y);
@@ -21,5 +23,14 @@ void Renderer::drawMap(const Map& map) {
             DrawCube(pos, TILE_SIZE, 0.1f, TILE_SIZE, color);
             DrawCubeWires(pos, TILE_SIZE, 0.1f, TILE_SIZE, BLACK);
         }
+    }
+    // Draw characters as placeholder cubes
+    for (const auto& c : factory.getAll()) {
+        Vector3 pos = {
+            c.tileX * TILE_SIZE + TILE_SIZE / 2.f,
+            0.55f,
+            c.tileY * TILE_SIZE + TILE_SIZE / 2.f
+        };
+        DrawCube(pos, TILE_SIZE * 0.4f, TILE_SIZE * 0.9f, TILE_SIZE * 0.4f, RED);
     }
 }
