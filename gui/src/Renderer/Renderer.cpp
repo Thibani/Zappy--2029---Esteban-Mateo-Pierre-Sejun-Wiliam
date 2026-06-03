@@ -2,7 +2,7 @@
 #include "../Constants.hpp"
 #include <raylib.h>
 
-void Renderer::drawMap(const Map& map, const Character::CharacterFactory& factory) {
+void Renderer::drawMap(const Map& map, const Character::CharacterFactory& factory, PlayerView camera) {
     for (int y = 0; y < map.getHeight(); y++) {
         for (int x = 0; x < map.getWidth(); x++) {
             const Tile& tile = map.getTile(x, y);
@@ -25,12 +25,13 @@ void Renderer::drawMap(const Map& map, const Character::CharacterFactory& factor
         }
     }
     // Draw characters as placeholder cubes
+    Texture2D charTexture = LoadTexture("assets/Characters/Commander lv7.aseprite");
     for (const auto& c : factory.getAll()) {
         Vector3 pos = {
             c.tileX * TILE_SIZE + TILE_SIZE / 2.f,
             0.55f,
             c.tileY * TILE_SIZE + TILE_SIZE / 2.f
         };
-        DrawCube(pos, TILE_SIZE * 0.4f, TILE_SIZE * 0.9f, TILE_SIZE * 0.4f, RED);
+        DrawBillboard(camera.get(), charTexture, pos, TILE_SIZE * 0.9f, WHITE);
     }
 }

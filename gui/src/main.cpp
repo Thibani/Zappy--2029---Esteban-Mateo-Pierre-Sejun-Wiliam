@@ -26,7 +26,7 @@ int main() {
             ClearBackground({ 20, 20, 30, 255 });
 
             BeginMode3D(camera.get());
-                Renderer::drawMap(map, factory);
+                Renderer::drawMap(map, factory, camera);
             EndMode3D();
 
             // HUD (2D overlay, always on top)
