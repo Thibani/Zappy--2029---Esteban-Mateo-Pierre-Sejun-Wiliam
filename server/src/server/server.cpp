@@ -177,14 +177,13 @@ namespace Zappy {
 
     void Server::_setPollOut(int fd, bool enable)
     {
-        for (auto &pfd : _pollfds) {
-            if (pfd.fd == fd) {
-                if (enable)
-                    pfd.events |= POLLOUT;
-                else
-                    pfd.events &= ~POLLOUT;
-                return;
-            }
+        auto it = std::find_if(_pollfds.begin(), _pollfds.end(),
+            [fd](const struct pollfd &pfd) { return pfd.fd == fd; });
+        if (it != _pollfds.end()) {
+            if (enable)
+                it->events |= POLLOUT;
+            else
+                it->events &= ~POLLOUT;
         }
     }
 
