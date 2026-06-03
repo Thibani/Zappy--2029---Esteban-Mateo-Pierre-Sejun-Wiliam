@@ -31,7 +31,7 @@ RESET	=	\033[0m
 ## DEFAULT RULES
 ##
 
-all: server gui ai
+all: zappy_server zappy_gui zappy_ai
 
 zappy_server:
 	@echo "$(CYAN)[Zappy]$(RESET) Building $(YELLOW)$(SERVER_BIN)$(RESET)..."
@@ -81,7 +81,7 @@ clean_zappy_ai:
 	@echo "$(CYAN)[Zappy]$(RESET) Cleaning $(AI_DIR)..."
 	@$(MAKE) -C $(AI_DIR) clean --no-print-directory
 
-clean: clean_server clean_gui clean_ai
+clean: clean_zappy_server clean_zappy_gui clean_zappy_ai
 	@echo "$(GREEN)[✓]$(RESET) All object files removed."
 
 ##
@@ -103,7 +103,7 @@ fclean_zappy_ai:
 	@$(MAKE) -C $(AI_DIR) fclean --no-print-directory
 	@$(RM) ./$(AI_BIN)
 
-fclean: fclean_server fclean_gui fclean_ai
+fclean: fclean_zappy_server fclean_zappy_gui fclean_zappy_ai
 	@$(MAKE) -C server/tests fclean --no-print-directory
 	@echo "$(GREEN)[✓]$(RESET) All binaries and object files removed."
 ##

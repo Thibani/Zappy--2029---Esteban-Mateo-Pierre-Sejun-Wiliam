@@ -24,7 +24,7 @@ SRCS		=	$(SRC_DIR)/main.cpp					\
 				$(SRC_DIR)/utils/args.cpp			\
 				$(SRC_DIR)/server/server.cpp			\
 				$(SRC_DIR)/server/client.cpp			\
-				$(SRC_DIR)/command/commandHandler.cpp
+				$(SRC_DIR)/server/commandHandler.cpp
 
 OBJS		=	$(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 
