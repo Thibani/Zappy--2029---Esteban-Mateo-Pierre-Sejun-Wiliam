@@ -17,8 +17,8 @@ namespace Zappy {
     // Ctor
     // -------------------------------------------------------------------------
 
-    CommandHandler::CommandHandler(Game &game)
-        : _game(game)
+    CommandHandler::CommandHandler(Game &game, GUIProtocol &guiProtocol)
+        : _game(game), _guiProtocol(guiProtocol)
     {
         // Build dispatch table — keys are lowercase for case-insensitive matching
         _aiHandlers["forward"]     = [this](Client &c, const std::string &a) { _handleForward(c, a);     };
@@ -74,8 +74,8 @@ namespace Zappy {
             return;
         }
 
-        // GUI commands have to be handled by (william)
-        // For now it just log unknown GUI commands
+        // GUI commands are handled by the GUI protocol (person 3)
+        // For now just log unknown GUI commands
         if (client.getType() == ClientType::GUI) {
             std::cout << "[CommandHandler] GUI fd=" << client.getFd()
                       << " cmd=\"" << cmd << "\"\n";
@@ -94,25 +94,25 @@ namespace Zappy {
             client.setAuthenticated(true);
             std::cout << "[CommandHandler] fd=" << client.getFd()
                       << " authenticated as GUI\n";
-            // TODO: send msz, sgt, mct, etc. (GUI protocol handshake William)
+            // TODO: send msz, sgt, mct, etc. (GUI protocol handshake — person 3)
             return;
         }
 
-        // TODO: validate teamName against Game::getTeams() (Sejun)
+        // TODO: validate teamName against Game::getTeams() (person 2)
         // For now accept any team name
         client.setType(ClientType::AI);
         client.setAuthenticated(true);
         std::cout << "[CommandHandler] fd=" << client.getFd()
                   << " authenticated as AI team=\"" << teamName << "\"\n";
 
-        // TODO: send CLIENT-NUM\n then X Y\n (sejun have to provides these values)
+        // TODO: send CLIENT-NUM\n then X Y\n (person 2 provides these values)
         client.pushToWriteBuffer("0\n");        // placeholder CLIENT-NUM
         client.pushToWriteBuffer("10 10\n");    // placeholder world size
     }
 
     // -------------------------------------------------------------------------
     // Private — AI command stubs
-    // All stubs send "ko" until Game is wired in (Sejun)
+    // All stubs send "ko" until Game is wired in (person 2)
     // -------------------------------------------------------------------------
 
     void CommandHandler::_handleForward(Client &client, const std::string &)
