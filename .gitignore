@@ -77,3 +77,5 @@ node_modules
 compile_flags.txt
 
 template_meeting.md
+test_args
+test_client
