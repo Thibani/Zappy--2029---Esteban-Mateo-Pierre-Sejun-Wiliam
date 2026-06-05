@@ -234,6 +234,13 @@ namespace Zappy {
                 os << "sgt " << frequency << '\n';
                 return os.str();
             }
+
+            static inline std::string fmtSst(int frequency)
+            {
+                std::ostringstream os;
+                os << "sst " << frequency << '\n';
+                return os.str();
+            }
         private:
 
     };
