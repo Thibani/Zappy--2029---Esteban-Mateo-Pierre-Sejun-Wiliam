@@ -185,6 +185,13 @@ namespace Zappy {
                 os << "pfk #" << id << '\n';
                 return os.str();
             }
+
+            static inline std::string fmtPdr(int id, Resource r)
+            {
+                std::ostringstream os;
+                os << "pdr #" << id << ' ' << static_cast<int>(r) << '\n';
+                return os.str();
+            }
         private:
 
     };
