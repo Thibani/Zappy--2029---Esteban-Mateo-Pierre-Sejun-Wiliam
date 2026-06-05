@@ -199,6 +199,13 @@ namespace Zappy {
                 os << "pgt #" << id << ' ' << static_cast<int>(r) << '\n';
                 return os.str();
             }
+
+            static inline std::string fmtPdi(int id)
+            {
+                std::ostringstream os;
+                os << "pdi #" << id << '\n';
+                return os.str();
+            }
         private:
 
     };
