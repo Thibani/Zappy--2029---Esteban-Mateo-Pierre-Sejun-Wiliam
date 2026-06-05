@@ -178,6 +178,13 @@ namespace Zappy {
                 os << "pie " << x << ' ' << y << ' ' << (success ? 1 : 0) << '\n';
                 return os.str();
             }
+
+            static inline std::string fmtPfk(int id)
+            {
+                std::ostringstream os;
+                os << "pfk #" << id << '\n';
+                return os.str();
+            }
         private:
 
     };
