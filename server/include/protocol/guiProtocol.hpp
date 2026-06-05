@@ -147,6 +147,13 @@ namespace Zappy {
                    << '\n';
                 return os.str();
             }
+
+            static inline std::string fmtPex(int id)
+            {
+                std::ostringstream os;
+                os << "pex #" << id << '\n';
+                return os.str();
+            }
         private:
 
     };
