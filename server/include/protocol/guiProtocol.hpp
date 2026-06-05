@@ -116,6 +116,15 @@ namespace Zappy {
                    << "\n";
                 return os.str();
             }
+
+            static inline std::string fmtPpo(int playerId, int x, int y, Orientation o)
+            {
+                std::ostringstream os;
+                os << "ppo " << playerId << " " << x << " " << y
+                   << " " << static_cast<int>(o)
+                   << "\n";
+                return os.str();
+            }
         private:
 
     };
