@@ -161,6 +161,16 @@ namespace Zappy {
                 os << "pbc #" << id << ' ' << message << '\n';
                 return os.str(); 
             }
+
+            static inline std::string fmtPic(int x, int y, int level, const std::vector<int> &playerIds)
+            {
+                std::ostringstream os;
+                os << "pic " << x << ' ' << y << ' ' << level;
+                for (int id : playerIds)
+                    os << " #" << id;
+                os << '\n';
+                return os.str();
+            }
         private:
 
     };
