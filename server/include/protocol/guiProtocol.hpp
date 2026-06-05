@@ -246,6 +246,11 @@ namespace Zappy {
             {
                 return "seg " + winnerTeam + "\n";
             }
+
+            static inline std::string fmtSmg(const std::string &message)
+            {
+                return "smg " + message + "\n";
+            }
         private:
 
     };
