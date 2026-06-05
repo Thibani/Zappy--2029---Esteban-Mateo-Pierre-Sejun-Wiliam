@@ -171,6 +171,13 @@ namespace Zappy {
                 os << '\n';
                 return os.str();
             }
+
+            static inline std::string fmtPie(int x, int y, bool success)
+            {
+                std::ostringstream os;
+                os << "pie " << x << ' ' << y << ' ' << (success ? 1 : 0) << '\n';
+                return os.str();
+            }
         private:
 
     };
