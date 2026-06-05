@@ -85,6 +85,21 @@ namespace Zappy {
                 os << "msz " << width << " " << height << "\n";
                 return os.str();
             }
+
+            static inline std::string fmtBct(int x, int y, const Inventory &inv)
+            {
+                std::ostringstream os;
+                os << "bct " << x << " " << y
+                   << " " << inv[Resource::FOOD]
+                   << " " << inv[Resource::LINEMATE]
+                   << " " << inv[Resource::DERAUMERE]
+                   << " " << inv[Resource::SIBUR]
+                   << " " << inv[Resource::MENDIANE]
+                   << " " << inv[Resource::PHIRAS]
+                   << " " << inv[Resource::THYSTAME]
+                   << "\n";
+                return os.str();
+            }
         private:
 
     };
