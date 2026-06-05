@@ -132,6 +132,21 @@ namespace Zappy {
                 os << "plv #" << playerId << ' ' << level << '\n';
                 return os.str();
             }
+
+            static inline std::string fmtPin(int playerId, int x, int y, const Inventory &inv)
+            {
+                std::ostringstream os;
+                os << "pin #" << playerId << ' ' << x << ' ' << y
+                   << ' ' << inv[Resource::FOOD]
+                   << ' ' << inv[Resource::LINEMATE]
+                   << ' ' << inv[Resource::DERAUMERE]
+                   << ' ' << inv[Resource::SIBUR]
+                   << ' ' << inv[Resource::MENDIANE]
+                   << ' ' << inv[Resource::PHIRAS]
+                   << ' ' << inv[Resource::THYSTAME]
+                   << '\n';
+                return os.str();
+            }
         private:
 
     };
