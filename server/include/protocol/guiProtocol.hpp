@@ -82,22 +82,22 @@ namespace Zappy {
             static inline std::string fmtMsz(int width, int height)
             {
                 std::ostringstream os;
-                os << "msz " << width << " " << height << "\n";
+                os << "msz " << width << ' ' << height << '\n';
                 return os.str();
             }
 
             static inline std::string fmtBct(int x, int y, const Inventory &inv)
             {
                 std::ostringstream os;
-                os << "bct " << x << " " << y
-                   << " " << inv[Resource::FOOD]
-                   << " " << inv[Resource::LINEMATE]
-                   << " " << inv[Resource::DERAUMERE]
-                   << " " << inv[Resource::SIBUR]
-                   << " " << inv[Resource::MENDIANE]
-                   << " " << inv[Resource::PHIRAS]
-                   << " " << inv[Resource::THYSTAME]
-                   << "\n";
+                os << "bct " << x << ' ' << y
+                   << ' ' << inv[Resource::FOOD]
+                   << ' ' << inv[Resource::LINEMATE]
+                   << ' ' << inv[Resource::DERAUMERE]
+                   << ' ' << inv[Resource::SIBUR]
+                   << ' ' << inv[Resource::MENDIANE]
+                   << ' ' << inv[Resource::PHIRAS]
+                   << ' ' << inv[Resource::THYSTAME]
+                   << '\n';
                 return os.str();
             }
 
@@ -109,27 +109,27 @@ namespace Zappy {
             static inline std::string fmtPnw(int playerId, int x, int y, Orientation o, int level, const std::string &team)
             {
                 std::ostringstream os;
-                os << "pnw " << playerId << " " << x << " " << y
-                   << " " << static_cast<int>(o)
-                   << " " << level
-                   << " " << team
-                   << "\n";
+                os << "pnw #" << playerId << ' ' << x << ' ' << y
+                   << ' ' << static_cast<int>(o)
+                   << ' ' << level
+                   << ' ' << team
+                   << '\n';
                 return os.str();
             }
 
             static inline std::string fmtPpo(int playerId, int x, int y, Orientation o)
             {
                 std::ostringstream os;
-                os << "ppo " << playerId << " " << x << " " << y
-                   << " " << static_cast<int>(o)
-                   << "\n";
+                os << "ppo #" << playerId << ' ' << x << ' ' << y
+                   << ' ' << static_cast<int>(o)
+                   << '\n';
                 return os.str();
             }
 
             static inline std::string fmtPlv(int playerId, int level)
             {
                 std::ostringstream os;
-                os << "plv " << playerId << " " << level << "\n";
+                os << "plv #" << playerId << ' ' << level << '\n';
                 return os.str();
             }
         private:
