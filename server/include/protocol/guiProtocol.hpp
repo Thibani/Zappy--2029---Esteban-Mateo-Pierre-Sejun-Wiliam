@@ -48,6 +48,11 @@ namespace Zappy {
             void emitPlayerLevel(int playerId, int level, int guiFd = -1);
             void emitPlayerInventory(int playerId, int x, int y, const Inventory &inv, int guiFd = -1);
             void emitTimeUnit(int frequency, int guiFd = -1);
+
+            // ── Error responses ─────────────────────────────────────────────
+            void emitUnknownCommand(int guiFd); // "suc"
+            void emitBadParameters(int guiFd);  // "sbp"
+
         private:
 
     };
