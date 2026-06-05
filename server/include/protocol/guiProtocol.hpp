@@ -252,6 +252,9 @@ namespace Zappy {
                 return "smg " + message + "\n";
             }
         private:
+            Server &_server;
 
+            /** Send `line` to a specific GUI (fd >= 0) or to all GUIs (fd = -1). */
+            void _send(const std::string &line, int guiFd);
     };
 } // namespace Zappy
