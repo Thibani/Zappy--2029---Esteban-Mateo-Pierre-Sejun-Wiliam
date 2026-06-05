@@ -100,6 +100,11 @@ namespace Zappy {
                    << "\n";
                 return os.str();
             }
+
+            static inline std::string fmtTna(const std::string &name)
+            {
+                return "tna " + name + "\n";
+            }
         private:
 
     };
