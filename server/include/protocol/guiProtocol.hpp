@@ -213,6 +213,13 @@ namespace Zappy {
                 os << "enw #" << eggId << ' ' << parentId << ' ' << x << ' ' << y << '\n';
                 return os.str();
             }
+
+            static inline std::string fmtEbo(int eggId)
+            {
+                std::ostringstream os;
+                os << "ebo #" << eggId << '\n';
+                return os.str();
+            }
         private:
 
     };
