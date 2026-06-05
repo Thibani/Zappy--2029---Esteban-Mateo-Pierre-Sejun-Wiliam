@@ -125,6 +125,13 @@ namespace Zappy {
                    << "\n";
                 return os.str();
             }
+
+            static inline std::string fmtPlv(int playerId, int level)
+            {
+                std::ostringstream os;
+                os << "plv " << playerId << " " << level << "\n";
+                return os.str();
+            }
         private:
 
     };
