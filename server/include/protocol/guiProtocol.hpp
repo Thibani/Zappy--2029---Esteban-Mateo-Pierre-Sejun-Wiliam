@@ -241,6 +241,11 @@ namespace Zappy {
                 os << "sst " << frequency << '\n';
                 return os.str();
             }
+
+            static inline std::string fmtSeg(const std::string &winnerTeam)
+            {
+                return "seg " + winnerTeam + "\n";
+            }
         private:
 
     };
