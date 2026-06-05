@@ -27,8 +27,8 @@
 #include <string>
 #include <vector>
 
-#include "../types/orientation.hpp"
-#include "../types/resource.hpp"
+#include "types/orientation.hpp"
+#include "types/resource.hpp"
 
 namespace Zappy {
     class IGameEventListener {
