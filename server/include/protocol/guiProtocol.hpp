@@ -73,6 +73,18 @@ namespace Zappy {
             void onTimeUnitChanged(int newfrequency) override;
             void onGameEnded(const std::string &winnerTeam) override;
             void onServerMessage(const std::string &message) override;
+
+            // ─── Pure formatters (inline, no I/O) ────────────────────────────
+            // Public + static so unit tests can verify the spec format without
+            // instantiating GUIProtocol or Server.
+            // R = 1 for success, R = 0 for failure (incantation result).
+
+            static inline std::string fmtMsz(int width, int height)
+            {
+                std::ostringstream os;
+                os << "msz " << width << " " << height << "\n";
+                return os.str();
+            }
         private:
 
     };
