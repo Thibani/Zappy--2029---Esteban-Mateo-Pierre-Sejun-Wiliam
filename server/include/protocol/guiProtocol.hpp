@@ -154,6 +154,13 @@ namespace Zappy {
                 os << "pex #" << id << '\n';
                 return os.str();
             }
+
+            static inline std::string fmtPbc(int id, const std::string &message)
+            {
+                std::ostringstream os;
+                os << "pbc #" << id << ' ' << message << '\n';
+                return os.str(); 
+            }
         private:
 
     };
