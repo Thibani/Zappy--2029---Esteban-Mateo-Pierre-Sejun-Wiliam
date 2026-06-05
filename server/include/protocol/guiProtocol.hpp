@@ -53,6 +53,26 @@ namespace Zappy {
             void emitUnknownCommand(int guiFd); // "suc"
             void emitBadParameters(int guiFd);  // "sbp"
 
+            // ── IGameEventListener implementation ───────────────────────────
+            void onMapSize(int width, int height) override;
+            void onTeamRegistered(const std::string &name) override;
+            void onTileChanged(int x, int y, const Inventory &contents) override;
+            void onPlayerConnected(int playerId, int x, int y, Orientation orientation, int level, const std::string &teamName) override;
+            void onPlayerMoved(int playerId, int x, int y, Orientation orientation) override;
+            void onPlayerExpelled(int playerId) override;
+            void onPlayerBroadcast(int playerId, const std::string &message) override;
+            void onPlayerForked(int playerId) override;
+            void onPlayerDied(int playerId) override;
+            void onPlayerTookResource(int playerId, Resource resource, int x, int y, const Inventory &newTileContents, const Inventory &newPlayerInventory) override;
+            void onPlayerDroppedResource(int playerId, Resource resource, int x, int y, const Inventory &newTileContents, const Inventory &newPlayerInventory) override;
+            void onIncantationStarted(int x, int y, int level, const std::vector<int> &playerIds) override;
+            void onIncantationEnded(int x, int y, bool success, const std::vector<int> &playerIds, int newLevel, const Inventory &newTileContents) override;
+            void onEggLaid(int eggId, int parentPlayerId, int x, int y) override;
+            void onEggHatched(int eggId) override;
+            void onEggDied(int eggId) override;
+            void onTimeUnitChanged(int newfrequency) override;
+            void onGameEnded(const std::string &winnerTeam) override;
+            void onServerMessage(const std::string &message) override;
         private:
 
     };
