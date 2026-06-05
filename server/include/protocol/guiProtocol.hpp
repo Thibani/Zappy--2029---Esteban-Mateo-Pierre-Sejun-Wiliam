@@ -227,6 +227,13 @@ namespace Zappy {
                 os << "edi #" << eggId << '\n';
                 return os.str();
             }
+
+            static inline std::string fmtSgt(int frequency)
+            {
+                std::ostringstream os;
+                os << "sgt " << frequency << '\n';
+                return os.str();
+            }
         private:
 
     };
