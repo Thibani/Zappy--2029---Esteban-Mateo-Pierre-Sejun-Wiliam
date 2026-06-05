@@ -6,7 +6,7 @@
 **
 ** All 25 message types from GUI protocol v3.3 are implemented.
 **
-** ─── Dependency ──────────────────────────────────────────────────────────
+** ----- Dependency ---------------------------------------------------
 ** This file requires Server to expose two public methods:
 **   - void Server::broadcastToGuis(const std::string &line);
 **   - void Server::sendToClient(int fd, const std::string &line);
@@ -27,5 +27,43 @@ namespace Zappy {
             _server.broadcastToGuis(line);
         else
             _server.sendToClient(guiFd, line);
+    }
+
+    // ---------------------------------------------------------------------
+    // Direct emitters — for GuiCommandHandler responses or initial state
+    // ---------------------------------------------------------------------
+    void GUIProtocol::emitMapSize(int width, int height, int guiFd)
+    {
+        _send(fmtMsz(width, height), guiFd);
+    }
+
+    void GUIProtocol::emitTileContent(int x, int y, const Inventory &contents, int guiFd)
+    {
+        _send(fmtBct(x, y, contents), guiFd);
+    }
+
+    void GUIProtocol::emitTeamName(const std::string &name, int guiFd)
+    {
+        _send(fmtTna(name), guiFd);
+    }
+
+    void GUIProtocol::emitPlayerPosition(int playerId, int x, int y, Orientation o, int guiFd)
+    {
+        _send(fmtPpo(playerId, x, y, o), guiFd);
+    }
+
+    void GUIProtocol::emitPlayerLevel(int playerId, int level, int guiFd)
+    {
+        _send(fmtPlv(playerId, level), guiFd);
+    }
+
+    void GUIProtocol::emitPlayerInventory(int playerId, int x, int y, const Inventory &inv, int guiFd)
+    {
+        _send(fmtPin(playerId, x, y, inv), guiFd);
+    }
+
+    void GUIProtocol::emitTimeUnit(int frequency, int guiFd)
+    {
+        _send(fmtSgt(frequency), guiFd);
     }
 } // namespace Zappy
