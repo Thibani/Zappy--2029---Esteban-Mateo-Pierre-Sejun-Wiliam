@@ -14,12 +14,13 @@
 
 namespace Zappy {
 
-    // Forward declaration — Game is Sejun's, we only hold a reference
+    // Forward declarations — implemented by person 2 and person 3
     class Game;
+    class GUIProtocol;
 
     class CommandHandler {
     public:
-        explicit CommandHandler(Game &game);
+        CommandHandler(Game &game, GUIProtocol &guiProtocol);
         ~CommandHandler() = default;
 
         // Non-copyable
@@ -55,7 +56,8 @@ namespace Zappy {
         using Handler = std::function<void(Client &, const std::string &)>;
         std::unordered_map<std::string, Handler> _aiHandlers;
 
-        Game &_game;
+        Game        &_game;
+        GUIProtocol &_guiProtocol;
     };
 
 } // namespace Zappy

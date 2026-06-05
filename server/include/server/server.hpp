@@ -18,12 +18,13 @@
 
 namespace Zappy {
 
-    // Forward declaration — Game is sejun's
+    // Forward declarations — implemented by person 2 and person 3
     class Game;
+    class GUIProtocol;
 
     class Server {
     public:
-        Server(const Args &args, Game &game);
+        Server(const Args &args, Game &game, GUIProtocol &guiProtocol);
         ~Server();
 
         // Non-copyable
@@ -31,6 +32,12 @@ namespace Zappy {
         Server &operator=(const Server &) = delete;
 
         void run();
+
+        // -- GUI protocol interface (person 3) --
+        // Sends a line to every connected GUI client
+        void broadcastToGuis(const std::string &line);
+        // Sends a line to one specific client by fd (targeted GUI response)
+        void sendToClient(int fd, const std::string &line);
 
     private:
         // Initialisation

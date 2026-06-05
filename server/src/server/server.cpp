@@ -25,8 +25,8 @@ namespace Zappy {
     // Ctor / Dtor
     // -------------------------------------------------------------------------
 
-    Server::Server(const Args &args, Game &game)
-        : _args(args), _serverFd(-1), _cmdHandler(game)
+    Server::Server(const Args &args, Game &game, GUIProtocol &guiProtocol)
+        : _args(args), _serverFd(-1), _cmdHandler(game, guiProtocol)
     {
         _initSocket();
     }
@@ -302,7 +302,6 @@ namespace Zappy {
 } // namespace Zappy
 
 // These are stubs — will be fully implemented once CommandHandler and Game are in place
-// Sejun's work
 
 namespace Zappy {
 
@@ -311,7 +310,6 @@ namespace Zappy {
         // TODO: iterate over clients, find the nearest pending action deadline,
         // return Clock::msUntil(nearest) cast to int.
         // For now return -1 (block forever) until Game/CommandHandler exist.
-        
         return -1;
     }
 
@@ -320,6 +318,31 @@ namespace Zappy {
         // TODO: iterate over clients, check if their current action deadline
         // has passed via Clock::hasPassed(), and if so dispatch the result
         // to CommandHandler / Game.
+    }
+
+}
+
+namespace Zappy {
+
+    void Server::broadcastToGuis(const std::string &line)
+    {
+        for (auto &[fd, client] : _clients) {
+            if (client.getType() == ClientType::GUI) {
+                client.pushToWriteBuffer(line);
+                _setPollOut(fd, true);
+            }
+        }
+    }
+
+    void Server::sendToClient(int fd, const std::string &line)
+    {
+        auto it = _clients.find(fd);
+        if (it == _clients.end()) {
+            std::cerr << "[Server] sendToClient: fd=" << fd << " not found\n";
+            return;
+        }
+        it->second.pushToWriteBuffer(line);
+        _setPollOut(fd, true);
     }
 
 }

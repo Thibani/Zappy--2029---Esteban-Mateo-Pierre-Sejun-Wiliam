@@ -2,7 +2,7 @@
 
 ## Overview
 
-The server is a single-process, single-thread TCP server written in C++20.  
+The server is a single-process, single-thread TCP server written in C++20.
 It uses `poll()` for socket multiplexing and manages all game state for the Zappy world.
 
 ## Build
@@ -54,7 +54,7 @@ server/
 │   ├── server/
 │   │   ├── Server.hpp            # poll() loop, socket management
 │   │   ├── Client.hpp            # Per-client state, buffers, command queue
-│   │   └── CommandHandler.hpp    # Command parsing and dispatch
+│   │   └── CommandHandler.hpp    # AI command parsing and dispatch
 │   └── utils/
 │       ├── Args.hpp              # CLI argument parsing
 │       └── Clock.hpp             # Monotonic time, action deadlines
@@ -75,7 +75,7 @@ server/
 
 ### Time units
 
-Every action takes `action_cost / f` seconds.  
+Every action takes `action_cost / f` seconds.
 Use `Clock::deadline(actionCost, freq)` to compute when an action completes, and `Clock::hasPassed(tp)` to check it.
 
 ```cpp
@@ -88,8 +88,8 @@ if (Clock::hasPassed(doneAt))
 
 ### Command queue
 
-Each client can have up to **10 pending commands** buffered.  
-Commands beyond 10 are dropped with a warning log.  
+Each client can have up to **10 pending commands** buffered.
+Commands beyond 10 are dropped with a warning log.
 Commands are newline-terminated (`\n` or `\r\n`).
 
 ### Client authentication
@@ -106,15 +106,47 @@ Unauthenticated clients cannot send game commands.
 
 | Person | Files owned |
 |--------|-------------|
-| **1(Esteban)** | `Server`, `Client`, `CommandHandler`, `Args`, `Clock` |
-| **2(Sejun)** | `Game`, `Map`, `Player`, `Team`, `Egg` |
-| **3(William)** | GUI protocol handlers inside `CommandHandler` |
-| **4(Mateo)** | `gui/` entirely |
-| **5(Pierre)** | `ai/` entirely |
+| **1 Esteban (server core)** | `Server`, `Client`, `CommandHandler`, `Args`, `Clock` |
+| **2 Sejun (game logic)**  | `Game`, `Map`, `Player`, `Team`, `Egg` |
+| **3 William (GUI protocol)**| `GUIProtocol`, `IGameEventListener` |
+| **4 Mateo (GUI render)**  | `gui/` entirely |
+| **5 Pierre (AI client)**   | `ai/` entirely |
 
 ---
 
-## Wiring in Game (person 2 handoff)
+## Cross-boundary interfaces
+
+### Person 1 → Person 3 (GUI protocol)
+
+`Server` exposes two public methods for person 3 to push lines to GUI clients:
+
+```cpp
+// Send a line to ALL connected GUI clients (broadcasts: player move, death, etc.)
+server.broadcastToGuis("ppo 1 3 4 2\n");
+
+// Send a line to ONE specific GUI client by fd (targeted responses: msz, sgt, etc.)
+server.sendToClient(fd, "msz 10 10\n");
+```
+
+`_clients` stays private — person 3 never touches the socket layer directly.
+
+### Person 2 → Person 3 (game events)
+
+Person 3 defines `IGameEventListener` — an abstract interface with one method per game event.
+Person 2 (Sejun) calls these methods whenever game state mutates:
+
+```cpp
+// In Game, when a player moves:
+_listener->onPlayerMoved(playerId, x, y, orientation);
+
+// When a resource spawns:
+_listener->onTileChanged(x, y, tileContents);
+```
+
+Person 3's `GUIProtocol` class inherits `IGameEventListener`, formats the correct protocol
+message, and pushes it via `server.broadcastToGuis()` or `server.sendToClient()`.
+
+### Person 1 → Person 2 (game wiring)
 
 When `Game` is ready, in `main.cpp`:
 
@@ -129,7 +161,8 @@ namespace Zappy { class Game {}; }
 
 2. In `CommandHandler.cpp`, replace all `// TODO: Game::xxx` stubs with real calls.
 
-3. In `Server.cpp`, implement `_nearestDeadlineMs()` and `_processPendingActions()` using `Game`'s action deadline tracking.
+3. In `Server.cpp`, implement `_nearestDeadlineMs()` and `_processPendingActions()`
+   using `Game`'s action deadline tracking.
 
 ---
 
@@ -153,5 +186,7 @@ team1           # authenticate as AI
 # 10 10
 Forward         # send a command
 # ok
-GRAPHIC         # (in a second terminal) authenticate as GUI
+# (in a second terminal)
+nc localhost 4242
+GRAPHIC         # authenticate as GUI
 ```
