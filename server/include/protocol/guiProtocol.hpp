@@ -105,6 +105,17 @@ namespace Zappy {
             {
                 return "tna " + name + "\n";
             }
+
+            static inline std::string fmtPnw(int playerId, int x, int y, Orientation o, int level, const std::string &team)
+            {
+                std::ostringstream os;
+                os << "pnw " << playerId << " " << x << " " << y
+                   << " " << static_cast<int>(o)
+                   << " " << level
+                   << " " << team
+                   << "\n";
+                return os.str();
+            }
         private:
 
     };
