@@ -92,4 +92,9 @@ namespace Zappy {
     {
         _send(fmtTna(name), -1);
     }
+
+    void GUIProtocol::onTileChanged(int x, int y, const Inventory &contents)
+    {
+        _send(fmtBct(x, y, contents), -1);
+    }
 } // namespace Zappy
