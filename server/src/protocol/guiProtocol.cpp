@@ -127,4 +127,18 @@ namespace Zappy {
     {
         _send(fmtPdi(playerId), -1);
     }
+
+    void GUIProtocol::onPlayerTookResource(int playerId, Resource resource, int x, int y, const Inventory &newTileContents, const Inventory &newPlayerInventory)
+    {
+        _send(fmtPgt(playerId, resource), -1);
+        _send(fmtBct(x, y, newTileContents), -1);
+        _send(fmtPin(playerId, x, y, newPlayerInventory), -1);
+    }
+
+    void GUIProtocol::onPlayerDroppedResource(int playerId, Resource resource, int x, int y, const Inventory &newTileContents, const Inventory &newPlayerInventory)
+    {
+        _send(fmtPdr(playerId, resource), -1);
+        _send(fmtBct(x, y, newTileContents), -1);
+        _send(fmtPin(playerId, x, y, newPlayerInventory), -1);
+    }
 } // namespace Zappy
