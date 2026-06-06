@@ -210,7 +210,7 @@ namespace Zappy {
             static inline std::string fmtEnw(int eggId, int parentId, int x, int y)
             {
                 std::ostringstream os;
-                os << "enw #" << eggId << ' ' << parentId << ' ' << x << ' ' << y << '\n';
+                os << "enw #" << eggId << " #" << parentId << ' ' << x << ' ' << y << '\n';
                 return os.str();
             }
 
