@@ -177,4 +177,13 @@ namespace Zappy {
         _send(fmtSst(newfrequency), -1);
     }
 
+    void GUIProtocol::onGameEnded(const std::string &winnerTeam)
+    {
+        _send(fmtSeg(winnerTeam), -1);
+    }
+
+    void GUIProtocol::onServerMessage(const std::string &message)
+    {
+        _send(fmtSmg(message), -1);
+    }
 } // namespace Zappy
