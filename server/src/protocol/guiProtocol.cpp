@@ -66,4 +66,17 @@ namespace Zappy {
     {
         _send(fmtSgt(frequency), guiFd);
     }
+
+    // ---------------------------------------------------------------------
+    // Error responses
+    // ---------------------------------------------------------------------
+    void GUIProtocol::emitUnknownCommand(int guiFd)
+    {
+        _send("suc\n", guiFd);
+    }
+
+    void GUIProtocol::emitBadParameters(int guiFd)
+    {
+        _send("sbp\n", guiFd);
+    }
 } // namespace Zappy
