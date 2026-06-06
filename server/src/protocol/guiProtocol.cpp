@@ -97,4 +97,9 @@ namespace Zappy {
     {
         _send(fmtBct(x, y, contents), -1);
     }
+
+    void GUIProtocol::onPlayerConnected(int playerId, int x, int y, Orientation orientation, int level, const std::string &teamName)
+    {
+        _send(fmtPnw(playerId, x, y, orientation, level, teamName), -1);
+    }
 } // namespace Zappy
