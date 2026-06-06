@@ -5,6 +5,7 @@
 ** CommandHandler.cpp
 */
 #include "server/commandHandler.hpp"
+#include "protocol/guiProtocol.hpp"
 #include "exceptions/serverException.hpp"
 
 #include <iostream>
@@ -94,7 +95,7 @@ namespace Zappy {
             client.setAuthenticated(true);
             std::cout << "[CommandHandler] fd=" << client.getFd()
                       << " authenticated as GUI\n";
-            // TODO: send msz, sgt, mct, etc. (GUI protocol handshake — person 3)
+            _guiProtocol.sendInitialState(client.getFd());
             return;
         }
 
