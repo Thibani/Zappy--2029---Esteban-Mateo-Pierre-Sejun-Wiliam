@@ -141,4 +141,29 @@ namespace Zappy {
         _send(fmtBct(x, y, newTileContents), -1);
         _send(fmtPin(playerId, x, y, newPlayerInventory), -1);
     }
+
+    void GUIProtocol::onIncantationStarted(int x, int y, int level, const std::vector<int> &playerIds)
+    {
+        _send(fmtPic(x, y, level, playerIds), -1);
+    }
+
+    void GUIProtocol::onIncantationEnded(int x, int y, bool success, const std::vector<int> &playerIds, int newLevel, const Inventory &newTileContents)
+    {
+        _send(fmtPie(x, y, success), -1);
+        if (success) {
+            _send(fmtBct(x, y, newTileContents), -1);
+            for (int id : playerIds)
+                _send(fmtPlv(id, newLevel), -1);
+        }
+    }
+
+    void GUIProtocol::onEggLaid(int eggId, int parentPlayerId, int x, int y)
+    {
+        _send(fmtEnw(eggId, parentPlayerId, x, y), -1);
+    }
+
+    void GUIProtocol::onEggHatched(int eggId)
+    {
+        _send(fmtEbo(eggId), -1);
+    }
 } // namespace Zappy
