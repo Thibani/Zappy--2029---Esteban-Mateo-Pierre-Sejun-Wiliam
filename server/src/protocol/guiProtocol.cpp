@@ -88,4 +88,8 @@ namespace Zappy {
         _send(fmtMsz(width, height), -1);
     }
 
+    void GUIProtocol::onTeamRegistered(const std::string &name)
+    {
+        _send(fmtTna(name), -1);
+    }
 } // namespace Zappy
