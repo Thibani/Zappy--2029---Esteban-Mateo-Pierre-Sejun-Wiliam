@@ -166,4 +166,15 @@ namespace Zappy {
     {
         _send(fmtEbo(eggId), -1);
     }
+
+    void GUIProtocol::onEggDied(int eggId)
+    {
+        _send(fmtEdi(eggId), -1);
+    }
+
+    void GUIProtocol::onTimeUnitChanged(int newfrequency)
+    {
+        _send(fmtSst(newfrequency), -1);
+    }
+
 } // namespace Zappy
