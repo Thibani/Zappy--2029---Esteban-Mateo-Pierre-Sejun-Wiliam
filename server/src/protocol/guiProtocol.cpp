@@ -107,4 +107,24 @@ namespace Zappy {
     {
         _send(fmtPpo(playerId, x, y, orientation), -1);
     }
+
+    void GUIProtocol::onPlayerExpelled(int playerId)
+    {
+        _send(fmtPex(playerId), -1);
+    }
+
+    void GUIProtocol::onPlayerBroadcast(int playerId, const std::string &message)
+    {
+        _send(fmtPbc(playerId, message), -1);
+    }
+
+    void GUIProtocol::onPlayerForked(int playerId)
+    {
+        _send(fmtPfk(playerId), -1);
+    }
+
+    void GUIProtocol::onPlayerDied(int playerId)
+    {
+        _send(fmtPdi(playerId), -1);
+    }
 } // namespace Zappy
