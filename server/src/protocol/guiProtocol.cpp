@@ -79,4 +79,13 @@ namespace Zappy {
     {
         _send("sbp\n", guiFd);
     }
+
+    // ---------------------------------------------------------------------
+    // IGameEventListener — pushed events broadcast to all GUIs
+    // ---------------------------------------------------------------------
+    void GUIProtocol::onMapSize(int width, int height)
+    {
+        _send(fmtMsz(width, height), -1);
+    }
+
 } // namespace Zappy
