@@ -102,4 +102,9 @@ namespace Zappy {
     {
         _send(fmtPnw(playerId, x, y, orientation, level, teamName), -1);
     }
+
+    void GUIProtocol::onPlayerMoved(int playerId, int x, int y, Orientation orientation)
+    {
+        _send(fmtPpo(playerId, x, y, orientation), -1);
+    }
 } // namespace Zappy
