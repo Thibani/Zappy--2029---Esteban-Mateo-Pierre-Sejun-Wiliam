@@ -66,4 +66,4 @@ namespace Zappy {
 
             GUIProtocol &_guiProtocol;
     };
-}
+} // namespace Zappy
