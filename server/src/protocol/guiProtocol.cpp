@@ -30,6 +30,27 @@ namespace Zappy {
     }
 
     // ---------------------------------------------------------------------
+    // Initial state dump (called when a GUI authenticates with "GRAPHIC")
+    // ---------------------------------------------------------------------
+    void GUIProtocol::sendInitialState(int guidFd)
+    {
+        // TODO: replace with a full world dump once Game exposes:
+        //   - _game.width(), _game.height(), _game.frequency()
+        //   - _game.teams(), _game.tiles(), _game.eggs(), _game.players()
+        // Order per protocol:
+        //   1. msz X Y
+        //   2. sgt T
+        //   3. tna N (per team)
+        //   4. bct X Y q0..q6 (per tile — reply to mct)
+        //   5. enw #e #n X Y (per existing egg)
+        //   6. pnw #n X Y O L N + pin + plv (per existing player)
+        //
+        emitMapSize(10, 10, guidFd);
+        emitTimeUnit(100, guidFd);
+    }
+
+
+    // ---------------------------------------------------------------------
     // Direct emitters — for GuiCommandHandler responses or initial state
     // ---------------------------------------------------------------------
     void GUIProtocol::emitMapSize(int width, int height, int guiFd)
