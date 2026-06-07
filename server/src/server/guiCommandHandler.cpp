@@ -40,4 +40,17 @@ namespace Zappy {
         _handlers["sst"] = [this](Client &c, const std::string &a) { _handleSst(c, a); };
     }
 
+    // ----------------------------------------------------------------------
+    // Public — entry point
+    // ----------------------------------------------------------------------
+    void GUICommandHandler::handle(Client &client, const std::string &cmd, const std::string &args)
+    {
+        auto it = _handlers.find(cmd);
+        if (it == _handlers.end()) {
+            _guiProtocol.emitUnknownCommand(client.getFd());
+            return;
+        }
+        it->second(client, args);
+    }
+
 } // namespace Zappy
