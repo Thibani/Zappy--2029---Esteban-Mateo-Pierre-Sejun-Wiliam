@@ -53,4 +53,16 @@ namespace Zappy {
         it->second(client, args);
     }
 
+    // ----------------------------------------------------------------------
+    // Per-command handlers
+    // ----------------------------------------------------------------------
+    void GUICommandHandler::_handleMsz(Client &client, const std::string &args)
+    {
+        if (!args.empty()) {
+            _guiProtocol.emitBadParameters(client.getFd());
+            return;
+        }
+        _guiProtocol.emitMapSize(kPlaceholderMapWidth, kPlaceholderMapHeight, client.getFd());
+    }
+
 } // namespace Zappy
