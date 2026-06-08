@@ -6,5 +6,5 @@
 
 class Renderer {
 public:
-    static void drawMap(const Map& map, const Character::CharacterFactory& factory, PlayerView camera);
+    static void drawMap(const Map& map, const Character::CharacterFactory& factory, PlayerView camera, Texture2D charTexture);
 };
