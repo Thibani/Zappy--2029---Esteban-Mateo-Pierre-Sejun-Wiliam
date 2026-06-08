@@ -56,6 +56,8 @@ namespace Zappy {
     // ----------------------------------------------------------------------
     // Per-command handlers
     // ----------------------------------------------------------------------
+
+    // "msz" → "msz W H\n"
     void GUICommandHandler::_handleMsz(Client &client, const std::string &args)
     {
         if (!args.empty()) {
@@ -65,9 +67,22 @@ namespace Zappy {
         _guiProtocol.emitMapSize(kPlaceholderMapWidth, kPlaceholderMapHeight, client.getFd());
     }
 
+    // "bct X Y" → "bct X Y q0..q6\n"
     void GUICommandHandler::_handleBct(Client &client, const std::string &args)
     {
-
+        std::vector<int> nums;
+        if (!parseInts(args, nums, 2)) {
+            _guiProtocol.emitBadParameters(client.getFd());
+            return;
+        }
+        const int x = nums[0];
+        const int y = nums[1];
+        if (x < 0 || x >= kPlaceholderMapWidth || y < 0 || y >= kPlaceholderMapHeight) {
+            _guiProtocol.emitBadParameters(client.getFd());
+            return;
+        }
+        Inventory emptyTile; // TODO
+        _guiProtocol.emitTileContent(x, y, emptyTile, client.getFd());
     }
 
     void GUICommandHandler::_handleMct(Client &client, const std::string &args)
