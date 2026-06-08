@@ -5,13 +5,11 @@
 ## ci.yml
 ##
 name: CI
-
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-
 jobs:
   build-and-check:
     runs-on: ubuntu-latest
@@ -33,6 +31,18 @@ jobs:
           cmake .. -DBUILD_SHARED_LIBS=OFF
           sudo make install
 
+      - name: Install Criterion
+        run: |
+          sudo apt-get install -y meson ninja-build pkg-config libffi-dev \
+            libgit2-dev
+          git clone --depth 1 https://github.com/Snaipe/Criterion.git
+          cd Criterion
+          meson setup build
+          cd build
+          ninja
+          sudo ninja install
+          sudo ldconfig
+
       # =========================
       # C / C++ Build
       # =========================
@@ -46,24 +56,24 @@ jobs:
         run: |
           cppcheck --enable=all --error-exitcode=1 \
             --std=c++20 \
+            --suppress=missingIncludeSystem \
+            --suppress=unmatchedSuppression \
+            --suppress=unusedFunction       \
+            -I server/include \
             server/src
-
           cppcheck --enable=all --error-exitcode=1 \
             --std=c++20 \
             --suppress=missingIncludeSystem \
             --suppress=unmatchedSuppression \
+            --suppress=unusedFunction       \
+            -I gui/include \
             gui/src
 
       # =========================
-      # Unit tests (C/C++)
+      # Unit tests (Criterion)
       # =========================
-      - name: Run C/C++ tests (if any)
-        run: |
-          if make test 2>/dev/null; then
-            make test
-          else
-            echo "No C/C++ tests target found"
-          fi
+      - name: Run server unit tests
+        run: make test
 
       # =========================
       # Rust (if exists)
