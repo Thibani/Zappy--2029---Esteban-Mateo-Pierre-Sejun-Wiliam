@@ -39,6 +39,11 @@ namespace Zappy {
         public:
             explicit GUIProtocol(Server &server);
 
+            // Sends the full world state to a newly-connected GUI.
+            // Per protocol v3.3, order is: msz, sgt, tna (per team),
+            // bct (per tile), enw (per egg), pnw+pin+plv (per player).
+            void sendInitialState(int guiFd);
+
             // ── Direct emitters (query responses / initial-state dump) ──────
             // Pass guiFd >= 0 to target one client, or guiFd = -1 to broadcast.
             void emitMapSize(int width, int height, int guiFd = -1);

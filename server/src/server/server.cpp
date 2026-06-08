@@ -25,8 +25,8 @@ namespace Zappy {
     // Ctor / Dtor
     // -------------------------------------------------------------------------
 
-    Server::Server(const Args &args, Game &game, GUIProtocol &guiProtocol)
-        : _args(args), _serverFd(-1), _cmdHandler(game, guiProtocol)
+    Server::Server(const Args &args, Game &game)
+        : _args(args), _serverFd(-1), _guiProtocol(*this), _cmdHandler(game, _guiProtocol)
     {
         _initSocket();
     }

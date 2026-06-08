@@ -10,6 +10,7 @@
 #include "utils/clock.hpp"
 #include "server/client.hpp"
 #include "server/commandHandler.hpp"
+#include "protocol/guiProtocol.hpp"
 #include "exceptions/serverException.hpp"
 
 #include <unordered_map>
@@ -20,11 +21,10 @@ namespace Zappy {
 
     // Forward declarations — implemented by person 2 and person 3
     class Game;
-    class GUIProtocol;
 
     class Server {
     public:
-        Server(const Args &args, Game &game, GUIProtocol &guiProtocol);
+        Server(const Args &args, Game &game);
         ~Server();
 
         // Non-copyable
@@ -62,6 +62,7 @@ namespace Zappy {
         int                              _serverFd;
         std::unordered_map<int, Client>  _clients;
         std::vector<struct pollfd>       _pollfds;
+        GUIProtocol                      _guiProtocol;
         CommandHandler                   _cmdHandler;
     };
 
