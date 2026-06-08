@@ -102,7 +102,40 @@ namespace Zappy {
 
     void GUICommandHandler::_handleSst(Client &client, const std::string &args)
     {
-        
+
+    }
+
+    bool GUICommandHandler::parseInts(const std::string &args, std::vector<int> &out, std::size_t expected)
+    {
+        out.clear();
+        std::istringstream iss(args);
+        int n = 0;
+        while (iss >> n)
+            out.push_back(n);
+        if (!iss.eof()) {
+            iss.clear();
+            std::string leftover;
+            iss >> leftover;
+            if (!leftover.empty())
+                return false;
+        }
+        return out.size() == expected;
+    }
+
+    bool GUICommandHandler::parsePlayerId(const std::string &arg, int &out)
+    {
+        if (arg.size() < 2 || arg[0] != '#')
+            return false;
+        for (size_t i = 1; i < arg.size(); i++) {
+            if (!std::isdigit(static_cast<unsigned char>(arg[i])))
+                return false;
+        }
+        try {
+            out = std::stoi(arg.substr(1));
+        } catch (const std::exception &) {
+            return false;
+        }
+        return out >= 0;
     }
 
 } // namespace Zappy
