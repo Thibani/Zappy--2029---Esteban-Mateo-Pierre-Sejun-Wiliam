@@ -65,4 +65,44 @@ namespace Zappy {
         _guiProtocol.emitMapSize(kPlaceholderMapWidth, kPlaceholderMapHeight, client.getFd());
     }
 
+    void GUICommandHandler::_handleBct(Client &client, const std::string &args)
+    {
+
+    }
+
+    void GUICommandHandler::_handleMct(Client &client, const std::string &args)
+    {
+
+    }
+
+    void GUICommandHandler::_handleTna(Client &client, const std::string &args)
+    {
+
+    }
+
+    void GUICommandHandler::_handlePpo(Client &client, const std::string &args)
+    {
+
+    }
+
+    void GUICommandHandler::_handlePlv(Client &client, const std::string &args)
+    {
+
+    }
+
+    void GUICommandHandler::_handlePin(Client &client, const std::string &args)
+    {
+
+    }
+
+    void GUICommandHandler::_handleSgt(Client &client, const std::string &args)
+    {
+
+    }
+
+    void GUICommandHandler::_handleSst(Client &client, const std::string &args)
+    {
+        
+    }
+
 } // namespace Zappy
