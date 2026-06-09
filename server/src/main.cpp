@@ -14,10 +14,6 @@
 // TODO: remove these stubs once sejun (Game) and wiliam (GUIProtocol) are ready
 namespace Zappy {
     class Game {};
-    class GUIProtocol {
-    public:
-        void dispatch(class Client &, const std::string &, const std::string &) {}
-    };
 }
 
 static volatile bool g_running = true;
@@ -45,8 +41,7 @@ int main(int argc, char **argv)
 
     try {
         Zappy::Game        game;
-        Zappy::GUIProtocol guiProtocol;
-        Zappy::Server      server(args, game, guiProtocol);
+        Zappy::Server server(args, game);
         server.run();
     } catch (const Zappy::ServerException &e) {
         std::cerr << e.what() << "\n";
