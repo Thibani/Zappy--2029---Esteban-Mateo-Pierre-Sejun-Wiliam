@@ -14,13 +14,13 @@ struct Window {
 // RAII wrapper for Raylib texture
 struct ManagedTexture {
     Texture2D texture;
-    ManagedTexture(const char* path) { texture = LoadTexture(path); }
+    explicit ManagedTexture(const char* path) : texture(LoadTexture(path)) {}
     ~ManagedTexture() { UnloadTexture(texture); }
     ManagedTexture(const ManagedTexture&) = delete;
     ManagedTexture& operator=(const ManagedTexture&) = delete;
 };
 
-void gameLoop(Character::CharacterFactory& factory, Map& map, PlayerView& camera, Renderer& renderer, Texture2D charTexture)
+void gameLoop(const Character::CharacterFactory& factory, const Map& map, PlayerView& camera, Renderer& renderer, Texture2D charTexture)
 {
     while (!WindowShouldClose()) {
         float dt = GetFrameTime();
