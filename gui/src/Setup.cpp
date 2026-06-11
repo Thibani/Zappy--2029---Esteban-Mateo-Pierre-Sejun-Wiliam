@@ -6,7 +6,7 @@
 #include "Renderer/Renderer.hpp"
 #include "Constants.hpp"
 
-static void gameLoop(CharacterFactory& factory, const Map& map, PlayerView& camera, Renderer& renderer) {
+static void gameLoop(const CharacterFactory& factory, const Map& map, PlayerView& camera, Renderer& renderer) {
     while (!WindowShouldClose()) {
         float dt = GetFrameTime();
         camera.handleInput(dt);
