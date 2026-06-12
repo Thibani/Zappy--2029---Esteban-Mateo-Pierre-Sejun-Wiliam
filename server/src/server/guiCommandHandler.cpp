@@ -111,9 +111,17 @@ namespace Zappy {
         _guiProtocol.emitTeamName("Team 1", client.getFd());
     }
 
+    // "ppo #n" → sbp (no players exist yet)
     void GUICommandHandler::_handlePpo(Client &client, const std::string &args)
     {
-
+        int playerId = 0;
+        if (!parsePlayerId(args, playerId)) {
+            _guiProtocol.emitBadParameters(client.getFd());
+            return;
+        }
+         // TODO: lookup player by id in Game (Sejun). Until then any id
+        // is invalid because no players exist.
+        _guiProtocol.emitBadParameters(client.getFd());
     }
 
     void GUICommandHandler::_handlePlv(Client &client, const std::string &args)
