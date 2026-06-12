@@ -136,14 +136,21 @@ namespace Zappy {
         _guiProtocol.emitBadParameters(client.getFd());
     }
 
+    // "pin #n" → sbp (no players exist yet)
     void GUICommandHandler::_handlePin(Client &client, const std::string &args)
     {
-
+        int playerId = 0;
+        if (!parsePlayerId(args, playerId)) {
+            _guiProtocol.emitBadParameters(client.getFd());
+            return;
+        }
+        // TODO: lookup player by id in Game (Sejun).
+        _guiProtocol.emitBadParameters(client.getFd());
     }
 
     void GUICommandHandler::_handleSgt(Client &client, const std::string &args)
     {
-
+        
     }
 
     void GUICommandHandler::_handleSst(Client &client, const std::string &args)
