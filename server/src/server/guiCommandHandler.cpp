@@ -87,7 +87,15 @@ namespace Zappy {
 
     void GUICommandHandler::_handleMct(Client &client, const std::string &args)
     {
-
+        if (!args.empty()) {
+            _guiProtocol.emitBadParameters(client.getFd());
+            return;
+        }
+        Inventory emptyTile; // TODO
+        for (int y = 0; y < kPlaceholderMapHeight; y++) {
+            for (int x = 0; x < kPlaceholderMapWidth; x++) 
+                _guiProtocol.emitTileContent(x, y, emptyTile, client.getFd());
+        }
     }
 
     void GUICommandHandler::_handleTna(Client &client, const std::string &args)
