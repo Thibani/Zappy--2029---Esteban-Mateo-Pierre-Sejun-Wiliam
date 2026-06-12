@@ -158,9 +158,19 @@ namespace Zappy {
         _guiProtocol.emitTimeUnit(kPlaceholderFrequency, client.getFd());
     }
 
+    // "sst T" → broadcast "sst T\n" to all GUIs (per spec) + apply
     void GUICommandHandler::_handleSst(Client &client, const std::string &args)
     {
-
+        std::vector<int> nums;
+        if (!parseInts(args, nums, 1) || nums[0] < 0) {
+            _guiProtocol.emitBadParameters(client.getFd());
+            return;
+        }
+        const int newFrequency = nums[0];
+        // TODO: update Clock::frequency once Game owns it (Sejun).
+        // The protocol-level effect (broadcast sst T) is what GUIs care
+        // about — onTimeUnitChanged sends sst to ALL connected GUIs.
+        _guiProtocol.onTimeUnitChanged(newFrequency);
     }
 
     bool GUICommandHandler::parseInts(const std::string &args, std::vector<int> &out, std::size_t expected)
