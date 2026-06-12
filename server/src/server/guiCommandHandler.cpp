@@ -148,9 +148,14 @@ namespace Zappy {
         _guiProtocol.emitBadParameters(client.getFd());
     }
 
+    // "sgt" → "sgt T\n"
     void GUICommandHandler::_handleSgt(Client &client, const std::string &args)
     {
-        
+        if (!args.empty()) {
+            _guiProtocol.emitBadParameters(client.getFd());
+            return;
+        }
+        _guiProtocol.emitTimeUnit(kPlaceholderFrequency, client.getFd());
     }
 
     void GUICommandHandler::_handleSst(Client &client, const std::string &args)
