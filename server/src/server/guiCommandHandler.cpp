@@ -85,6 +85,7 @@ namespace Zappy {
         _guiProtocol.emitTileContent(x, y, emptyTile, client.getFd());
     }
 
+    // "mct" → 100 lines of "bct X Y 0 0 0 0 0 0 0\n"
     void GUICommandHandler::_handleMct(Client &client, const std::string &args)
     {
         if (!args.empty()) {
@@ -98,9 +99,16 @@ namespace Zappy {
         }
     }
 
+    // "tna" → "tna NAME\n" per team
     void GUICommandHandler::_handleTna(Client &client, const std::string &args)
     {
-
+        if (!args.empty()) {
+            _guiProtocol.emitBadParameters(client.getFd());
+            return;
+        }
+        // TODO: iterate over Game::teams() once Sejun's PR lands.
+        // For now emit a single placeholder team name to keep clients happy.
+        _guiProtocol.emitTeamName("Team 1", client.getFd());
     }
 
     void GUICommandHandler::_handlePpo(Client &client, const std::string &args)
