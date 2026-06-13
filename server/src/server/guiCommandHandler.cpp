@@ -58,7 +58,7 @@ namespace Zappy {
     // ----------------------------------------------------------------------
 
     // "msz" → "msz W H\n"
-    void GUICommandHandler::_handleMsz(Client &client, const std::string &args)
+    void GUICommandHandler::_handleMsz(const Client &client, const std::string &args)
     {
         if (!args.empty()) {
             _guiProtocol.emitBadParameters(client.getFd());
@@ -68,7 +68,7 @@ namespace Zappy {
     }
 
     // "bct X Y" → "bct X Y q0..q6\n"
-    void GUICommandHandler::_handleBct(Client &client, const std::string &args)
+    void GUICommandHandler::_handleBct(const Client &client, const std::string &args)
     {
         std::vector<int> nums;
         if (!parseInts(args, nums, 2)) {
@@ -86,7 +86,7 @@ namespace Zappy {
     }
 
     // "mct" → 100 lines of "bct X Y 0 0 0 0 0 0 0\n"
-    void GUICommandHandler::_handleMct(Client &client, const std::string &args)
+    void GUICommandHandler::_handleMct(const Client &client, const std::string &args)
     {
         if (!args.empty()) {
             _guiProtocol.emitBadParameters(client.getFd());
@@ -100,7 +100,7 @@ namespace Zappy {
     }
 
     // "tna" → "tna NAME\n" per team
-    void GUICommandHandler::_handleTna(Client &client, const std::string &args)
+    void GUICommandHandler::_handleTna(const Client &client, const std::string &args)
     {
         if (!args.empty()) {
             _guiProtocol.emitBadParameters(client.getFd());
@@ -112,7 +112,7 @@ namespace Zappy {
     }
 
     // "ppo #n" → sbp (no players exist yet)
-    void GUICommandHandler::_handlePpo(Client &client, const std::string &args)
+    void GUICommandHandler::_handlePpo(const Client &client, const std::string &args)
     {
         int playerId = 0;
         if (!parsePlayerId(args, playerId)) {
@@ -125,7 +125,7 @@ namespace Zappy {
     }
 
     // "plv #n" → sbp (no players exist yet)
-    void GUICommandHandler::_handlePlv(Client &client, const std::string &args)
+    void GUICommandHandler::_handlePlv(const Client &client, const std::string &args)
     {
         int playerId = 0;
         if (!parsePlayerId(args, playerId)) {
@@ -137,7 +137,7 @@ namespace Zappy {
     }
 
     // "pin #n" → sbp (no players exist yet)
-    void GUICommandHandler::_handlePin(Client &client, const std::string &args)
+    void GUICommandHandler::_handlePin(const Client &client, const std::string &args)
     {
         int playerId = 0;
         if (!parsePlayerId(args, playerId)) {
@@ -149,7 +149,7 @@ namespace Zappy {
     }
 
     // "sgt" → "sgt T\n"
-    void GUICommandHandler::_handleSgt(Client &client, const std::string &args)
+    void GUICommandHandler::_handleSgt(const Client &client, const std::string &args)
     {
         if (!args.empty()) {
             _guiProtocol.emitBadParameters(client.getFd());
@@ -159,7 +159,7 @@ namespace Zappy {
     }
 
     // "sst T" → broadcast "sst T\n" to all GUIs (per spec) + apply
-    void GUICommandHandler::_handleSst(Client &client, const std::string &args)
+    void GUICommandHandler::_handleSst(const Client &client, const std::string &args)
     {
         std::vector<int> nums;
         if (!parseInts(args, nums, 1) || nums[0] <= 0) {

@@ -50,15 +50,15 @@ namespace Zappy {
 
         private:
             // Per command parsers
-            void _handleMsz(Client &client, const std::string &args);
-            void _handleBct(Client &client, const std::string &args);
-            void _handleMct(Client &client, const std::string &args);
-            void _handleTna(Client &client, const std::string &args);
-            void _handlePpo(Client &client, const std::string &args);
-            void _handlePlv(Client &client, const std::string &args);
-            void _handlePin(Client &client, const std::string &args);
-            void _handleSgt(Client &client, const std::string &args);
-            void _handleSst(Client &client, const std::string &args);
+            void _handleMsz(const Client &client, const std::string &args);
+            void _handleBct(const Client &client, const std::string &args);
+            void _handleMct(const Client &client, const std::string &args);
+            void _handleTna(const Client &client, const std::string &args);
+            void _handlePpo(const Client &client, const std::string &args);
+            void _handlePlv(const Client &client, const std::string &args);
+            void _handlePin(const Client &client, const std::string &args);
+            void _handleSgt(const Client &client, const std::string &args);
+            void _handleSst(const Client &client, const std::string &args);
 
             // Dispatch table: lowercase command -> handler function
             using Handler = std::function<void(Client &, const std::string &)>;
