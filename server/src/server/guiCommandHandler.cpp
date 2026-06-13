@@ -29,15 +29,15 @@ namespace Zappy {
     GUICommandHandler::GUICommandHandler(GUIProtocol &guiProtocol)
         : _guiProtocol(guiProtocol)
     {
-        _handlers["msz"] = [this](Client &c, const std::string &a) { _handleMsz(c, a); };
-        _handlers["bct"] = [this](Client &c, const std::string &a) { _handleBct(c, a); };
-        _handlers["mct"] = [this](Client &c, const std::string &a) { _handleMct(c, a); };
-        _handlers["tna"] = [this](Client &c, const std::string &a) { _handleTna(c, a); };
-        _handlers["ppo"] = [this](Client &c, const std::string &a) { _handlePpo(c, a); };
-        _handlers["plv"] = [this](Client &c, const std::string &a) { _handlePlv(c, a); };
-        _handlers["pin"] = [this](Client &c, const std::string &a) { _handlePin(c, a); };
-        _handlers["sgt"] = [this](Client &c, const std::string &a) { _handleSgt(c, a); };
-        _handlers["sst"] = [this](Client &c, const std::string &a) { _handleSst(c, a); };
+        _handlers["msz"] = [this](const Client &c, const std::string &a) { _handleMsz(c, a); };
+        _handlers["bct"] = [this](const Client &c, const std::string &a) { _handleBct(c, a); };
+        _handlers["mct"] = [this](const Client &c, const std::string &a) { _handleMct(c, a); };
+        _handlers["tna"] = [this](const Client &c, const std::string &a) { _handleTna(c, a); };
+        _handlers["ppo"] = [this](const Client &c, const std::string &a) { _handlePpo(c, a); };
+        _handlers["plv"] = [this](const Client &c, const std::string &a) { _handlePlv(c, a); };
+        _handlers["pin"] = [this](const Client &c, const std::string &a) { _handlePin(c, a); };
+        _handlers["sgt"] = [this](const Client &c, const std::string &a) { _handleSgt(c, a); };
+        _handlers["sst"] = [this](const Client &c, const std::string &a) { _handleSst(c, a); };
     }
 
     // ----------------------------------------------------------------------

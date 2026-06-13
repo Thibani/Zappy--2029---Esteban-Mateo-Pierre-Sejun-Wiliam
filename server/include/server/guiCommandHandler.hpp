@@ -61,7 +61,7 @@ namespace Zappy {
             void _handleSst(const Client &client, const std::string &args);
 
             // Dispatch table: lowercase command -> handler function
-            using Handler = std::function<void(Client &, const std::string &)>;
+            using Handler = std::function<void(const Client &, const std::string &)>;
             std::unordered_map<std::string, Handler> _handlers;
 
             GUIProtocol &_guiProtocol;
