@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include "server/server.hpp"
+#include "server/client.hpp"
 
 #include <string>
 #include <unordered_map>
@@ -38,6 +38,16 @@ namespace Zappy {
             // args : everything after the command (e.g. "5 5")
             void handle(Client &client, const std::string &cmd, const std::string &args);
 
+            // ─── Pure parsing helpers (static, testable in isolation) ───
+            // Parses `args` as a whitespace-separated list of `expected` ints.
+            // Returns false on any failure (wrong count, non-integer, overflow).
+            static bool parseInts(const std::string &args, std::vector<int> &out, std::size_t expected);
+    
+            // Parses a "#n" argument into an integer player id.
+            // Returns false if `arg` doesn't start with '#' or isn't followed
+            // by a valid non-negative integer.
+            static bool parsePlayerId(const std::string &arg, int &out);
+
         private:
             // Per command parsers
             void _handleMsz(Client &client, const std::string &args);
@@ -49,16 +59,6 @@ namespace Zappy {
             void _handlePin(Client &client, const std::string &args);
             void _handleSgt(Client &client, const std::string &args);
             void _handleSst(Client &client, const std::string &args);
-
-            // ─── Pure parsing helpers (static, testable in isolation) ───
-            // Parses `args` as a whitespace-separated list of `expected` ints.
-            // Returns false on any failure (wrong count, non-integer, overflow).
-            static bool parseInts(const std::string &args, std::vector<int> &out, std::size_t expected);
-
-            // Parses a "#n" argument into an integer player id.
-            // Returns false if `arg` doesn't start with '#' or isn't followed
-            // by a valid non-negative integer.
-            static bool parsePlayerId(const std::string &arg, int &out);
 
             // Dispatch table: lowercase command -> handler function
             using Handler = std::function<void(Client &, const std::string &)>;

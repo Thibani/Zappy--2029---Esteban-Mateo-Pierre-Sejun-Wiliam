@@ -108,7 +108,7 @@ namespace Zappy {
         }
         // TODO: iterate over Game::teams() once Sejun's PR lands.
         // For now emit a single placeholder team name to keep clients happy.
-        _guiProtocol.emitTeamName("Team 1", client.getFd());
+        _guiProtocol.emitTeamName("team1", client.getFd());
     }
 
     // "ppo #n" → sbp (no players exist yet)
@@ -162,7 +162,7 @@ namespace Zappy {
     void GUICommandHandler::_handleSst(Client &client, const std::string &args)
     {
         std::vector<int> nums;
-        if (!parseInts(args, nums, 1) || nums[0] < 0) {
+        if (!parseInts(args, nums, 1) || nums[0] <= 0) {
             _guiProtocol.emitBadParameters(client.getFd());
             return;
         }
