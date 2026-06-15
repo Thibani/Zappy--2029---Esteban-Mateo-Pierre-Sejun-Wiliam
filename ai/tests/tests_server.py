@@ -31,7 +31,7 @@ def _log_server(msg: str) -> None:
         print(f"  {DIM}[MockServer]{RESET} {msg}", file=sys.stderr)
 
 
-# ─────────────────────────────────────────────────────────────────────
+# ============ #
 # Script types
 # ============ #
 
@@ -105,7 +105,7 @@ class MockServer:
     def start(self) -> None:
         self._server_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._server_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self._server_sock.bind(("127.0.0.1", 0))   # OS picks a free port
+        self._server_sock.bind(("127.0.0.1", 0)) # picks a free port
         self._server_sock.listen(1)
         self.port = self._server_sock.getsockname()[1]
         _log_server(f"Listening on port {self.port}")

@@ -1,3 +1,18 @@
+"""
+parser.py — Parse server responses into Python objects.
+
+Formats:
+  Look → [ item item item, item item, ... ]
+        Tiles separated by commas, items within a tile by spaces.
+        Tile 0 = current tile, then in the field of view.
+
+  Inventory → [ food N, linemate N, deraumere N, sibur N,
+    mendiane N, phiras N, thystame N ]
+
+  Broadcast → message K, text
+    K = 0 if same tile, 1-8 for direction
+"""
+
 import re
 from typing import Dict, List
 from constants import Resource, RESOURCE_NAMES

@@ -322,20 +322,20 @@ def test_follower_responds_to_call():
 
 if __name__ == "__main__":
     section("HANDSHAKE")
-    run_test("correct team name sent",           test_handshake)
+    run_test("correct team name sent", test_handshake)
 
     section("FORAGE MODE")
-    run_test("takes food on current tile",        test_forage_takes_food_on_current_tile)
+    run_test("takes food on current tile", test_forage_takes_food_on_current_tile)
 
     section("COLLECT MODE")
-    run_test("takes linemate on current tile",    test_collect_takes_linemate)
+    run_test("takes linemate on current tile", test_collect_takes_linemate)
 
     section("INCANTATION")
-    run_test("solo incantation lv1",              test_solo_incantation_level1)
+    run_test("solo incantation lv1", test_solo_incantation_level1)
 
     section("UNSOLICITED MESSAGES")
-    run_test("dead causes clean exit",            test_dead_causes_exit)
-    run_test("eject doesn't crash AI",            test_eject_does_not_crash)
+    run_test("dead causes clean exit", test_dead_causes_exit)
+    run_test("eject doesn't crash AI", test_eject_does_not_crash)
 
     section("COORDINATION")
     run_test("follower sends READY on same tile", test_follower_responds_to_call)

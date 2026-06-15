@@ -20,16 +20,12 @@ class Connection:
         self._port   = port
         self._team   = team
         self._sock:  Optional[socket.socket] = None
-        self._rbuf   = ""          # raw recv buffer (incomplete lines)
+        self._rbuf   = "" # raw recv buffer (incomplete lines)
 
         # Info received during handshake
-        self.client_num:  int = 0   # free slots in team
+        self.client_num:  int = 0
         self.world_width: int = 0
         self.world_height: int = 0
-
-    # ------------------------------------------------------------------
-    # Public
-    # ------------------------------------------------------------------
 
     def connect(self) -> None:
         """Connect and perform the handshake: WELCOME → team → slots + size."""
@@ -67,10 +63,6 @@ class Connection:
         if self._sock:
             self._sock.close()
             self._sock = None
-
-    # ------------------------------------------------------------------
-    # Private
-    # ------------------------------------------------------------------
 
     def _send_line(self, text: str) -> None:
         msg = text if text.endswith("\n") else text + "\n"
