@@ -27,11 +27,11 @@ class Map {
         Map(int height, int width);
         ~Map() = default;
         std::vector<std::vector<Case>> getCase();
-        // void setRessource();
+        void setRessource();
 
     private:
         std::vector<std::vector<Case>> _case;
         int _height;
         int _width;
-        float _densities[7] = {0.5, 0.3, 0.15, 0.1, 0.1, 0.08, 0.05}
+        float _densities[7] = {0.5, 0.3, 0.15, 0.1, 0.1, 0.08, 0.05};
 };

@@ -21,6 +21,7 @@ INC_DIR		=	include
 
 # Sources — adjust paths to match your actual file tree
 SRCS		=	$(SRC_DIR)/main.cpp					\
+				$(SRC_DIR)/GameLogic/Map.cpp		\
 # 				$(SRC_DIR)/server/Server.cpp			\
 # 				$(SRC_DIR)/server/Client.cpp			\
 # 				$(SRC_DIR)/server/CommandHandler.cpp	\

@@ -4,8 +4,9 @@
 ** File description:
 ** main.cpp
 */
+#include "GameLogic/Map.hpp"
 
-int main(void)
+int main()
 {
     return 0;
 }
