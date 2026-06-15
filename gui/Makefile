@@ -16,9 +16,11 @@ SRC_DIR		=	src
 OBJ_DIR		=	obj
 
 SRCS		=	$(SRC_DIR)/main.cpp					\
+				$(SRC_DIR)/Setup.cpp				\
 				$(SRC_DIR)/Camera/Camera.cpp		\
 				$(SRC_DIR)/Map/Map.cpp				\
-				$(SRC_DIR)/Renderer/Renderer.cpp
+				$(SRC_DIR)/Renderer/Renderer.cpp	\
+				$(SRC_DIR)/Character/CharacterFactory.cpp
 
 OBJS		=	$(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 
