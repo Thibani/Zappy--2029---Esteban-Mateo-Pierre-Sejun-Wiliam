@@ -7,9 +7,9 @@ Map::Map(int height, int width) : _case(height, std::vector<Case>(width))
     _width = width;
 }
 
-std::vector<std::vector<Case>> Map::getCase()
+Case& Map::getCase(int x, int y)
 {
-    return _case;
+    return _case[y][x];
 }
 
 void Map::setRessource()

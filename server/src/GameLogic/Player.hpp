@@ -1,5 +1,8 @@
+#pragma once
 #include <string>
 #include <vector>
+#include "Ressource.hpp"
+class Map;
 
 enum Direction {
     UP,
@@ -11,7 +14,7 @@ enum Direction {
 class Player {
 
     public:
-        Player() : _inventory(7){};
+        Player() : _level(1), _direction(UP), _positionX(0), _positionY(0), _foodLevel(10), _inventory(7){};
         ~Player() = default;
         int getLevel() { return _level; }
         Direction getDirection() { return _direction; }
@@ -20,6 +23,16 @@ class Player {
         int getFoodLevel() { return _foodLevel; }
         std::string getTeamName() { return _teamName; }
         std::vector<int> getInventory() { return _inventory; }
+
+        void setTeamName(std::string teamName) { _teamName = teamName; }
+
+        void turnLeft();
+        void turnRight();
+        void moveForward(int mapWidth, int mapHeight);
+        bool take(Map& map, Ressource ressource);
+        bool set(Map& map, Ressource ressource);
+        bool hungry();
+        bool eat();
 
     private:
         int _level;

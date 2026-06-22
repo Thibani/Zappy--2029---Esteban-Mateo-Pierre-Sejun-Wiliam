@@ -1,14 +1,6 @@
+#pragma once
+#include "Ressource.hpp"
 #include "Player.hpp"
-
-enum Ressource {
-    FOOD,
-    LINEMATE,
-    DERAUMERE,
-    SIBUR,
-    MENDIANE,
-    PHIRAS,
-    THYSTAME
-};
 
 struct Egg {
     std::string teamName;
@@ -26,8 +18,10 @@ class Map {
     public:
         Map(int height, int width);
         ~Map() = default;
-        std::vector<std::vector<Case>> getCase();
+        Case& getCase(int x, int y);
         void setRessource();
+        int getHeight() { return _height; }
+        int getWidth() { return _width; }
 
     private:
         std::vector<std::vector<Case>> _case;
