@@ -19,7 +19,7 @@ namespace Zappy {
     // -------------------------------------------------------------------------
 
     CommandHandler::CommandHandler(Game &game, GUIProtocol &guiProtocol)
-        : _game(game), _guiProtocol(guiProtocol)
+        : _game(game), _guiProtocol(guiProtocol), _guiCmdHandler(guiProtocol)
     {
         // Build dispatch table — keys are lowercase for case-insensitive matching
         _aiHandlers["forward"]     = [this](Client &c, const std::string &a) { _handleForward(c, a);     };
@@ -75,11 +75,10 @@ namespace Zappy {
             return;
         }
 
-        // GUI commands are handled by the GUI protocol (person 3)
-        // For now just log unknown GUI commands
         if (client.getType() == ClientType::GUI) {
             std::cout << "[CommandHandler] GUI fd=" << client.getFd()
-                      << " cmd=\"" << cmd << "\"\n";
+                      << " cmd=\"" << cmd << "\" args=\"" << args <<  "\"\n";
+            _guiCmdHandler.handle(client, cmd, args);
             return;
         }
     }
