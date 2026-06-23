@@ -2,6 +2,7 @@
 #include <string>
 
 struct Character {
+    int         id;
     std::string name;
     int         tileX;
     int         tileY;
