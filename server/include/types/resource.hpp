@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <system_error>
 #include <vector>
 
 namespace Zappy {
@@ -47,7 +48,7 @@ namespace Zappy {
                         return "linemate";
                         break;
                     case DERAUMERE:
-                        return "debaumere";
+                        return "deraumere";
                         break;
                     case SIBUR:
                         return "sibur";
@@ -63,6 +64,25 @@ namespace Zappy {
                         break;
                 }
                 return "";
+            }
+
+            static TypeResource stringToTypeResource(std::string resourceString)
+            {
+                if (resourceString == "food")
+                    return FOOD;
+                if (resourceString == "linemate")
+                    return LINEMATE;
+                if (resourceString == "debaumere")
+                    return DERAUMERE;
+                if (resourceString == "sibur")
+                    return SIBUR;
+                if (resourceString == "mendiane")
+                    return MENDIANE;
+                if (resourceString == "phiras")
+                    return PHIRAS;
+                if (resourceString == "thystame")
+                    return THYSTAME;
+                return FOOD;
             }
     };
 }

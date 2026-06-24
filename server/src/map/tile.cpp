@@ -13,8 +13,7 @@ namespace Zappy {
     void Tile::removePlayer(Player *player)
     {
         for (std::vector<Player*>::iterator it = _players.begin(); it != _players.end(); it++) {
-            if (*it == player)
-            {
+            if (*it == player){
                 _players.erase(it);
                 break;
             }
@@ -53,5 +52,15 @@ namespace Zappy {
     void Tile::addEgg(Egg *egg)
     {
         _eggs.push_back(egg);
+    }
+
+    void Tile::removeEgg(Egg* egg)
+    {
+        for (auto it = _eggs.begin(); it != _eggs.end(); it++) {
+            if (*it == egg) {
+                _eggs.erase(it);
+                return;
+            }
+        }
     }
 }

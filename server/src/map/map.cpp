@@ -2,6 +2,7 @@
 #include "../../include/types/resource.hpp"
 #include "../../include/map/tile.hpp"
 #include "../../include/player/player.hpp"
+#include "../../include/egg/egg.hpp"
 #include <cstdio>
 #include <random>
 
@@ -56,7 +57,7 @@ namespace Zappy {
                 p.y = y;
                 Tile *tile = getTile(p);
                 //std::printf("[ %d ]", tile->_resources[FOOD]);
-                std::printf("[ %d ]", getTile(p)->_eggs.size());
+                //std::printf("[ %d ]", getTile(p)->_eggs.size());
             }
             printf("\n");
         }
@@ -78,5 +79,16 @@ namespace Zappy {
     {
         Tile* tile = getTile(player->getPosition());
         tile->addPlayer(player);
+    }
+
+    Player* Map::eggHatching(Egg* egg, const std::string teamName)
+    {
+        Tile* tile = getTile(egg->getPosition());
+        tile->removeEgg(egg);
+        Player *player = new Player(teamName);
+        player->setPosition(egg->getPosition());
+        addPlayerOnTile(player);
+        delete egg;
+        return player;
     }
 }

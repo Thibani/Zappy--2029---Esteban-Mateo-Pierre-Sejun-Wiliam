@@ -5,11 +5,13 @@
 
 namespace Zappy {
 
-    Player::Player(std::string teamName) : _level(1), _direction(UP), _foodLevel(10), _inventory(7)
+    Player::Player(std::string teamName) : _level(1), _inventory(7)
     {
         _position.x = 0;
         _position.y = 0;
         _teamName = teamName;
+        _direction = (Direction)(rand() % 4);
+        _inventory[FOOD] = 10;
     }
 
     void Player::turnLeft()
@@ -95,20 +97,11 @@ namespace Zappy {
         return false;
     }
 
-    bool Player::hungry()
-    {
-        _foodLevel--;
-        if (_foodLevel <= 0)
-            return true;
-        return false;
-    }
-
     bool Player::eat()
     {
         if (_inventory[FOOD] <= 0)
             return false;
         _inventory[FOOD]--;
-        _foodLevel++;
         return true;
     }
 

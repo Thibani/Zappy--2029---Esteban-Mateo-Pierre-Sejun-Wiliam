@@ -13,6 +13,7 @@ namespace Zappy {
             void addEgg(Egg *egg);
             std::string getName();
             int getNbEggs();
+            Egg* popEgg();
 
         private:
             std::vector<Egg*> _eggs;

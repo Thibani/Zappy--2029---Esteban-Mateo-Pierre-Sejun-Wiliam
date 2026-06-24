@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdio>
 #include <vector>
+#include <string>
 #include "../types/position.hpp"
 
 
@@ -8,6 +9,7 @@ namespace Zappy {
 
     class Tile;
     class Player;
+    class Egg;
 
     class Map {
 
@@ -21,6 +23,7 @@ namespace Zappy {
             void correctPos(Pos *position);
             void addPlayerOnTile(Player *player);
             void debugDisplayMap();
+            Player* eggHatching(Egg* egg, const std::string teamName);
 
         private:
             std::vector<std::vector<Tile*>> _tiles;

@@ -20,7 +20,9 @@ namespace Zappy {
             bool hasRessource(TypeResource typeResource);
             std::string toString();
             void addEgg(Egg *egg);
-        // private:
+            void removeEgg(Egg* egg);
+
+        private:
             std::vector<Player*> _players;
             std::vector<Egg*> _eggs;
             std::vector<int> _resources;

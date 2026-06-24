@@ -24,4 +24,11 @@ namespace Zappy {
     {
         return _eggs.size();
     }
+
+    Egg* Team::popEgg()
+    {
+        Egg *egg = _eggs.back();
+        _eggs.pop_back();
+        return egg;
+    }
 }
