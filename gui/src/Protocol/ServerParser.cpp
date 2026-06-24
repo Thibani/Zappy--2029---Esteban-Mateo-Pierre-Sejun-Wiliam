@@ -2,7 +2,7 @@
 #include <sstream>
 #include <iostream>
 
-void ServerParser::parse(const std::string& line, Map& map, CharacterFactory& factory)
+void ServerParser::parse(const std::string& line, Map& map, CharacterFactory& factory, EggFactory& eggs)
 {
     if (line.empty())
         return;
@@ -17,9 +17,12 @@ void ServerParser::parse(const std::string& line, Map& map, CharacterFactory& fa
     else if (cmd == "ppo") _parsePpo(ss, factory);
     else if (cmd == "plv") _parsePlv(ss, factory);
     else if (cmd == "pdi") _parsePdi(ss, factory);
-    else if (cmd == "WELCOME") return; // ignore handshake line
-    else if (cmd == "sgt")    return; // frequency — ignore for now
-    else if (cmd == "tna")    return; // team names — ignore for now
+    else if (cmd == "enw") _parseEnw(ss, eggs);
+    else if (cmd == "ebo") _parseEbo(ss, eggs);
+    else if (cmd == "edi") _parseEdi(ss, eggs);
+    else if (cmd == "WELCOME") return;
+    else if (cmd == "sgt")    return;
+    else if (cmd == "tna")    return;
     else if (cmd == "suc") std::cerr << "[ServerParser] Unknown command sent by GUI\n";
     else if (cmd == "sbp") std::cerr << "[ServerParser] Bad parameters sent by GUI\n";
     else std::cerr << "[ServerParser] Unhandled command: " << cmd << "\n";
@@ -94,4 +97,31 @@ void ServerParser::_parsePdi(std::istringstream& ss, CharacterFactory& factory)
     int id = std::stoi(idStr.substr(1));
     factory.removeById(id);
     std::cout << "[ServerParser] Player #" << id << " died\n";
+}
+
+// enw #e #n X Y
+void ServerParser::_parseEnw(std::istringstream& ss, EggFactory& eggs)
+{
+    std::string eggIdStr, parentIdStr;
+    int x, y;
+    ss >> eggIdStr >> parentIdStr >> x >> y;
+    int eggId    = std::stoi(eggIdStr.substr(1));
+    int parentId = std::stoi(parentIdStr.substr(1));
+    eggs.addEgg(eggId, parentId, x, y);
+}
+
+// ebo #e
+void ServerParser::_parseEbo(std::istringstream& ss, EggFactory& eggs)
+{
+    std::string eggIdStr;
+    ss >> eggIdStr;
+    eggs.removeById(std::stoi(eggIdStr.substr(1)));
+}
+
+// edi #e
+void ServerParser::_parseEdi(std::istringstream& ss, EggFactory& eggs)
+{
+    std::string eggIdStr;
+    ss >> eggIdStr;
+    eggs.removeById(std::stoi(eggIdStr.substr(1)));
 }
