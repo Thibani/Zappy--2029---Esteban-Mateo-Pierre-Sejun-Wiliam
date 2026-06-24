@@ -7,6 +7,7 @@
 #pragma once
 
 #include "server/client.hpp"
+#include "server/guiCommandHandler.hpp"
 
 #include <string>
 #include <unordered_map>
@@ -58,6 +59,7 @@ namespace Zappy {
 
         Game        &_game;
         GUIProtocol &_guiProtocol;
+        GUICommandHandler _guiCmdHandler;
     };
 
 } // namespace Zappy
