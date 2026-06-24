@@ -16,6 +16,10 @@ PIP			=	$(VENV)/bin/pip
 # Entry point
 MAIN		=	src/main.py
 
+# Tests
+TESTS_DIR	=	tests
+TESTS_ENV	=	PYTHONPATH=$(CURDIR)/src:$(CURDIR)/tests
+
 # Colors
 RED			=	\033[0;31m
 GREEN		=	\033[0;32m
@@ -23,16 +27,10 @@ YELLOW		=	\033[0;33m
 CYAN		=	\033[0;36m
 RESET		=	\033[0m
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re tests
 
 ##
 ## BUILD RULES
-##
-## "Building" for Python means:
-##   1. Create a virtualenv (idempotent)
-##   2. Install dependencies from requirements.txt if it exists
-##   3. Generate a thin shell-script wrapper called zappy_ai so the
-##      root Makefile can cp it like any other binary.
 ##
 
 all: $(NAME)
@@ -52,6 +50,18 @@ $(NAME): $(VENV)/bin/python
 	@printf '#!/bin/sh\nexec "$(CURDIR)/$(VENV)/bin/python" "$(CURDIR)/$(MAIN)" "$$@"\n' > $(NAME)
 	@chmod +x $(NAME)
 	@echo "$(GREEN)[✓]$(RESET) $(NAME) ready."
+
+##
+## TEST RULES
+##
+## PYTHONPATH expose src/ et tests/ aux scripts de test,
+## ce qui permet d'écrire "from parser import ..." sans préfixe.
+##
+
+tests:
+	@echo "$(CYAN)[AI]$(RESET) Running tests..."
+	@$(TESTS_ENV) $(PYTHON) $(TESTS_DIR)/run.py
+	@echo "$(GREEN)[✓]$(RESET) Tests done."
 
 ##
 ## CLEAN RULES

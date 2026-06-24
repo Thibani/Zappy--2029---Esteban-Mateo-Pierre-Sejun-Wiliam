@@ -13,7 +13,6 @@ public:
 
     int getWidth()  const { return _width; }
     int getHeight() const { return _height; }
-    bool isReady()  const { return _width > 0 && _height > 0; }
 
 private:
     int               _width  = 0;

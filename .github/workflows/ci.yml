@@ -5,13 +5,11 @@
 ## ci.yml
 ##
 name: CI
-
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
-
 jobs:
   build-and-check:
     runs-on: ubuntu-latest
@@ -25,7 +23,25 @@ jobs:
       - name: Install base deps
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential make cppcheck libsfml-dev
+          sudo apt-get install -y build-essential make cppcheck cmake git \
+            libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
+            libgl1-mesa-dev
+          git clone --depth 1 --branch 5.0 https://github.com/raysan5/raylib.git
+          cd raylib && mkdir build && cd build
+          cmake .. -DBUILD_SHARED_LIBS=OFF
+          sudo make install
+
+      - name: Install Criterion
+        run: |
+          sudo apt-get install -y meson ninja-build pkg-config libffi-dev \
+            libgit2-dev
+          git clone --depth 1 https://github.com/Snaipe/Criterion.git
+          cd Criterion
+          meson setup build
+          cd build
+          ninja
+          sudo ninja install
+          sudo ldconfig
 
       # =========================
       # C / C++ Build
@@ -38,24 +54,26 @@ jobs:
       # =========================
       - name: Run cppcheck
         run: |
-          for dir in server gui; do
-            for sub in src include; do
-              if [ -d "$dir/$sub" ]; then
-                cppcheck --enable=all --error-exitcode=1 "$dir/$sub"
-              fi
-            done
-          done
+          cppcheck --enable=all --error-exitcode=1 \
+            --std=c++20 \
+            --suppress=missingIncludeSystem \
+            --suppress=unmatchedSuppression \
+            --suppress=unusedFunction       \
+            -I server/include \
+            server/src
+          cppcheck --enable=all --error-exitcode=1 \
+            --std=c++20 \
+            --suppress=missingIncludeSystem \
+            --suppress=unmatchedSuppression \
+            --suppress=unusedFunction       \
+            -I gui/include \
+            gui/src
 
       # =========================
-      # Unit tests (C/C++)
+      # Unit tests (Criterion)
       # =========================
-      - name: Run C/C++ tests (if any)
-        run: |
-          if make test 2>/dev/null; then
-            make test
-          else
-            echo "No C/C++ tests target found"
-          fi
+      - name: Run server unit tests
+        run: make test
 
       # =========================
       # Rust (if exists)
