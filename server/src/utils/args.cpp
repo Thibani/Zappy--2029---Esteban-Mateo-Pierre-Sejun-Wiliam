@@ -102,7 +102,7 @@ namespace Zappy {
             } else if (flag == "-f") {
                 if (++i >= argc)
                     throw ArgsException("Missing value for -f");
-                parseIntArg("-f", argv[i]);
+                args.freq = parseIntArg("-f", argv[i]);
                 if (!isPositive(args.freq))
                     throw ArgsException("Freq must be > 0");
 
