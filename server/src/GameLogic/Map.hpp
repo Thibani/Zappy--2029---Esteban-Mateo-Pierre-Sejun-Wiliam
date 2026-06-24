@@ -1,31 +1,32 @@
 #pragma once
-#include "Ressource.hpp"
-#include "Player.hpp"
+#include <cstdio>
+#include <vector>
+#include "Position.hpp"
+#include "Resource.hpp"
 
-struct Egg {
-    std::string teamName;
-};
 
-struct Case {
-    Case() : ressource(7) {}
-    std::vector<Player*> player;
-    std::vector<Egg*> egg;
-    std::vector<int> ressource;
-};
+namespace Zappy {
 
-class Map {
+    class Tile;
+    class Player;
 
-    public:
-        Map(int height, int width);
-        ~Map() = default;
-        Case& getCase(int x, int y);
-        void setRessource();
-        int getHeight() { return _height; }
-        int getWidth() { return _width; }
+    class Map {
 
-    private:
-        std::vector<std::vector<Case>> _case;
-        int _height;
-        int _width;
-        float _densities[7] = {0.5, 0.3, 0.15, 0.1, 0.1, 0.08, 0.05};
-};
+        public:
+            Map(int height, int width);
+            ~Map() = default;
+            Tile* getTile(Pos position);
+            void setRessource();
+            int getHeight() { return _height; }
+            int getWidth() { return _width; }
+            void correctPos(Pos *position);
+            void addPlayerOnTile(Player *player);
+            void debugDisplayMap();
+
+        private:
+            std::vector<std::vector<Tile*>> _tiles;
+            int _height;
+            int _width;
+            float _densities[7] = {0.5, 0.3, 0.15, 0.1, 0.1, 0.08, 0.05};
+    };
+}

@@ -1,38 +1,29 @@
 #include "GameLogic/Map.hpp"
+#include "GameLogic/Player.hpp"
+#include "GameLogic/Position.hpp"
+#include "GameLogic/Tile.hpp"
 #include <iostream>
+#include "GameLogic/Game.hpp"
 
-int main()
-{
-    Map map(5, 5);
-    map.setRessource();
+    int main()
+    {
+        //Zappy::Map map = Zappy::Map(5, 5);
+        Zappy::Game game = Zappy::Game(5, 5);
+        game.map.setRessource();
+        game.map.debugDisplayMap();
+        Zappy::Player player = Zappy::Player("caca");
+        game.map.addPlayerOnTile(&player);
 
-    Player player;
-
-    // Test direction initiale
-    std::cout << "=== Test directions ===" << std::endl;
-    std::cout << "Direction initiale: " << player.getDirection() << std::endl;
-
-    player.turnRight();
-    std::cout << "Apres turnRight: " << player.getDirection() << std::endl;
-
-    player.turnRight();
-    std::cout << "Apres turnRight: " << player.getDirection() << std::endl;
-
-    player.turnLeft();
-    std::cout << "Apres turnLeft: " << player.getDirection() << std::endl;
-
-    // Test deplacement
-    std::cout << "\n=== Test deplacement ===" << std::endl;
-    std::cout << "Position initiale: (" << player.getPositionX() << ", " << player.getPositionY() << ")" << std::endl;
-
-    player.moveForward(map.getWidth(), map.getHeight());
-    std::cout << "Apres moveForward: (" << player.getPositionX() << ", " << player.getPositionY() << ")" << std::endl;
-
-    // Test wrap-around
-    std::cout << "\n=== Test wrap-around ===" << std::endl;
-    for (int i = 0; i < 6; i++)
-        player.moveForward(map.getWidth(), map.getHeight());
-    std::cout << "Apres 6 moveForward (wrap): (" << player.getPositionX() << ", " << player.getPositionY() << ")" << std::endl;
-
-    return 0;
-}
+        // player.moveForward(map);
+        //player._level = 2;
+        //auto temp = player.lookUp(map);
+        // auto temp = player.lookDown(map);
+        // auto temp = player.lookRight(map);
+        // auto temp = player.lookLeft(map);
+        auto temp = player.look(game.map);
+        // for (int i = 0; i < (int)temp.size(); i++){
+        //     std::cout << temp[i].x << ":" << temp[i].y << std::endl;
+        // }
+        std::cout << temp << std::endl;
+        return 0;
+    }

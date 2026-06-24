@@ -23,6 +23,9 @@ INC_DIR		=	include
 SRCS		=	$(SRC_DIR)/main.cpp					\
 				$(SRC_DIR)/GameLogic/Map.cpp		\
 				$(SRC_DIR)/GameLogic/Player.cpp		\
+				$(SRC_DIR)/GameLogic/Tile.cpp		\
+				$(SRC_DIR)/GameLogic/Game.cpp		\
+# 				$(SRC_DIR)/GameLogic/Team.cpp		\
 # 				$(SRC_DIR)/server/Server.cpp			\
 # 				$(SRC_DIR)/server/Client.cpp			\
 # 				$(SRC_DIR)/server/CommandHandler.cpp	\
