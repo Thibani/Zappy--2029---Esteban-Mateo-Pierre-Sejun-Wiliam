@@ -73,3 +73,9 @@ node_modules
 *zappy*
 
 .venv
+
+compile_flags.txt
+
+template_meeting.md
+test_args
+test_client

@@ -21,13 +21,19 @@ OBJ_DIR		=	obj
 INC_DIR		=	include
 
 # Sources — adjust paths to match your actual file tree
-SRCS		=	$(SRC_DIR)/main.cpp					\
-				$(SRC_DIR)/GameLogic/Map.cpp		\
-				$(SRC_DIR)/GameLogic/Player.cpp		\
-				$(SRC_DIR)/GameLogic/Tile.cpp		\
-				$(SRC_DIR)/GameLogic/Game.cpp		\
-				$(SRC_DIR)/GameLogic/egg.cpp		\
-				$(SRC_DIR)/GameLogic/Team.cpp		\
+SRCS		=	$(SRC_DIR)/main.cpp						\
+				$(SRC_DIR)/map/map.cpp					\
+				$(SRC_DIR)/player/player.cpp			\
+				$(SRC_DIR)/map/tile.cpp					\
+				$(SRC_DIR)/game/game.cpp				\
+				$(SRC_DIR)/egg/egg.cpp					\
+				$(SRC_DIR)/team/team.cpp				\
+# 				$(SRC_DIR)/utils/args.cpp               \
+#                 $(SRC_DIR)/server/server.cpp            \
+#                 $(SRC_DIR)/server/client.cpp            \
+#                 $(SRC_DIR)/server/commandHandler.cpp    \
+#                 $(SRC_DIR)/server/guiCommandHandler.cpp \
+#                 $(SRC_DIR)/protocol/guiProtocol.cpp     \
 # 				$(SRC_DIR)/server/Server.cpp			\
 # 				$(SRC_DIR)/server/Client.cpp			\
 # 				$(SRC_DIR)/server/CommandHandler.cpp	\

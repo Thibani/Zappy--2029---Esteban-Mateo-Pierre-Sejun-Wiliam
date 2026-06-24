@@ -1,9 +1,18 @@
-#include "GameLogic/Map.hpp"
-#include "GameLogic/Player.hpp"
-#include "GameLogic/Position.hpp"
-#include "GameLogic/Tile.hpp"
+/*
+** EPITECH PROJECT, 2025
+** Zappy
+** File description:
+** main.cpp - Entry point
+*/
+// #include "utils/args.hpp"
+// #include "server/server.hpp"
+#include "../include/game/game.hpp"
+#include "../include/player/player.hpp"
+#include "../include/map/map.hpp"
+// #include "exceptions/serverException.hpp"
+
 #include <iostream>
-#include "GameLogic/Game.hpp"
+#include <csignal>
 
     int main()
     {
@@ -35,3 +44,22 @@
         }
         return 0;
     }
+
+//     std::signal(SIGINT,  signalHandler);
+//     std::signal(SIGTERM, signalHandler);
+
+//     try {
+//         Zappy::Game        game(args.height, args.width);
+//         Zappy::Server server(args, game);
+//         server.run();
+//     } catch (const Zappy::ServerException &e) {
+//         std::cerr << e.what() << "\n";
+//         return 84;
+//     } catch (const std::exception &e) {
+//         std::cerr << "Unexpected error: " << e.what() << "\n";
+//         return 84;
+//     }
+
+//     std::cout << "[Server] Shutdown complete.\n";
+//     return 0;
+// }
