@@ -10,7 +10,8 @@ NAME		=	zappy_server
 
 # Compiler & flags
 CXX			=	g++
-CXXFLAGS	=	-Wall -Wextra -Werror -std=c++20
+#CXXFLAGS	=	-Wall -Wextra -Werror -std=c++20
+CXXFLAGS	=	-Wall -Wextra -std=c++20
 CXXFLAGS	+=	-I./include
 LDFLAGS		=
 
@@ -25,7 +26,8 @@ SRCS		=	$(SRC_DIR)/main.cpp					\
 				$(SRC_DIR)/GameLogic/Player.cpp		\
 				$(SRC_DIR)/GameLogic/Tile.cpp		\
 				$(SRC_DIR)/GameLogic/Game.cpp		\
-# 				$(SRC_DIR)/GameLogic/Team.cpp		\
+				$(SRC_DIR)/GameLogic/egg.cpp		\
+				$(SRC_DIR)/GameLogic/Team.cpp		\
 # 				$(SRC_DIR)/server/Server.cpp			\
 # 				$(SRC_DIR)/server/Client.cpp			\
 # 				$(SRC_DIR)/server/CommandHandler.cpp	\

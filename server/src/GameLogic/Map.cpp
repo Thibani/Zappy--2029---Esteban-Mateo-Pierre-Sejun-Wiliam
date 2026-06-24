@@ -7,7 +7,7 @@
 
 namespace Zappy {
 
-    Map::Map(int height, int width) : _tiles(height, std::vector<Tile*>(width))
+    Map::Map(int width, int height) : _tiles(height, std::vector<Tile*>(width))
     {
         Tile* tile;
 
@@ -54,7 +54,10 @@ namespace Zappy {
             {
                 p.x = x;
                 p.y = y;
-                std::printf("[ %d ]", getTile(p)->_resources[FOOD]);
+                Tile *tile = getTile(p);
+                printf("%p\n", tile);
+                //std::printf("[ %d ]", tile->_resources[FOOD]);
+                //std::printf("[ %d ]", getTile(p)->_eggs.size());
             }
             printf("\n");
         }

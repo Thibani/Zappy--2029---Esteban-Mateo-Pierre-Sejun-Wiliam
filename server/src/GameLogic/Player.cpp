@@ -48,9 +48,9 @@ namespace Zappy {
         }
     }
 
-    void Player::moveForward(Map& map)
+    void Player::moveForward(Map* map)
     {
-        Tile* tile = map.getTile(_position);
+        Tile* tile = map->getTile(_position);
         tile->removePlayer(this);
 
         switch(_direction) {
@@ -68,14 +68,14 @@ namespace Zappy {
                 break;
         }
 
-        map.correctPos(&_position);
-        tile = map.getTile(_position);
+        map->correctPos(&_position);
+        tile = map->getTile(_position);
         tile->addPlayer(this);
     }
 
-    bool Player::take(Map& map, TypeResource typeResource)
+    bool Player::take(Map* map, TypeResource typeResource)
     {
-        Tile* tile = map.getTile(_position);
+        Tile* tile = map->getTile(_position);
         if (tile->hasRessource(typeResource)){
             tile->removeResource(typeResource);
             _inventory[typeResource]++;
@@ -84,9 +84,9 @@ namespace Zappy {
         return false;
     }
 
-    bool Player::drop(Map& map, TypeResource typeResource)
+    bool Player::drop(Map* map, TypeResource typeResource)
     {
-        Tile* tile = map.getTile(_position);
+        Tile* tile = map->getTile(_position);
         if (_inventory[typeResource] > 0){
             _inventory[typeResource]--;
             tile->addResource(typeResource);
@@ -112,7 +112,7 @@ namespace Zappy {
         return true;
     }
 
-    std::string Player::look(Map& map)
+    std::string Player::look(Map* map)
     {
         std::vector<Pos> vision;
 
@@ -134,12 +134,12 @@ namespace Zappy {
         return tilesToString(map, vision);
     }
 
-    std::string Player::tilesToString(Map& map, std::vector<Pos> vision)
+    std::string Player::tilesToString(Map* map, std::vector<Pos> vision)
     {
         std::string output = "[";
 
         for (uint i = 0; i < vision.size(); i++){
-            output += map.getTile(vision[i])->toString();
+            output += map->getTile(vision[i])->toString();
             if (i < vision.size() - 1)
                 output += ",";
         }
@@ -147,7 +147,7 @@ namespace Zappy {
         return output;
     }
 
-    std::vector<Pos> Player::lookUpVision(Map& map)
+    std::vector<Pos> Player::lookUpVision(Map* map)
     {
         std::vector<Pos> pos;
         std::vector<Pos> result;
@@ -156,7 +156,7 @@ namespace Zappy {
         for (int i = 1; i <= _level; i++){
             lookPos.x = _position.x;
             lookPos.y = _position.y - i;
-            map.correctPos(&lookPos);
+            map->correctPos(&lookPos);
             result = lookLeft(map, lookPos, i);
             pos.insert(pos.end(), result.rbegin(), result.rend());
             pos.push_back(lookPos);
@@ -166,7 +166,7 @@ namespace Zappy {
         return pos;
     }
 
-    std::vector<Pos> Player::lookDownVision(Map& map)
+    std::vector<Pos> Player::lookDownVision(Map* map)
     {
         std::vector<Pos> pos;
         std::vector<Pos> result;
@@ -175,7 +175,7 @@ namespace Zappy {
         for (int i = 1; i <= _level; i++){
             lookPos.x = _position.x;
             lookPos.y = _position.y + i;
-            map.correctPos(&lookPos);
+            map->correctPos(&lookPos);
             result = lookRight(map, lookPos, i);
             pos.insert(pos.end(), result.rbegin(), result.rend());
             pos.push_back(lookPos);
@@ -184,7 +184,7 @@ namespace Zappy {
         }
         return pos;
     }
-     std::vector<Pos> Player::lookRightVision(Map& map)
+     std::vector<Pos> Player::lookRightVision(Map* map)
     {
         std::vector<Pos> pos;
         std::vector<Pos> result;
@@ -193,7 +193,7 @@ namespace Zappy {
         for (int i = 1; i <= _level; i++){
             lookPos.x = _position.x + 1;
             lookPos.y = _position.y;
-            map.correctPos(&lookPos);
+            map->correctPos(&lookPos);
             result = lookUp(map, lookPos, i);
             pos.insert(pos.end(), result.rbegin(), result.rend());
             pos.push_back(lookPos);
@@ -202,7 +202,7 @@ namespace Zappy {
         }
         return pos;
     }
-     std::vector<Pos> Player::lookLeftVision(Map& map)
+     std::vector<Pos> Player::lookLeftVision(Map* map)
     {
         std::vector<Pos> pos;
         std::vector<Pos> result;
@@ -211,7 +211,7 @@ namespace Zappy {
         for (int i = 1; i <= _level; i++){
             lookPos.x = _position.x - 1;
             lookPos.y = _position.y;
-            map.correctPos(&lookPos);
+            map->correctPos(&lookPos);
             result = lookDown(map, lookPos, i);
             pos.insert(pos.end(), result.rbegin(), result.rend());
             pos.push_back(lookPos);
@@ -221,7 +221,7 @@ namespace Zappy {
         return pos;
     }
 
-    std::vector<Pos> Player::lookUp(Map& map, Pos startPos, int distance)
+    std::vector<Pos> Player::lookUp(Map* map, Pos startPos, int distance)
     {
         std::vector<Pos> pos;
         Pos lookPos;
@@ -229,13 +229,13 @@ namespace Zappy {
         for (int i = 1; i <= distance; i++){
             lookPos.x = startPos.x;
             lookPos.y = startPos.y - i;
-            map.correctPos(&lookPos);
+            map->correctPos(&lookPos);
             pos.push_back(lookPos);
         }
         return pos;
     }
 
-    std::vector<Pos> Player::lookDown(Map& map, Pos startPos, int distance)
+    std::vector<Pos> Player::lookDown(Map* map, Pos startPos, int distance)
     {
         std::vector<Pos> pos;
         Pos lookPos;
@@ -243,13 +243,13 @@ namespace Zappy {
         for (int i = 1; i <= distance; i++){
             lookPos.x = startPos.x;
             lookPos.y = startPos.y + i;
-            map.correctPos(&lookPos);
+            map->correctPos(&lookPos);
             pos.push_back(lookPos);
         }
         return pos;
     }
 
-    std::vector<Pos> Player::lookRight(Map& map, Pos startPos, int distance)
+    std::vector<Pos> Player::lookRight(Map* map, Pos startPos, int distance)
     {
         std::vector<Pos> pos;
         Pos lookPos;
@@ -257,13 +257,13 @@ namespace Zappy {
         for (int i = 1; i <= distance; i++){
             lookPos.x = startPos.x + i;
             lookPos.y = startPos.y;
-            map.correctPos(&lookPos);
+            map->correctPos(&lookPos);
             pos.push_back(lookPos);
         }
         return pos;
     }
 
-    std::vector<Pos> Player::lookLeft(Map& map, Pos startPos, int distance)
+    std::vector<Pos> Player::lookLeft(Map* map, Pos startPos, int distance)
     {
         std::vector<Pos> pos;
         Pos lookPos;
@@ -271,7 +271,7 @@ namespace Zappy {
         for (int i = 1; i <= distance; i++){
             lookPos.x = startPos.x - i;
             lookPos.y = startPos.y;
-            map.correctPos(&lookPos);
+            map->correctPos(&lookPos);
             pos.push_back(lookPos);
         }
         return pos;

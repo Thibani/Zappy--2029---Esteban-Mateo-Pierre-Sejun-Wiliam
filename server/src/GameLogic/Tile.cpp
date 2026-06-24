@@ -1,5 +1,7 @@
 #include "Tile.hpp"
 #include "Resource.hpp"
+#include "Egg.hpp"
+#include <cstdio>
 
 namespace Zappy {
 
@@ -46,5 +48,13 @@ namespace Zappy {
             for(int nbResources = 0; nbResources < _resources[idxTypeResource]; nbResources++)
                 output += Resource::typeResourceToString((TypeResource)idxTypeResource) + " ";
         return output;
+    }
+
+    void Tile::addEgg(Egg *egg)
+    {
+        printf("egg x:%d egg x:%d\n", egg->_position.x, egg->_position.y);
+        printf("eggs size:%ld\n", _eggs.size());
+        _eggs.push_back(egg);
+        printf("la\n");
     }
 }

@@ -13,7 +13,7 @@ namespace Zappy {
     class Map {
 
         public:
-            Map(int height, int width);
+            Map(int width, int height);
             ~Map() = default;
             Tile* getTile(Pos position);
             void setRessource();

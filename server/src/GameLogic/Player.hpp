@@ -32,13 +32,13 @@ namespace Zappy {
 
             void turnLeft();
             void turnRight();
-            void moveForward(Map& map);
-            bool take(Map& map, TypeResource typeResource);
-            bool drop(Map& map, TypeResource typeResource);
+            void moveForward(Map* map);
+            bool take(Map* map, TypeResource typeResource);
+            bool drop(Map* map, TypeResource typeResource);
             bool hungry();
             bool eat();
             void checkLimit(Pos position);
-            std::string look(Map& map);
+            std::string look(Map* map);
 
             int _level;
 
@@ -50,14 +50,14 @@ namespace Zappy {
             std::string _teamName;
             std::vector<int>_inventory;
 
-            std::vector<Pos> lookUpVision(Map& map);
-            std::vector<Pos> lookDownVision(Map& map);
-            std::vector<Pos> lookRightVision(Map& map);
-            std::vector<Pos> lookLeftVision(Map& map);
-            std::vector<Pos> lookUp(Map& map, Pos startPos, int distance);
-            std::vector<Pos> lookDown(Map& map, Pos startPos, int distance);
-            std::vector<Pos> lookRight(Map& map, Pos startPos, int distance);
-            std::vector<Pos> lookLeft(Map& map, Pos startPos, int distance);
-            std::string tilesToString(Map& map, std::vector<Pos> vision);
+            std::vector<Pos> lookUpVision(Map* map);
+            std::vector<Pos> lookDownVision(Map* map);
+            std::vector<Pos> lookRightVision(Map* map);
+            std::vector<Pos> lookLeftVision(Map* map);
+            std::vector<Pos> lookUp(Map* map, Pos startPos, int distance);
+            std::vector<Pos> lookDown(Map* map, Pos startPos, int distance);
+            std::vector<Pos> lookRight(Map* map, Pos startPos, int distance);
+            std::vector<Pos> lookLeft(Map* map, Pos startPos, int distance);
+            std::string tilesToString(Map* map, std::vector<Pos> vision);
     };
 }
