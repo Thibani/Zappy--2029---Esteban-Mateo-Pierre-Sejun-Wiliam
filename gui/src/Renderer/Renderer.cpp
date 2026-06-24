@@ -3,13 +3,15 @@
 
 Renderer::Renderer(const char* charTexturePath) : _charTexture(charTexturePath) {}
 
-void Renderer::drawMap(const Map& map, const CharacterFactory& factory, const EggFactory& eggs, PlayerView& camera) {
+void Renderer::drawMap(const Map& map, const CharacterFactory& factory, const EggFactory& eggs, PlayerView& camera)
+{
     _drawTiles(map);
     _drawEggs(eggs);
     _drawCharacters(factory, camera);
 }
 
-void Renderer::_drawTiles(const Map& map) {
+void Renderer::_drawTiles(const Map& map)
+{
     for (int y = 0; y < map.getHeight(); y++) {
         for (int x = 0; x < map.getWidth(); x++) {
             const Tile& tile = map.getTile(x, y);
@@ -27,7 +29,8 @@ void Renderer::_drawTiles(const Map& map) {
     }
 }
 
-void Renderer::_drawCharacters(const CharacterFactory& factory, PlayerView& camera) {
+void Renderer::_drawCharacters(const CharacterFactory& factory, PlayerView& camera)
+{
     for (const auto& c : factory.getAll()) {
         Vector3 pos = {
             c.tileX * TILE_SIZE + TILE_SIZE / 2.f,

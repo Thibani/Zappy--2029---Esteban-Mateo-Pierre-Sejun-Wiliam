@@ -2,7 +2,8 @@
 
 void gameSetup();
 
-int main() {
+int main()
+{
     gameSetup();
     return 0;
 }

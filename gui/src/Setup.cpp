@@ -9,7 +9,8 @@
 #include "Protocol/ServerParser.hpp"
 #include "Network/NetworkClient.hpp"
 
-static void gameLoop(CharacterFactory& factory, Map& map, EggFactory& eggs, PlayerView& camera, Renderer& renderer, NetworkClient& network) {
+static void gameLoop(CharacterFactory& factory, Map& map, EggFactory& eggs, PlayerView& camera, Renderer& renderer, NetworkClient& network)
+{
     ServerParser parser;
 
     while (!WindowShouldClose()) {
@@ -31,7 +32,8 @@ static void gameLoop(CharacterFactory& factory, Map& map, EggFactory& eggs, Play
     }
 }
 
-void gameSetup() {
+void gameSetup()
+{
     Window window(1280, 720, "Zappy GUI");
     Map map(20, 20);
     CharacterFactory factory;
