@@ -47,6 +47,12 @@ namespace Zappy {
         //
         emitMapSize(10, 10, guidFd);
         emitTimeUnit(100, guidFd);
+        emitTeamName("team1", guidFd);
+        Inventory emptyTile;
+        for (int y = 0; y < 10; y++) {
+            for (int x = 0; x < 10; x++)
+                emitTileContent(x, y, emptyTile, guidFd);
+        }
     }
 
 
