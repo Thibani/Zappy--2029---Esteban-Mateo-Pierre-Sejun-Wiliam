@@ -6,15 +6,11 @@
 */
 #include "utils/args.hpp"
 #include "server/server.hpp"
+#include "game/game.hpp"
 #include "exceptions/serverException.hpp"
 
 #include <iostream>
 #include <csignal>
-
-// TODO: remove these stubs once sejun (Game) and wiliam (GUIProtocol) are ready
-namespace Zappy {
-    class Game {};
-}
 
 static volatile bool g_running = true;
 
@@ -40,7 +36,7 @@ int main(int argc, char **argv)
     std::signal(SIGTERM, signalHandler);
 
     try {
-        Zappy::Game        game;
+        Zappy::Game        game(args.height, args.width);
         Zappy::Server server(args, game);
         server.run();
     } catch (const Zappy::ServerException &e) {

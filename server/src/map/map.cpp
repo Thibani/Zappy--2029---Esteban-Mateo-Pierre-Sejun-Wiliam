@@ -1,7 +1,8 @@
-#include "Map.hpp"
-#include "Resource.hpp"
-#include "Tile.hpp"
-#include "Player.hpp"
+#include "map/map.hpp"
+#include "types/resource.hpp"
+#include "map/tile.hpp"
+#include "player/player.hpp"
+
 #include <cstdio>
 #include <random>
 
@@ -13,17 +14,19 @@ namespace Zappy {
 
         _height = height;
         _width = width;
-        for (int i = 0; i < height; i++){
-            for (int j = 0; j < width; j++){
+        for (int y = 0; y < height; y++){
+            for (int x = 0; x < width; x++){
                 tile = new Tile();
-                _tiles[i][j] = tile;
+                tile->position.x = x;
+                tile->position.y = y;
+                _tiles[y][x] = tile;
             }
         }
     }
 
     Tile* Map::getTile(Pos position)
     {
-        return _tiles[position.x][position.y];
+        return _tiles[position.y][position.x];
     }
 
     void Map::setRessource()
@@ -39,7 +42,7 @@ namespace Zappy {
             while (quantity > 0){
                 int x = dist(gen);
                 int y = larg(gen);
-                _tiles[x][y]->addResource((TypeResource)i);
+                _tiles[y][x]->addResource((TypeResource)i);
                 quantity--;
             }
         }
@@ -54,7 +57,7 @@ namespace Zappy {
             {
                 p.x = x;
                 p.y = y;
-                std::printf("[ %d ]", getTile(p)->_resources[FOOD]);
+                std::printf("[ %d ]", getTile(p)->resources()[FOOD]);
             }
             printf("\n");
         }

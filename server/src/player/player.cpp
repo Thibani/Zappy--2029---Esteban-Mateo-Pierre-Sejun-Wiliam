@@ -1,6 +1,6 @@
-#include "Player.hpp"
-#include "Map.hpp"
-#include "Tile.hpp"
+#include "player/player.hpp"
+#include "map/map.hpp"
+#include "map/tile.hpp"
 #include <iostream>
 
 namespace Zappy {

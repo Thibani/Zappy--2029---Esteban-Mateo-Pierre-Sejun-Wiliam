@@ -1,5 +1,5 @@
-#include "Tile.hpp"
-#include "Resource.hpp"
+#include "map/tile.hpp"
+#include "types/resource.hpp"
 
 namespace Zappy {
 

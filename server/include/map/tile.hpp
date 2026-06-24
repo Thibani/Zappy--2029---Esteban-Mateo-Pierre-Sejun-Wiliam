@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
-#include "Position.hpp"
-#include "Resource.hpp"
+#include "types/position.hpp"
+#include "types/resource.hpp"
 #include <string>
 
 namespace Zappy {
@@ -19,10 +19,17 @@ namespace Zappy {
             void removeResource(TypeResource typeResource);
             bool hasRessource(TypeResource typeResource);
             std::string toString();
-        //private:
+
+            const std::vector<int> &resources() const { return _resources; }
+            const std::vector<Player *> &players() const { return _players; }
+            const std::vector<Egg *> &eggs() const { return _eggs; }
+
+        private:
             std::vector<Player*> _players;
             std::vector<Egg*> _eggs;
             std::vector<int> _resources;
+
+        public:
             Pos position;
     };
 }

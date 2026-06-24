@@ -72,13 +72,13 @@ namespace Zappy {
             * Player executed Take successfully.
             * Implementation emits pgt + bct + pin.
             */
-            virtual void onPlayerTookResource(int playerId, Resource resource, int x, int y, const Inventory &newTileContents, const Inventory &newPlayerInventory) = 0;
+            virtual void onPlayerTookResource(int playerId, TypeResource resource, int x, int y, const Inventory &newTileContents, const Inventory &newPlayerInventory) = 0;
 
             /**
             * Player executed Set successfully.
             * Implementation emits pdr + bct + pin.
             */
-            virtual void onPlayerDroppedResource(int playerId, Resource resource, int x, int y, const Inventory &newTileContents, const Inventory &newPlayerInventory) = 0;
+            virtual void onPlayerDroppedResource(int playerId, TypeResource resource, int x, int y, const Inventory &newTileContents, const Inventory &newPlayerInventory) = 0;
 
             // ─── Incantation ─────────────────────────────────────────────────
             /**
@@ -131,8 +131,8 @@ namespace Zappy {
             void onPlayerBroadcast(int, const std::string &) override {}
             void onPlayerForked(int) override {}
             void onPlayerDied(int) override {}
-            void onPlayerTookResource(int, Resource, int, int, const Inventory &, const Inventory &) override {}
-            void onPlayerDroppedResource(int, Resource, int, int, const Inventory &, const Inventory &) override {}
+            void onPlayerTookResource(int, TypeResource, int, int, const Inventory &, const Inventory &) override {}
+            void onPlayerDroppedResource(int, TypeResource, int, int, const Inventory &, const Inventory &) override {}
             void onIncantationStarted(int, int, int, const std::vector<int> &) override {}
             void onIncantationEnded(int, int, bool, const std::vector<int> &, int, const Inventory &) override {}
             void onEggLaid(int, int, int, int) override {}

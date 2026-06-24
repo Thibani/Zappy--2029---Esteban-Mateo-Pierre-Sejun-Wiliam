@@ -68,8 +68,8 @@ namespace Zappy {
             void onPlayerBroadcast(int playerId, const std::string &message) override;
             void onPlayerForked(int playerId) override;
             void onPlayerDied(int playerId) override;
-            void onPlayerTookResource(int playerId, Resource resource, int x, int y, const Inventory &newTileContents, const Inventory &newPlayerInventory) override;
-            void onPlayerDroppedResource(int playerId, Resource resource, int x, int y, const Inventory &newTileContents, const Inventory &newPlayerInventory) override;
+            void onPlayerTookResource(int playerId, TypeResource resource, int x, int y, const Inventory &newTileContents, const Inventory &newPlayerInventory) override;
+            void onPlayerDroppedResource(int playerId, TypeResource resource, int x, int y, const Inventory &newTileContents, const Inventory &newPlayerInventory) override;
             void onIncantationStarted(int x, int y, int level, const std::vector<int> &playerIds) override;
             void onIncantationEnded(int x, int y, bool success, const std::vector<int> &playerIds, int newLevel, const Inventory &newTileContents) override;
             void onEggLaid(int eggId, int parentPlayerId, int x, int y) override;
@@ -95,13 +95,13 @@ namespace Zappy {
             {
                 std::ostringstream os;
                 os << "bct " << x << ' ' << y
-                   << ' ' << inv[Resource::FOOD]
-                   << ' ' << inv[Resource::LINEMATE]
-                   << ' ' << inv[Resource::DERAUMERE]
-                   << ' ' << inv[Resource::SIBUR]
-                   << ' ' << inv[Resource::MENDIANE]
-                   << ' ' << inv[Resource::PHIRAS]
-                   << ' ' << inv[Resource::THYSTAME]
+                   << ' ' << inv.get(FOOD)
+                   << ' ' << inv.get(LINEMATE)
+                   << ' ' << inv.get(DERAUMERE)
+                   << ' ' << inv.get(SIBUR)
+                   << ' ' << inv.get(MENDIANE)
+                   << ' ' << inv.get(PHIRAS)
+                   << ' ' << inv.get(THYSTAME)
                    << '\n';
                 return os.str();
             }
@@ -142,13 +142,13 @@ namespace Zappy {
             {
                 std::ostringstream os;
                 os << "pin #" << playerId << ' ' << x << ' ' << y
-                   << ' ' << inv[Resource::FOOD]
-                   << ' ' << inv[Resource::LINEMATE]
-                   << ' ' << inv[Resource::DERAUMERE]
-                   << ' ' << inv[Resource::SIBUR]
-                   << ' ' << inv[Resource::MENDIANE]
-                   << ' ' << inv[Resource::PHIRAS]
-                   << ' ' << inv[Resource::THYSTAME]
+                   << ' ' << inv.get(FOOD)
+                   << ' ' << inv.get(LINEMATE)
+                   << ' ' << inv.get(DERAUMERE)
+                   << ' ' << inv.get(SIBUR)
+                   << ' ' << inv.get(MENDIANE)
+                   << ' ' << inv.get(PHIRAS)
+                   << ' ' << inv.get(THYSTAME)
                    << '\n';
                 return os.str();
             }
@@ -191,14 +191,14 @@ namespace Zappy {
                 return os.str();
             }
 
-            static inline std::string fmtPdr(int id, Resource r)
+            static inline std::string fmtPdr(int id, TypeResource r)
             {
                 std::ostringstream os;
                 os << "pdr #" << id << ' ' << static_cast<int>(r) << '\n';
                 return os.str();
             }
 
-            static inline std::string fmtPgt(int id, Resource r)
+            static inline std::string fmtPgt(int id, TypeResource r)
             {
                 std::ostringstream os;
                 os << "pgt #" << id << ' ' << static_cast<int>(r) << '\n';

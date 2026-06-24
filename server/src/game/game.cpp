@@ -1,6 +1,6 @@
-#include "Game.hpp"
-#include "Map.hpp"
-#include "Team.hpp"
+#include "game/game.hpp"
+#include "map/map.hpp"
+#include "team/team.hpp"
 
 namespace Zappy {
 
