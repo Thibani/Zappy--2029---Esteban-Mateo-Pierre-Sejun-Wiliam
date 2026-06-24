@@ -13,10 +13,9 @@
         Zappy::Game game = Zappy::Game();
         game.initialize(5, 7, teams, 5);
         game.map->setRessource();
-        //game.map->debugDisplayMap();
+        game.map->debugDisplayMap();
         Zappy::Player* player = new Zappy::Player("caca");
         game.addPlayer(player);
-
         // player.moveForward(map);
         //player._level = 2;
         //auto temp = player.lookUp(map);

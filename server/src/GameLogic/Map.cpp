@@ -23,7 +23,7 @@ namespace Zappy {
 
     Tile* Map::getTile(Pos position)
     {
-        return _tiles[position.x][position.y];
+        return _tiles[position.y][position.x];
     }
 
     void Map::setRessource()
@@ -39,7 +39,7 @@ namespace Zappy {
             while (quantity > 0){
                 int x = dist(gen);
                 int y = larg(gen);
-                _tiles[x][y]->addResource((TypeResource)i);
+                _tiles[y][x]->addResource((TypeResource)i);
                 quantity--;
             }
         }
@@ -55,9 +55,8 @@ namespace Zappy {
                 p.x = x;
                 p.y = y;
                 Tile *tile = getTile(p);
-                printf("%p\n", tile);
                 //std::printf("[ %d ]", tile->_resources[FOOD]);
-                //std::printf("[ %d ]", getTile(p)->_eggs.size());
+                std::printf("[ %d ]", getTile(p)->_eggs.size());
             }
             printf("\n");
         }

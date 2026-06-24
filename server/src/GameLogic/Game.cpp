@@ -40,13 +40,9 @@ namespace Zappy {
                 eggPos.x = rand() % mapWidth;
                 eggPos.y = rand() % mapHeight;
                 egg = new Egg(teamNames[i], eggPos);
-                _eggs.push_back(egg);
                 eggs.push_back(egg);
                 tile = map->getTile(eggPos);
-                printf("nb egg in tile before: %d\n", tile->_eggs.size());
                 tile->addEgg(egg);
-                printf("x:%d y:%d\n", eggPos.x, eggPos.y);
-                printf("nb egg in tile after: %d\n", tile->_eggs.size());
             }
             _teams.push_back(new Team(teamNames[i], eggs));
         }

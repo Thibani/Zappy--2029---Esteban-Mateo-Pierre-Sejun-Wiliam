@@ -52,9 +52,6 @@ namespace Zappy {
 
     void Tile::addEgg(Egg *egg)
     {
-        printf("egg x:%d egg x:%d\n", egg->_position.x, egg->_position.y);
-        printf("eggs size:%ld\n", _eggs.size());
         _eggs.push_back(egg);
-        printf("la\n");
     }
 }
