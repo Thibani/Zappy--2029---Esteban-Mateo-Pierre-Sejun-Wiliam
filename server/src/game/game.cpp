@@ -8,7 +8,7 @@
 #include <cstdlib>
 #include <random>
 #include <vector>
-
+#include <iostream>
 namespace Zappy {
 
 

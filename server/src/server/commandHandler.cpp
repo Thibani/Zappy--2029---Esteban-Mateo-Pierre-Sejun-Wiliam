@@ -7,6 +7,7 @@
 #include "server/commandHandler.hpp"
 #include "protocol/guiProtocol.hpp"
 #include "exceptions/serverException.hpp"
+#include "game/game.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -98,16 +99,30 @@ namespace Zappy {
             return;
         }
 
-        // TODO: validate teamName against Game::getTeams() (person 2)
-        // For now accept any team name
+        auto teams = _game.getTeams();
+        if (std::find(teams.begin(), teams.end(), teamName) == teams.end()) {
+            std::cout << "[CommandHandler] fd=" << client.getFd()
+                      << " AI auth rejected: unknown team \"" << teamName << "\"\n";
+            client.pushToWriteBuffer("ko\n");
+            return;
+        }
+        int freeSlots = _game.getTeamNbEggs(teamName);
+        if (freeSlots <= 0) {
+            std::cout << "[CommandHandler] fd=" << client.getFd()
+                      << " AI auth rejected: no free slots in team \"" << teamName << "\"\n";
+            client.pushToWriteBuffer("ko\n");
+            return;
+        }
+        int playerId = client.getFd();
+        _game.eggHatching(playerId, teamName);
         client.setType(ClientType::AI);
         client.setAuthenticated(true);
         std::cout << "[CommandHandler] fd=" << client.getFd()
-                  << " authenticated as AI team=\"" << teamName << "\"\n";
-
-        // TODO: send CLIENT-NUM\n then X Y\n (person 2 provides these values)
-        client.pushToWriteBuffer("0\n");        // placeholder CLIENT-NUM
-        client.pushToWriteBuffer("10 10\n");    // placeholder world size
+                  << " authenticated as AI teal=\"" << teamName
+                  << "\" playerId=" << playerId << "\n";
+        client.pushToWriteBuffer(std::to_string(freeSlots - 1) + "\n");
+        auto [w, h] = _game.getMapSize();
+        client.pushToWriteBuffer(std::to_string(w) + " " + std::to_string(h) + "\n");
     }
 
     // -------------------------------------------------------------------------
@@ -119,6 +134,7 @@ namespace Zappy {
     {
         // TODO: Game::moveForward(client) — takes 7/f seconds
         std::cout << "[CommandHandler] fd=" << client.getFd() << " Forward\n";
+        _game.moveForward(client.getFd());
         client.pushToWriteBuffer("ok\n");
     }
 
@@ -126,6 +142,7 @@ namespace Zappy {
     {
         // TODO: Game::turnRight(client) — takes 7/f seconds
         std::cout << "[CommandHandler] fd=" << client.getFd() << " Right\n";
+        _game.turnRight(client.getFd());
         client.pushToWriteBuffer("ok\n");
     }
 
@@ -133,6 +150,7 @@ namespace Zappy {
     {
         // TODO: Game::turnLeft(client) — takes 7/f seconds
         std::cout << "[CommandHandler] fd=" << client.getFd() << " Left\n";
+        _game.turnLeft(client.getFd());
         client.pushToWriteBuffer("ok\n");
     }
 
