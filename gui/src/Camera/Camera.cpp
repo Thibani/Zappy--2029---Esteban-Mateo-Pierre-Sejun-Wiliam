@@ -2,7 +2,6 @@
 #include <cmath>
 
 void PlayerView::init(float mapWidth, float mapHeight) {
-    // Target = center of the map
     _target = { mapWidth / 2.f, 0.f, mapHeight / 2.f };
 
     _cam.target     = _target;

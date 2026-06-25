@@ -37,10 +37,8 @@ void gameSetup(const char* host, int port)
 {
     Window window(1280, 720, "Zappy GUI");
 
-    // Assets are always at <project_root>/assets regardless of where binary is
     std::string assetRoot = std::string(GetApplicationDirectory()) + "assets";
 
-    // pass assets to Renderer...
     Map map(20, 20);
     CharacterFactory factory;
     EggFactory eggs;

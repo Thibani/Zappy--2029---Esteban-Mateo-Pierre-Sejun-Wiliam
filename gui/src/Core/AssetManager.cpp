@@ -15,7 +15,6 @@ AssetManager::~AssetManager()
 
 void AssetManager::_loadAll()
 {
-    // Add every texture your project needs here
     std::vector<std::pair<std::string, std::string>> entries = {
         { "character_l1", "Characters/Peasant_lv1.png" },
         { "character_l2", "Characters/Looter_lv2.png" },

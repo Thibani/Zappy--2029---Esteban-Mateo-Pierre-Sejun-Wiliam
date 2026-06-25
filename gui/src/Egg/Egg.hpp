@@ -2,7 +2,7 @@
 
 struct Egg {
     int eggId;
-    int parentId; // player who laid it
+    int parentId;
     int tileX;
     int tileY;
 };
