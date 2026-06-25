@@ -1,4 +1,7 @@
 #pragma once
+
+#include "map/map.hpp"
+
 #include <vector>
 #include <map>
 #include <string>
@@ -6,7 +9,6 @@
 namespace Zappy {
 
     class Team;
-    class Map;
     class Player;
     class Egg;
     class Tile;
@@ -24,7 +26,6 @@ namespace Zappy {
             void turnLeft(int clientId);
             std::string look(int clientId);
             std::string inventory(int clientId);
-            // void broadcast(int clientId, args);
             int connectNbr(int clientId);
             int fork(int clientId);
             void eject(int clientId);
@@ -34,6 +35,12 @@ namespace Zappy {
             bool eat(int clientId);
             void removePlayer(int clientId);
             bool checkLevelUp(int level, Tile* tile);
+            std::vector<std::string> getTeams();
+            std::pair<int, int> getMapSize();
+            int getTeamNbEggs(const std::string teamName);
+            int getMapWidth() { return map->getWidth(); }
+            int getMapHeight() { return map->getHeight(); }
+            std::map<int, Player*> getPlayers() { return _idPlayers; }
 
         private:
             std::vector<Team*> _teams;
@@ -42,9 +49,6 @@ namespace Zappy {
 
             Team *getTeam(const std::string teamName);
             bool hasIdPlayer(int clientId);
-            std::vector<std::string> getTeams();
-            std::pair<int, int> getMapSize();
-            int getTeamNbEggs(const std::string teamName);
             void addPlayer(Player* player);
     };
 }

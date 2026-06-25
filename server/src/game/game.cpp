@@ -31,6 +31,7 @@ namespace Zappy {
         Tile *tile;
 
         map = new Map(mapWidth, mapHeight);
+        map->setRessource();
         for (uint i = 0; i < teamNames.size(); i++){
             eggs.clear();
             for (uint j = 0; j < nbEggs; j++){
@@ -122,6 +123,7 @@ namespace Zappy {
             Player* player = _idPlayers[clientId];
             return player->look(map);
         }
+        return "[]\n";
     }
 
     std::string Game::inventory(int clientId)
