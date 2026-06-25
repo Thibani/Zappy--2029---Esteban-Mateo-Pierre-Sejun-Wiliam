@@ -21,6 +21,10 @@ namespace Zappy {
             std::string toString();
             void addEgg(Egg *egg);
             void removeEgg(Egg* egg);
+            std::vector<Player*> getPlayers() { return _players; }
+            int getNbPlayers();
+            int getNbResources(TypeResource typeResource);
+            void resourceConsume(int level);
 
         private:
             std::vector<Player*> _players;

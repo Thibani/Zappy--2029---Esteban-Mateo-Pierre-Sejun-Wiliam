@@ -79,16 +79,17 @@ namespace Zappy {
         map->addPlayerOnTile(player);
     }
 
-    void Game::eggHatching(int clientId, const std::string teamName)
+    bool Game::eggHatching(int clientId, const std::string teamName)
     {
         if (hasIdPlayer(clientId))
-            return;
+            return false;
         Team *team = getTeam(teamName);
         if (team == nullptr)
-            return;
+            return false;
         Egg *egg = team->popEgg();
         Player *player = map->eggHatching(egg, teamName);
         _idPlayers[clientId] = player;
+        return true;
     }
 
     void Game::moveForward(int clientId)
@@ -173,16 +174,28 @@ namespace Zappy {
     {
         if (hasIdPlayer(clientId)){
             Player* player = _idPlayers[clientId];
-
+            Tile *tile = map->getTile(player->getPosition());
+            std::vector<Player*> players = tile->getPlayers();
+            for (uint i = 0; i < players.size(); i++){
+                if (player == players[i])
+                    continue;
+                players[i]->getEject(map, player->getDirection());
+            }
         }
     }
 
-    void Game::incantation(int clientId)
+    bool Game::incantation(int clientId)
     {
         if (hasIdPlayer(clientId)){
             Player* player = _idPlayers[clientId];
-
+            Tile* tile = map->getTile(player->getPosition());
+            if (checkLevelUp(player->getLevel(), tile) == false)
+                return false;
+            tile->resourceConsume(player->getLevel());
+            player->levelUp();
+            return true;
         }
+        return false;
     }
 
     bool Game::take(int clientId, const std::string obj)
@@ -239,5 +252,70 @@ namespace Zappy {
         auto it = _idPlayers.find(clientId);
 
         return it != _idPlayers.end();
+    }
+
+    bool Game::checkLevelUp(int level, Tile* tile)
+    {
+        if (level == 1){
+            if (tile->getNbPlayers() >= 1){
+                if (tile->getNbResources(LINEMATE) >= 1)
+                    return true;
+            }
+        }
+        if (level == 2){
+            if (tile->getNbPlayers() >= 2){
+                if (tile->getNbResources(LINEMATE) >= 1
+                && tile->getNbResources(DERAUMERE) >= 1
+                && tile->getNbResources(SIBUR) >= 1)
+                    return true;
+            }
+        }
+        if (level == 3){
+            if (tile->getNbPlayers() >= 2){
+                if (tile->getNbResources(LINEMATE) >= 2
+                && tile->getNbResources(SIBUR) >= 1
+                && tile->getNbResources(PHIRAS) >= 2)
+                    return true;
+            }
+        }
+        if (level == 4){
+            if (tile->getNbPlayers() >= 4){
+                if (tile->getNbResources(LINEMATE) >= 1
+                && tile->getNbResources(DERAUMERE) >= 1
+                && tile->getNbResources(SIBUR) >= 2
+                && tile->getNbResources(PHIRAS) >= 1)
+                    return true;
+            }
+        }
+        if (level == 5){
+            if (tile->getNbPlayers() >= 4){
+                if (tile->getNbResources(LINEMATE) >= 1
+                && tile->getNbResources(DERAUMERE) >= 2
+                && tile->getNbResources(SIBUR) >= 1
+                && tile->getNbResources(MENDIANE) >= 3)
+                    return true;
+            }
+        }
+        if (level == 6){
+            if (tile->getNbPlayers() >= 6){
+                if (tile->getNbResources(LINEMATE) >= 1
+                && tile->getNbResources(DERAUMERE) >= 2
+                && tile->getNbResources(SIBUR) >= 3
+                && tile->getNbResources(PHIRAS) >= 1)
+                    return true;
+            }
+        }
+        if (level == 7){
+            if (tile->getNbPlayers() >= 6){
+                if (tile->getNbResources(LINEMATE) >= 2
+                && tile->getNbResources(DERAUMERE) >= 2
+                && tile->getNbResources(SIBUR) >= 2
+                && tile->getNbResources(MENDIANE) >= 2
+                && tile->getNbResources(PHIRAS) >= 2
+                && tile->getNbResources(THYSTAME) >= 1)
+                    return true;
+            }
+        }
+        return false;
     }
 }

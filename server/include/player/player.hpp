@@ -10,10 +10,10 @@ namespace Zappy {
     class Map;
 
     enum Direction {
-        UP,
-        DOWN,
-        RIGHT,
-        LEFT
+        UP = 1,
+        DOWN = 2,
+        RIGHT = 3,
+        LEFT = 4
     };
 
     class Player {
@@ -36,8 +36,9 @@ namespace Zappy {
             bool take(Map* map, TypeResource typeResource);
             bool drop(Map* map, TypeResource typeResource);
             bool eat();
-            void checkLimit(Pos position);
             std::string look(Map* map);
+            void getEject(Map *map, Direction direction);
+            void levelUp() { _level++; };
 
         private:
             int _level;

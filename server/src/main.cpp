@@ -23,6 +23,9 @@
         game.initialize(5, 7, teams, 5);
         game.eggHatching(4, "team rocket");
         std::string output = game.inventory(4);
+        if (game.incantation(4) == false)
+        game.fork(4);
+            printf("coucou\n");
         std::cout << output << std::endl;
         return 0;
     }

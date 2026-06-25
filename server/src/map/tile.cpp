@@ -63,4 +63,62 @@ namespace Zappy {
             }
         }
     }
+
+    int Tile::getNbPlayers()
+    {
+        int i = 0;
+
+        while(i < (int)_players.size())
+            i++;
+        return i;
+    }
+
+    int Tile::getNbResources(TypeResource typeResource)
+    {
+        return _resources[typeResource];
+    }
+
+    void Tile::resourceConsume(int level)
+    {
+        if (level == 1){
+            _resources[LINEMATE] -= 1;
+        }
+        if (level == 2){
+            _resources[LINEMATE] -= 1;
+            _resources[DERAUMERE] -= 1;
+            _resources[SIBUR] -= 1;
+        }
+        if (level == 3){
+            _resources[LINEMATE] -= 2;
+            _resources[SIBUR] -= 1;
+            _resources[PHIRAS] -= 2;
+        }
+        if (level == 4){
+            _resources[LINEMATE] -= 1;
+            _resources[DERAUMERE] -= 1;
+            _resources[SIBUR] -= 2;
+            _resources[PHIRAS] -= 1;
+        }
+        if (level == 5){
+            _resources[LINEMATE] -= 1;
+            _resources[DERAUMERE] -= 2;
+            _resources[SIBUR] -= 1;
+            _resources[MENDIANE] -= 3;
+        }
+        if (level == 6){
+            _resources[LINEMATE] -= 1;
+            _resources[DERAUMERE] -= 2;
+            _resources[SIBUR] -= 3;
+            _resources[PHIRAS] -= 1;
+        }
+        if (level == 7){
+            _resources[LINEMATE] -= 2;
+            _resources[DERAUMERE] -= 2;
+            _resources[SIBUR] -= 2;
+            _resources[MENDIANE] -= 2;
+            _resources[PHIRAS] -= 2;
+            _resources[THYSTAME] -= 1;
+        }
+    }
+
 }

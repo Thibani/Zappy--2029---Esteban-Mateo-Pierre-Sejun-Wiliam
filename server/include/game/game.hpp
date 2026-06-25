@@ -9,6 +9,7 @@ namespace Zappy {
     class Map;
     class Player;
     class Egg;
+    class Tile;
 
     class Game {
 
@@ -17,7 +18,7 @@ namespace Zappy {
             ~Game();
             Map* map;
             void initialize(int mapWidth, int mapHeight, std::vector<std::string> teamNames, int nbEggs);
-            void eggHatching(int clientId, const std::string teamName);
+            bool eggHatching(int clientId, const std::string teamName);
             void moveForward(int clientId);
             void turnRight(int clientId);
             void turnLeft(int clientId);
@@ -27,11 +28,12 @@ namespace Zappy {
             int connectNbr(int clientId);
             int fork(int clientId);
             void eject(int clientId);
-            void incantation(int clientId);
+            bool incantation(int clientId);
             bool take(int clientId, const std::string obj);
             bool set(int clientId, const std::string obj);
             bool eat(int clientId);
             void removePlayer(int clientId);
+            bool checkLevelUp(int level, Tile* tile);
 
         private:
             std::vector<Team*> _teams;

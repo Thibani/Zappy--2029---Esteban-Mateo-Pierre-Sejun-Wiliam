@@ -105,6 +105,31 @@ namespace Zappy {
         return true;
     }
 
+    void Player::getEject(Map *map, Direction direction)
+    {
+        Tile* tile = map->getTile(_position);
+        tile->removePlayer(this);
+
+        switch(direction) {
+            case UP:
+                _position.y--;
+                break;
+            case RIGHT:
+                _position.x++;
+                break;
+            case LEFT:
+                _position.x--;
+                break;
+            case DOWN:
+                _position.y++;
+                break;
+        }
+
+        map->correctPos(&_position);
+        tile = map->getTile(_position);
+        tile->addPlayer(this);
+    }
+
     std::string Player::look(Map* map)
     {
         std::vector<Pos> vision;
