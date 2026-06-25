@@ -209,7 +209,8 @@ namespace Zappy {
         // TODO: Game::take(client, args) — takes 7/f seconds
         std::cout << "[CommandHandler] fd=" << client.getFd()
                   << " Take \"" << args << "\"\n";
-        client.pushToWriteBuffer("ok\n");
+        bool ok = _game.take(client.getFd(), args);
+        client.pushToWriteBuffer(ok ? "ok\n" : "ko\n");
     }
 
     void CommandHandler::_handleSet(Client &client, const std::string &args)
@@ -217,7 +218,8 @@ namespace Zappy {
         // TODO: Game::set(client, args) — takes 7/f seconds
         std::cout << "[CommandHandler] fd=" << client.getFd()
                   << " Set \"" << args << "\"\n";
-        client.pushToWriteBuffer("ok\n");
+        bool ok = _game.set(client.getFd(), args);
+        client.pushToWriteBuffer(ok ? "ok\n" : "ko\n");
     }
 
     // -------------------------------------------------------------------------

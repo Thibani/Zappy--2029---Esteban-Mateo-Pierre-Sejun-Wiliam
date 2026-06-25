@@ -33,11 +33,14 @@
 #include "types/resource.hpp"
 
 namespace Zappy {
-    class Server; // forward declararation
+    class Server;
+    class Game;
 
     class GUIProtocol : public IGameEventListener {
         public:
             explicit GUIProtocol(Server &server);
+
+            void setGame(Game &game) { _game = &game; }
 
             // Sends the full world state to a newly-connected GUI.
             // Per protocol v3.3, order is: msz, sgt, tna (per team),
@@ -257,7 +260,8 @@ namespace Zappy {
                 return "smg " + message + "\n";
             }
         private:
-            Server &_server;
+            Server  &_server;
+            Game    *_game = nullptr;
 
             /** Send `line` to a specific GUI (fd >= 0) or to all GUIs (fd = -1). */
             void _send(const std::string &line, int guiFd);

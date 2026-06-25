@@ -15,6 +15,8 @@
 
 #include "protocol/guiProtocol.hpp"
 #include "server/server.hpp"
+#include "game/game.hpp"
+#include "map/tile.hpp"
 
 namespace Zappy {
     GUIProtocol::GUIProtocol(Server &server)
@@ -34,24 +36,28 @@ namespace Zappy {
     // ---------------------------------------------------------------------
     void GUIProtocol::sendInitialState(int guidFd)
     {
-        // TODO: replace with a full world dump once Game exposes:
-        //   - _game.width(), _game.height(), _game.frequency()
-        //   - _game.teams(), _game.tiles(), _game.eggs(), _game.players()
-        // Order per protocol:
-        //   1. msz X Y
-        //   2. sgt T
-        //   3. tna N (per team)
-        //   4. bct X Y q0..q6 (per tile — reply to mct)
-        //   5. enw #e #n X Y (per existing egg)
-        //   6. pnw #n X Y O L N + pin + plv (per existing player)
-        //
-        emitMapSize(10, 10, guidFd);
+        if (!_game) {
+            emitMapSize(10, 10, guidFd);
+            emitTimeUnit(100, guidFd);
+            return;
+        }
+        auto [w, h] = _game->getMapSize();
+        emitMapSize(w, h, guidFd);
         emitTimeUnit(100, guidFd);
-        emitTeamName("team1", guidFd);
-        Inventory emptyTile;
-        for (int y = 0; y < 10; y++) {
-            for (int x = 0; x < 10; x++)
-                emitTileContent(x, y, emptyTile, guidFd);
+        for (const auto &teamName : _game->getTeams())
+            emitTeamName(teamName, guidFd);
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                Pos p{x, y};
+                Tile *tile = _game->map->getTile(p);
+                if (tile) {
+                    Inventory inv;
+                    const auto &raw = tile->resources();
+                    for (int i = 0; i < 7; i++)
+                        inv.set(static_cast<TypeResource>(i), raw[i]);
+                    emitTileContent(x, y, inv, guidFd);
+                }
+            }
         }
     }
 

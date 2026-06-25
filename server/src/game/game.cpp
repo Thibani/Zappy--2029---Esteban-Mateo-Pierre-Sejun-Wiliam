@@ -82,6 +82,7 @@ namespace Zappy {
 
     bool Game::eggHatching(int clientId, const std::string teamName)
     {
+        std::cout << "[eggHatching] called id=" << clientId << " team=" << teamName << " listener=" << (_listener?"yes":"no") << "\n";
         if (hasIdPlayer(clientId))
             return false;
         Team *team = getTeam(teamName);
@@ -220,18 +221,46 @@ namespace Zappy {
     {
         if (hasIdPlayer(clientId)){
             Player* player = _idPlayers[clientId];
-            return player->take(map, Resource::stringToTypeResource((obj)));
+            TypeResource r = Resource::stringToTypeResource(obj);
+            bool ok = player->take(map, r);
+            if (ok && _listener) {
+                Pos p = player->getPosition();
+                Inventory tileInv;
+                Inventory playerInv;
+                const auto &tileRaw = map->getTile(p)->resources();
+                const auto &playerRaw = player->getInventory();
+                for (int i = 0; i < 7; i++) {
+                    tileInv.set(static_cast<TypeResource>(i), tileRaw[i]);
+                    playerInv.set(static_cast<TypeResource>(i), playerRaw[i]);
+                }
+                _listener->onPlayerTookResource(clientId, r, p.x, p.y, tileInv, playerInv);
+            }
+            return ok;
         }
-        return false;//throw peut être
+        return false;
     }
 
     bool Game::set(int clientId, const std::string obj)
     {
         if (hasIdPlayer(clientId)){
             Player* player = _idPlayers[clientId];
-            return player->drop(map, Resource::stringToTypeResource(obj));
+            TypeResource r = Resource::stringToTypeResource(obj);
+            bool ok = player->drop(map, r);
+            if (ok && _listener) {
+                Pos p = player->getPosition();
+                Inventory tileInv;
+                Inventory playerInv;
+                const auto &tileRaw = map->getTile(p)->resources();
+                const auto &playerRaw = player->getInventory();
+                for (int i = 0; i < 7; i++) {
+                    tileInv.set(static_cast<TypeResource>(i), tileRaw[i]);
+                    playerInv.set(static_cast<TypeResource>(i), playerRaw[i]);
+                }
+                _listener->onPlayerDroppedResource(clientId, r, p.x, p.y, tileInv, playerInv);
+            }
+            return ok;
         }
-        return false;//throw peut être
+        return false;
     }
 
     bool Game::eat(int clientId)

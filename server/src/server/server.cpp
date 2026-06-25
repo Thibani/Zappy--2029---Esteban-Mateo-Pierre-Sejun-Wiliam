@@ -30,6 +30,7 @@ namespace Zappy {
         : _args(args), _serverFd(-1), _guiProtocol(*this), _cmdHandler(game, _guiProtocol)
     {
         game.setListener(&_guiProtocol);
+        _guiProtocol.setGame(game);
         _initSocket();
     }
 

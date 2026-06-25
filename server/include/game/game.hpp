@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <iostream>
 
 namespace Zappy {
 
@@ -42,7 +43,11 @@ namespace Zappy {
             int getMapWidth() { return map->getWidth(); }
             int getMapHeight() { return map->getHeight(); }
             std::map<int, Player*> getPlayers() { return _idPlayers; }
-            void setListener(IGameEventListener *_listener) { _listener = _listener; }
+            // void setListener(IGameEventListener *_listener) { _listener = _listener; }
+            void setListener(IGameEventListener *listener) {
+                _listener = listener;
+                std::cout << "[Game::setListener] called listener=" << (listener ? "non-null" : "null") << "\n";
+            }
 
         private:
             std::vector<Team*> _teams;
