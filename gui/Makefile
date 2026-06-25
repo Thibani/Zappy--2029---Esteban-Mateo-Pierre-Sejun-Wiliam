@@ -23,7 +23,8 @@ SRCS		=	$(SRC_DIR)/main.cpp								\
 				$(SRC_DIR)/Character/CharacterFactory.cpp		\
 				$(SRC_DIR)/Protocol/ServerParser.cpp			\
 				$(SRC_DIR)/Network/NetworkClient.cpp			\
-				$(SRC_DIR)/Egg/EggFactory.cpp
+				$(SRC_DIR)/Egg/EggFactory.cpp					\
+				$(SRC_DIR)/Core/AssetManager.cpp
 
 OBJS		=	$(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 
