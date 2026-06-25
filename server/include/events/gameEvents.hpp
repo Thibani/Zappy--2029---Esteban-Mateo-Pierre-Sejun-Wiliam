@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-#include "types/orientation.hpp"
+#include "player/player.hpp"
 #include "types/resource.hpp"
 
 namespace Zappy {
@@ -51,10 +51,10 @@ namespace Zappy {
 
             // ─── Players ─────────────────────────────────────────────────────
             /** A new player just connected (egg hatched into a player). */
-            virtual void onPlayerConnected(int playerId, int x, int y, Orientation orientation, int level, const std::string &teamName) = 0;
+            virtual void onPlayerConnected(int playerId, int x, int y, Direction orientation, int level, const std::string &teamName) = 0;
 
             /** Player moved (Forward) or turned (Right/Left). */
-            virtual void onPlayerMoved(int playerId, int x, int y, Orientation orientation) = 0;
+            virtual void onPlayerMoved(int playerId, int x, int y, Direction orientation) = 0;
 
             /** Player was ejected from their tile by another player's Eject. */
             virtual void onPlayerExpelled(int playerId) = 0;
@@ -125,8 +125,8 @@ namespace Zappy {
             void onMapSize(int, int) override {}
             void onTeamRegistered(const std::string &) override {}
             void onTileChanged(int, int, const Inventory &) override {}
-            void onPlayerConnected(int, int, int, Orientation, int, const std::string &) override {}
-            void onPlayerMoved(int, int, int, Orientation) override {}
+            void onPlayerConnected(int, int, int, Direction, int, const std::string &) override {}
+            void onPlayerMoved(int, int, int, Direction) override {}
             void onPlayerExpelled(int) override {}
             void onPlayerBroadcast(int, const std::string &) override {}
             void onPlayerForked(int) override {}

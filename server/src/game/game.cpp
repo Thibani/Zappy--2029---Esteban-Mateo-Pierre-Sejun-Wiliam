@@ -90,6 +90,10 @@ namespace Zappy {
         Egg *egg = team->popEgg();
         Player *player = map->eggHatching(egg, teamName);
         _idPlayers[clientId] = player;
+        if (_listener) {
+            Pos p = player->getPosition();
+            _listener->onPlayerConnected(clientId, p.x, p.y, player->getDirection(), player->getLevel(), teamName);
+        }
         return true;
     }
 
@@ -98,6 +102,10 @@ namespace Zappy {
         if (hasIdPlayer(clientId)){
             Player* player = _idPlayers[clientId];
             player->moveForward(map);
+            if (_listener) {
+                Pos p = player->getPosition();
+                _listener->onPlayerMoved(clientId, p.x, p.y, player->getDirection());
+            }
         }
     }
 
@@ -106,6 +114,10 @@ namespace Zappy {
         if (hasIdPlayer(clientId)){
             Player* player = _idPlayers[clientId];
             player->turnRight();
+            if (_listener) {
+                Pos p = player->getPosition();
+                _listener->onPlayerMoved(clientId, p.x, p.y, player->getDirection());
+            }
         }
     }
 
@@ -114,6 +126,10 @@ namespace Zappy {
         if (hasIdPlayer(clientId)){
             Player* player = _idPlayers[clientId];
             player->turnLeft();
+            if (_listener) {
+                Pos p = player->getPosition();
+                _listener->onPlayerMoved(clientId, p.x, p.y, player->getDirection());
+            }
         }
     }
 

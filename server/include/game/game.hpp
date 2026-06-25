@@ -1,6 +1,7 @@
 #pragma once
 
 #include "map/map.hpp"
+#include "events/gameEvents.hpp"
 
 #include <vector>
 #include <map>
@@ -41,12 +42,13 @@ namespace Zappy {
             int getMapWidth() { return map->getWidth(); }
             int getMapHeight() { return map->getHeight(); }
             std::map<int, Player*> getPlayers() { return _idPlayers; }
+            void setListener(IGameEventListener *_listener) { _listener = _listener; }
 
         private:
             std::vector<Team*> _teams;
             std::map<int, Player*> _idPlayers;
             std::vector<Player*> _players;
-
+            IGameEventListener *_listener = nullptr;
             Team *getTeam(const std::string teamName);
             bool hasIdPlayer(int clientId);
             void addPlayer(Player* player);

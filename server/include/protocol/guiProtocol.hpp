@@ -29,7 +29,7 @@
 #include <vector>
 
 #include "events/gameEvents.hpp"
-#include "types/orientation.hpp"
+#include "player/player.hpp"
 #include "types/resource.hpp"
 
 namespace Zappy {
@@ -49,7 +49,7 @@ namespace Zappy {
             void emitMapSize(int width, int height, int guiFd = -1);
             void emitTileContent(int x, int y, const Inventory &contents, int guiFd = -1);
             void emitTeamName(const std::string &name, int guiFd = -1);
-            void emitPlayerPosition(int playerId, int x, int y, Orientation o, int guiFd = -1);
+            void emitPlayerPosition(int playerId, int x, int y, Direction o, int guiFd = -1);
             void emitPlayerLevel(int playerId, int level, int guiFd = -1);
             void emitPlayerInventory(int playerId, int x, int y, const Inventory &inv, int guiFd = -1);
             void emitTimeUnit(int frequency, int guiFd = -1);
@@ -62,8 +62,8 @@ namespace Zappy {
             void onMapSize(int width, int height) override;
             void onTeamRegistered(const std::string &name) override;
             void onTileChanged(int x, int y, const Inventory &contents) override;
-            void onPlayerConnected(int playerId, int x, int y, Orientation orientation, int level, const std::string &teamName) override;
-            void onPlayerMoved(int playerId, int x, int y, Orientation orientation) override;
+            void onPlayerConnected(int playerId, int x, int y, Direction orientation, int level, const std::string &teamName) override;
+            void onPlayerMoved(int playerId, int x, int y, Direction orientation) override;
             void onPlayerExpelled(int playerId) override;
             void onPlayerBroadcast(int playerId, const std::string &message) override;
             void onPlayerForked(int playerId) override;
@@ -111,7 +111,7 @@ namespace Zappy {
                 return "tna " + name + "\n";
             }
 
-            static inline std::string fmtPnw(int playerId, int x, int y, Orientation o, int level, const std::string &team)
+            static inline std::string fmtPnw(int playerId, int x, int y, Direction o, int level, const std::string &team)
             {
                 std::ostringstream os;
                 os << "pnw #" << playerId << ' ' << x << ' ' << y
@@ -122,7 +122,7 @@ namespace Zappy {
                 return os.str();
             }
 
-            static inline std::string fmtPpo(int playerId, int x, int y, Orientation o)
+            static inline std::string fmtPpo(int playerId, int x, int y, Direction o)
             {
                 std::ostringstream os;
                 os << "ppo #" << playerId << ' ' << x << ' ' << y

@@ -7,6 +7,7 @@
 #include "server/server.hpp"
 #include "exceptions/serverException.hpp"
 #include "utils/clock.hpp"
+#include "game/game.hpp"
 
 #include <iostream>
 #include <cerrno>
@@ -28,6 +29,7 @@ namespace Zappy {
     Server::Server(const Args &args, Game &game)
         : _args(args), _serverFd(-1), _guiProtocol(*this), _cmdHandler(game, _guiProtocol)
     {
+        game.setListener(&_guiProtocol);
         _initSocket();
     }
 

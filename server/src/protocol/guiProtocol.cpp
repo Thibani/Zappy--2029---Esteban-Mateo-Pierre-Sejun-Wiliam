@@ -74,7 +74,7 @@ namespace Zappy {
         _send(fmtTna(name), guiFd);
     }
 
-    void GUIProtocol::emitPlayerPosition(int playerId, int x, int y, Orientation o, int guiFd)
+    void GUIProtocol::emitPlayerPosition(int playerId, int x, int y, Direction o, int guiFd)
     {
         _send(fmtPpo(playerId, x, y, o), guiFd);
     }
@@ -125,12 +125,12 @@ namespace Zappy {
         _send(fmtBct(x, y, contents), -1);
     }
 
-    void GUIProtocol::onPlayerConnected(int playerId, int x, int y, Orientation orientation, int level, const std::string &teamName)
+    void GUIProtocol::onPlayerConnected(int playerId, int x, int y, Direction orientation, int level, const std::string &teamName)
     {
         _send(fmtPnw(playerId, x, y, orientation, level, teamName), -1);
     }
 
-    void GUIProtocol::onPlayerMoved(int playerId, int x, int y, Orientation orientation)
+    void GUIProtocol::onPlayerMoved(int playerId, int x, int y, Direction orientation)
     {
         _send(fmtPpo(playerId, x, y, orientation), -1);
     }
