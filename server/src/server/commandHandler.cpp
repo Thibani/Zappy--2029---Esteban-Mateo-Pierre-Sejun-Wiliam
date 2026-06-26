@@ -156,52 +156,61 @@ namespace Zappy {
 
     void CommandHandler::_handleLook(Client &client, const std::string &)
     {
-        // TODO: Game::look(client) — takes 7/f seconds, returns tile contents
         std::cout << "[CommandHandler] fd=" << client.getFd() << " Look\n";
-        client.pushToWriteBuffer("[]\n");
+        std::string result = _game.look(client.getFd());
+        if (result.empty() || result.back() != '\n')
+            result += "\n";
+        client.pushToWriteBuffer(result);
     }
 
     void CommandHandler::_handleInventory(Client &client, const std::string &)
     {
-        // TODO: Game::inventory(client) — takes 1/f seconds
         std::cout << "[CommandHandler] fd=" << client.getFd() << " Inventory\n";
-        client.pushToWriteBuffer("[food 0, linemate 0, deraumere 0, sibur 0, mendiane 0, phiras 0, thystame 0]\n");
+        std::string result = _game.inventory(client.getFd());
+        if (result.empty() || result.back() != '\n')
+            result += "\n";
+        client.pushToWriteBuffer(result);
     }
 
     void CommandHandler::_handleBroadcast(Client &client, const std::string &args)
     {
-        // TODO: Game::broadcast(client, args) — takes 7/f seconds, sends to all clients
         std::cout << "[CommandHandler] fd=" << client.getFd()
                   << " Broadcast \"" << args << "\"\n";
+        // TODO
         client.pushToWriteBuffer("ok\n");
     }
 
     void CommandHandler::_handleConnectNbr(Client &client, const std::string &)
     {
-        // TODO: Game::connectNbr(client) — immediate, returns free slots
         std::cout << "[CommandHandler] fd=" << client.getFd() << " Connect_nbr\n";
-        client.pushToWriteBuffer("0\n");
+        int n = _game.connectNbr(client.getFd());
+        client.pushToWriteBuffer(std::to_string(n) + "\n");
     }
 
     void CommandHandler::_handleFork(Client &client, const std::string &)
     {
-        // TODO: Game::fork(client) — takes 42/f seconds, lays an egg
         std::cout << "[CommandHandler] fd=" << client.getFd() << " Fork\n";
+        _game.fork(client.getFd());
         client.pushToWriteBuffer("ok\n");
     }
 
     void CommandHandler::_handleEject(Client &client, const std::string &)
     {
-        // TODO: Game::eject(client) — takes 7/f seconds, pushes others off tile
+        
         std::cout << "[CommandHandler] fd=" << client.getFd() << " Eject\n";
+        _game.eject(client.getFd());
         client.pushToWriteBuffer("ok\n");
     }
 
     void CommandHandler::_handleIncantation(Client &client, const std::string &)
     {
-        // TODO: Game::incantation(client) — takes 300/f seconds
         std::cout << "[CommandHandler] fd=" << client.getFd() << " Incantation\n";
-        client.pushToWriteBuffer("ko\n");
+        bool ok = _game.incantation(client.getFd());
+        if (ok) {
+            client.pushToWriteBuffer("Current level: " + std::to_string(_game.getPlayers()[client.getFd()]->getLevel()) + "\n");
+        } else {
+            client.pushToWriteBuffer("ko\n");
+        }
     }
 
     void CommandHandler::_handleTake(Client &client, const std::string &args)

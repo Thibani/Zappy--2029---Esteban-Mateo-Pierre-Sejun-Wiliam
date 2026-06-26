@@ -1,10 +1,11 @@
-#include "../../include/game/game.hpp"
-#include "../../include/egg/egg.hpp"
-#include "../../include/map/map.hpp"
-#include "../../include/team/team.hpp"
-#include "../../include/map/tile.hpp"
-#include "../../include/player/player.hpp"
-#include "../../include/types/resource.hpp"
+#include "game/game.hpp"
+#include "egg/egg.hpp"
+#include "map/map.hpp"
+#include "team/team.hpp"
+#include "map/tile.hpp"
+#include "player/player.hpp"
+#include "types/resource.hpp"
+
 #include <cstdlib>
 #include <random>
 #include <vector>
@@ -199,19 +200,49 @@ namespace Zappy {
                 if (player == players[i])
                     continue;
                 players[i]->getEject(map, player->getDirection());
+                if (_listener) {
+                    for (auto &[id, p] : _idPlayers) {
+                        if (p == players[i]) {
+                            _listener->onPlayerExpelled(id);
+                            break;
+                        }
+                    }
+                }
             }
         }
     }
 
     bool Game::incantation(int clientId)
     {
-        if (hasIdPlayer(clientId)){
-            Player* player = _idPlayers[clientId];
-            Tile* tile = map->getTile(player->getPosition());
-            if (checkLevelUp(player->getLevel(), tile) == false)
+        if (hasIdPlayer(clientId)) {
+            Player *player = _idPlayers[clientId];
+            Tile *tile = map->getTile(player->getPosition());
+            Pos pos = player->getPosition();
+            int oldLevel = player->getLevel();
+            //TODO: Add all players on the tile to participants
+            std::vector<int> participants = { clientId };
+            if (_listener)
+                _listener->onIncantationStarted(pos.x, pos.y, oldLevel, participants);
+            if (checkLevelUp(oldLevel, tile) == false) {
+                if (_listener) {
+                    Inventory inv;
+                    const auto &raw = tile->resources();
+                    for (int i = 0; i < 7; i++)
+                        inv.set(static_cast<TypeResource>(i), raw[i]);
+                    _listener->onIncantationEnded(pos.x, pos.y, false, participants, oldLevel, inv);
+                }
                 return false;
-            tile->resourceConsume(player->getLevel());
+            }
+            tile->resourceConsume(oldLevel);
             player->levelUp();
+            int newLevel = player->getLevel();
+            if (_listener) {
+                Inventory inv;
+                const auto &raw = tile->resources();
+                for (int i = 0; i < 7; i++)
+                    inv.set(static_cast<TypeResource>(i), raw[i]);
+                _listener->onIncantationEnded(pos.x, pos.y, true, participants, newLevel, inv);
+            }
             return true;
         }
         return false;

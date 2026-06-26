@@ -67,7 +67,8 @@ namespace Zappy {
             _guiProtocol.emitBadParameters(client.getFd());
             return;
         }
-        _guiProtocol.emitMapSize(kPlaceholderMapWidth, kPlaceholderMapHeight, client.getFd());
+        auto [w, h] = _game.getMapSize();
+        _guiProtocol.emitMapSize(w, h, client.getFd());
     }
 
     // "bct X Y" → "bct X Y q0..q6\n"
@@ -80,12 +81,20 @@ namespace Zappy {
         }
         const int x = nums[0];
         const int y = nums[1];
-        if (x < 0 || x >= kPlaceholderMapWidth || y < 0 || y >= kPlaceholderMapHeight) {
+        auto [w, h] = _game.getMapSize();
+        if (x < 0 || x >= w || y < 0 || y >= h) {
             _guiProtocol.emitBadParameters(client.getFd());
             return;
         }
-        Inventory emptyTile; // TODO
-        _guiProtocol.emitTileContent(x, y, emptyTile, client.getFd());
+        Pos p{x, y};
+        Tile *tile = _game.map->getTile(p);
+        Inventory inv;
+        if (tile) {
+            const auto &raw = tile->resources();
+            for (int i = 0; i < 7; i++)
+                inv.set(static_cast<TypeResource>(i), raw[i]);
+        }
+        _guiProtocol.emitTileContent(x, y, inv, client.getFd());
     }
 
     // "mct" → 100 lines of "bct X Y 0 0 0 0 0 0 0\n"
@@ -95,10 +104,19 @@ namespace Zappy {
             _guiProtocol.emitBadParameters(client.getFd());
             return;
         }
-        Inventory emptyTile; // TODO
-        for (int y = 0; y < kPlaceholderMapHeight; y++) {
-            for (int x = 0; x < kPlaceholderMapWidth; x++) 
-                _guiProtocol.emitTileContent(x, y, emptyTile, client.getFd());
+        auto [w, h] = _game.getMapSize();
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                Pos p{x, y};
+                Tile *tile = _game.map->getTile(p);
+                Inventory inv;
+                if (tile) {
+                    const auto &raw = tile->resources();
+                    for (int i = 0; i < 7; i++)
+                        inv.set(static_cast<TypeResource>(i), raw[i]);
+                }
+                _guiProtocol.emitTileContent(x, y, inv, client.getFd());
+            }
         }
     }
 
@@ -109,9 +127,8 @@ namespace Zappy {
             _guiProtocol.emitBadParameters(client.getFd());
             return;
         }
-        // TODO: iterate over Game::teams() once Sejun's PR lands.
-        // For now emit a single placeholder team name to keep clients happy.
-        _guiProtocol.emitTeamName("team1", client.getFd());
+        for (const auto &teamName : _game.getTeams())
+            _guiProtocol.emitTeamName(teamName, client.getFd());
     }
 
     // "ppo #n" → sbp (no players exist yet)
@@ -122,9 +139,15 @@ namespace Zappy {
             _guiProtocol.emitBadParameters(client.getFd());
             return;
         }
-         // TODO: lookup player by id in Game (Sejun). Until then any id
-        // is invalid because no players exist.
-        _guiProtocol.emitBadParameters(client.getFd());
+        auto players = _game.getPlayers();
+        auto it = players.find(playerId);
+        if (it == players.end()) {
+            _guiProtocol.emitBadParameters(client.getFd());
+            return;
+        }
+        Player *p = it->second;
+        Pos pos = p->getPosition();
+        _guiProtocol.emitPlayerPosition(playerId, pos.x, pos.y, p->getDirection(), client.getFd());
     }
 
     // "plv #n" → sbp (no players exist yet)
@@ -135,8 +158,14 @@ namespace Zappy {
             _guiProtocol.emitBadParameters(client.getFd());
             return;
         }
-        // TODO: lookup player by id in Game (Sejun).
-        _guiProtocol.emitBadParameters(client.getFd());
+        auto players = _game.getPlayers();
+        auto it = players.find(playerId);
+        if (it == players.end()) {
+            _guiProtocol.emitBadParameters(client.getFd());
+            return;
+        }
+        Player *p = it->second;
+        _guiProtocol.emitPlayerLevel(playerId, p->getLevel(), client.getFd());
     }
 
     // "pin #n" → sbp (no players exist yet)
@@ -147,8 +176,19 @@ namespace Zappy {
             _guiProtocol.emitBadParameters(client.getFd());
             return;
         }
-        // TODO: lookup player by id in Game (Sejun).
-        _guiProtocol.emitBadParameters(client.getFd());
+        auto players = _game.getPlayers();
+        auto it = players.find(playerId);
+        if (it == players.end()) {
+            _guiProtocol.emitBadParameters(client.getFd());
+            return;
+        }
+        Player *p = it->second;
+        Pos pos = p->getPosition();
+        const auto &raw = p->getInventory();
+        Inventory inv;
+        for (int i = 0; i < 7; i++)
+            inv.set(static_cast<TypeResource>(i), raw[i]);
+        _guiProtocol.emitPlayerInventory(playerId, pos.x, pos.y, inv, client.getFd());
     }
 
     // "sgt" → "sgt T\n"
