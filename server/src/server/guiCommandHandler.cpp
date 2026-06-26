@@ -7,6 +7,9 @@
 
 #include "server/guiCommandHandler.hpp"
 #include "protocol/guiProtocol.hpp"
+#include "game/game.hpp"
+#include "map/tile.hpp"
+#include "player/player.hpp"
 
 #include <sstream>
 #include <algorithm>
@@ -26,8 +29,8 @@ namespace Zappy {
     // ----------------------------------------------------------------------
     // Ctor
     // ----------------------------------------------------------------------
-    GUICommandHandler::GUICommandHandler(GUIProtocol &guiProtocol)
-        : _guiProtocol(guiProtocol)
+    GUICommandHandler::GUICommandHandler(GUIProtocol &guiProtocol, Game &game)
+        : _guiProtocol(guiProtocol), _game(game)
     {
         _handlers["msz"] = [this](const Client &c, const std::string &a) { _handleMsz(c, a); };
         _handlers["bct"] = [this](const Client &c, const std::string &a) { _handleBct(c, a); };

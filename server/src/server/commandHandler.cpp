@@ -20,7 +20,7 @@ namespace Zappy {
     // -------------------------------------------------------------------------
 
     CommandHandler::CommandHandler(Game &game, GUIProtocol &guiProtocol)
-        : _game(game), _guiProtocol(guiProtocol), _guiCmdHandler(guiProtocol)
+        : _game(game), _guiProtocol(guiProtocol), _guiCmdHandler(guiProtocol, game)
     {
         // Build dispatch table — keys are lowercase for case-insensitive matching
         _aiHandlers["forward"]     = [this](Client &c, const std::string &a) { _handleForward(c, a);     };
