@@ -8,8 +8,10 @@
 #include "Constants.hpp"
 #include "Protocol/ServerParser.hpp"
 #include "Network/NetworkClient.hpp"
+#include "Core/AssetManager.hpp"
 
-static void gameLoop(CharacterFactory& factory, Map& map, EggFactory& eggs, PlayerView& camera, Renderer& renderer, NetworkClient& network) {
+static void gameLoop(CharacterFactory& factory, Map& map, EggFactory& eggs, PlayerView& camera, Renderer& renderer, NetworkClient& network)
+{
     ServerParser parser;
 
     while (!WindowShouldClose()) {
@@ -31,17 +33,22 @@ static void gameLoop(CharacterFactory& factory, Map& map, EggFactory& eggs, Play
     }
 }
 
-void gameSetup() {
+void gameSetup(const char* host, int port)
+{
     Window window(1280, 720, "Zappy GUI");
+
+    std::string assetRoot = std::string(GetApplicationDirectory()) + "assets";
+
     Map map(20, 20);
     CharacterFactory factory;
     EggFactory eggs;
     PlayerView camera;
     camera.init(map.getWidth() * TILE_SIZE, map.getHeight() * TILE_SIZE);
-    Renderer renderer("assets/Characters/Commander_lv7.png");
+    AssetManager assets(assetRoot);
+    Renderer renderer(assets);
 
     NetworkClient network;
-    if (!network.connect("127.0.0.1", 4242)) {
+    if (!network.connect(host, port)) {
         std::cerr << "Failed to connect to server\n";
         return;
     }
