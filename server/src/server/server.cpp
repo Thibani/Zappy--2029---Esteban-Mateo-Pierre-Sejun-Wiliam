@@ -29,6 +29,7 @@ namespace Zappy {
     Server::Server(const Args &args, Game &game)
         : _args(args), _serverFd(-1), _guiProtocol(*this), _cmdHandler(game, _guiProtocol)
     {
+        _game = game;
         game.setListener(&_guiProtocol);
         _guiProtocol.setGame(game);
         _initSocket();
@@ -318,10 +319,10 @@ namespace Zappy {
 
     void Server::_processPendingActions()
     {
-        
-        // TODO: iterate over clients, check if their current action deadline
-        // has passed via Clock::hasPassed(), and if so dispatch the result
-        // to CommandHandler / Game.
+        std::vector<std::pair<int, std::string>> actionResults = _game.executeAllClientActions();
+
+        for (std::pair<int, std::string> actionResult : actionResults)
+            sendToClient(actionResult.first, actionResult.second);
     }
 
 }

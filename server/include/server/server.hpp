@@ -12,15 +12,13 @@
 #include "server/commandHandler.hpp"
 #include "protocol/guiProtocol.hpp"
 #include "exceptions/serverException.hpp"
+#include "game/game.hpp"
 
 #include <unordered_map>
 #include <vector>
 #include <poll.h>
 
 namespace Zappy {
-
-    // Forward declarations — implemented by person 2 and person 3
-    class Game;
 
     class Server {
     public:
@@ -64,6 +62,7 @@ namespace Zappy {
         std::vector<struct pollfd>       _pollfds;
         GUIProtocol                      _guiProtocol;
         CommandHandler                   _cmdHandler;
+        Game _game;
     };
 
 } // namespace Zappy
