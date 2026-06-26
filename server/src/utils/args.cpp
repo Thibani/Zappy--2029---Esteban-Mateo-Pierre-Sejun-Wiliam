@@ -6,11 +6,29 @@
 */
 
 #include "utils/args.hpp"
+#include <cstring>
 #include <iostream>
 #include "exceptions/serverException.hpp"
 #include <string>
 
+
+static int parseIntArg(const std::string &flag, const char *value)
+{
+    try {
+        size_t pos;
+        int result = std::stoi(value, &pos);
+        if (pos != std::strlen(value))
+            throw Zappy::ArgsException("Invalid integer for " + flag + ": " + value);
+        return result;
+    } catch (const std::invalid_argument &) {
+        throw Zappy::ArgsException("Expected a number for " + flag + ", got: " + value);
+    } catch (const std::out_of_range &) {
+        throw Zappy::ArgsException("Number out of range for " + flag + ": " + value);
+    }
+}
+
 namespace Zappy {
+
 
     void ArgsParser::printUsage(const char *binary)
     {
@@ -52,7 +70,7 @@ namespace Zappy {
             if (flag == "-p") {
                 if (++i >= argc)
                     throw ArgsException("Missing value for -p");
-                args.port = std::stoi(argv[i]);
+                args.port = parseIntArg("-p", argv[i]);
                 if (!isValidPort(args.port))
                     throw ArgsException("Invalid port: must be 1-65535");
 
@@ -60,7 +78,7 @@ namespace Zappy {
             } else if (flag == "-x") {
                 if (++i >= argc)
                     throw ArgsException("Missing value for -x");
-                args.width = std::stoi(argv[i]);
+                args.width = parseIntArg("-x", argv[i]);
                 if (!isPositive(args.width))
                     throw ArgsException("Width must be > 0");
 
@@ -68,7 +86,7 @@ namespace Zappy {
             } else if (flag == "-y") {
                 if (++i >= argc)
                     throw ArgsException("Missing value for -y");
-                args.height = std::stoi(argv[i]);
+                args.height = parseIntArg("-y", argv[i]);
                 if (!isPositive(args.height))
                     throw ArgsException("Height must be > 0");
 
@@ -76,7 +94,7 @@ namespace Zappy {
             } else if (flag == "-c") {
                 if (++i >= argc)
                     throw ArgsException("Missing value for -c");
-                args.clientsNb = std::stoi(argv[i]);
+                args.clientsNb = parseIntArg("-c", argv[i]);
                 if (!isPositive(args.clientsNb))
                     throw ArgsException("ClientsNb must be > 0");
 
@@ -84,7 +102,7 @@ namespace Zappy {
             } else if (flag == "-f") {
                 if (++i >= argc)
                     throw ArgsException("Missing value for -f");
-                args.freq = std::stoi(argv[i]);
+                args.freq = parseIntArg("-f", argv[i]);
                 if (!isPositive(args.freq))
                     throw ArgsException("Freq must be > 0");
 
