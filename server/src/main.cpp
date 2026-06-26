@@ -18,7 +18,7 @@ int main(int ac, char **av)
     try {
         Zappy::Args args = Zappy::ArgsParser::parse(ac, av);
         Zappy::Game game;
-        game.initialize(args.width, args.height, args.teams, args.clientsNb);
+        game.initialize(args.freq, args.width, args.height, args.teams, args.clientsNb);
         Zappy::Server server(args, game);
         server.run();
     } catch (const Zappy::ServerException &e) {
