@@ -181,10 +181,17 @@ namespace Zappy {
     {
         if (hasIdPlayer(clientId)){
             Player* player = _idPlayers[clientId];
+            Pos pos = player->getPosition();
             Egg *egg = new Egg(player->getTeamName(), player->getPosition());
             getTeam(player->getTeamName())->addEgg(egg);
             Tile* tile = map->getTile(player->getPosition());
             tile->addEgg(egg);
+            if (_listener) {
+                static int nextEggId = 1;
+                int eggId = nextEggId++;
+                _listener->onPlayerForked(clientId);
+                _listener->onEggLaid(eggId, clientId, pos.x, pos.y);
+            }
             return getTeamNbEggs(player->getTeamName());
         }
         return 0;
