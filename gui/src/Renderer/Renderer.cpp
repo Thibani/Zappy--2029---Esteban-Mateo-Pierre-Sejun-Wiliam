@@ -3,8 +3,9 @@
 
 Renderer::Renderer(const char* charTexturePath) : _charTexture(charTexturePath) {}
 
-void Renderer::drawMap(const Map& map, const CharacterFactory& factory, PlayerView& camera) {
+void Renderer::drawMap(const Map& map, const CharacterFactory& factory, const EggFactory& eggs, PlayerView& camera) {
     _drawTiles(map);
+    _drawEggs(eggs);
     _drawCharacters(factory, camera);
 }
 
@@ -35,5 +36,17 @@ void Renderer::_drawCharacters(const CharacterFactory& factory, PlayerView& came
         };
         float size = TILE_SIZE * 0.9f * (1.0f + (c.level - 1) * 0.1f);
         DrawBillboard(camera.get(), _charTexture.texture, pos, size, WHITE);
+    }
+}
+
+void Renderer::_drawEggs(const EggFactory& eggs)
+{
+    for (const auto& e : eggs.getAll()) {
+        Vector3 pos = {
+            e.tileX * TILE_SIZE + TILE_SIZE / 2.f,
+            0.15f,
+            e.tileY * TILE_SIZE + TILE_SIZE / 2.f
+        };
+        DrawSphere(pos, TILE_SIZE * 0.2f, YELLOW);
     }
 }
