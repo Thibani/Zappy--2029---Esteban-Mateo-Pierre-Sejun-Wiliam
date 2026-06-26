@@ -61,6 +61,11 @@ namespace Zappy {
             void emitUnknownCommand(int guiFd); // "suc"
             void emitBadParameters(int guiFd);  // "sbp"
 
+            // ----------------------------------------------------------------
+
+            void emitNewPlayer(int playerId, int x, int y, Direction o, int level, const std::string &team, int guiFd = -1);
+            void emitNewEgg(int eggId, int parentId, int x, int y, int guiFd = -1);
+
             // ── IGameEventListener implementation ───────────────────────────
             void onMapSize(int width, int height) override;
             void onTeamRegistered(const std::string &name) override;

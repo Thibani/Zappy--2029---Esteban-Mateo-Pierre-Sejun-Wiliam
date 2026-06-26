@@ -329,6 +329,9 @@ namespace Zappy {
             Player* player = _idPlayers[clientId];
             Tile* tile = map->getTile(player->getPosition());
             tile->removePlayer(player);
+            _idPlayers.erase(clientId);
+            if (_listener)
+                _listener->onPlayerDied(clientId);
         }
     }
 

@@ -8,7 +8,7 @@ namespace Zappy {
     class Egg {
         public:
             Egg(std::string teamName, Pos position);
-            Pos getPosition() { return _position; }
+            Pos getPosition() const { return _position; }
 
         private:
             std::string _teamName;

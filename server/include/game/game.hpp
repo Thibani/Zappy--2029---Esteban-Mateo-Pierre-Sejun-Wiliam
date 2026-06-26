@@ -48,6 +48,7 @@ namespace Zappy {
                 _listener = listener;
                 std::cout << "[Game::setListener] called listener=" << (listener ? "non-null" : "null") << "\n";
             }
+            const std::vector<Team*> &getTeamObjects() const { return _teams; }
 
         private:
             std::vector<Team*> _teams;

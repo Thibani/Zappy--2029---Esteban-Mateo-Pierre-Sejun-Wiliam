@@ -17,6 +17,8 @@
 #include "server/server.hpp"
 #include "game/game.hpp"
 #include "map/tile.hpp"
+#include "team/team.hpp"
+#include "egg/egg.hpp"
 
 namespace Zappy {
     GUIProtocol::GUIProtocol(Server &server)
@@ -59,6 +61,24 @@ namespace Zappy {
                 }
             }
         }
+        int syntheticEggId = 1;
+        for (const auto *team : _game->getTeamObjects()) {
+            for (const auto *egg : team->getEggs()) {
+                Pos p = egg->getPosition();
+                emitNewEgg(syntheticEggId++, 0, p.x, p.y, guidFd);
+            }
+        }
+        for (const auto &[id, player] : _game->getPlayers()) {
+            if (!player)
+                continue;
+            Pos p = player->getPosition();
+            emitNewPlayer(id, p.x, p.y, player->getDirection(), player->getLevel(), player->getTeamName(), guidFd);
+            Inventory inv;
+            const auto &raw = player->getInventory();
+            for (int i = 0; i < 7; i++)
+                inv.set(static_cast<TypeResource>(i), raw[i]);
+            emitPlayerInventory(id, p.x, p.y, inv, guidFd);
+        }
     }
 
 
@@ -98,6 +118,16 @@ namespace Zappy {
     void GUIProtocol::emitTimeUnit(int frequency, int guiFd)
     {
         _send(fmtSgt(frequency), guiFd);
+    }
+
+    void GUIProtocol::emitNewPlayer(int playerId, int x, int y, Direction o, int level, const std::string &team, int guiFd)
+    {
+        _send(fmtPnw(playerId, x, y, o, level, team), guiFd);
+    }
+
+    void GUIProtocol::emitNewEgg(int eggId, int parentId, int x, int y, int guiFd)
+    {
+        _send(fmtEnw(eggId, parentId, x, y), guiFd);
     }
 
     // ---------------------------------------------------------------------

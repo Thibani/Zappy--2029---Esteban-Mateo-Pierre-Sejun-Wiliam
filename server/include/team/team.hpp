@@ -14,7 +14,7 @@ namespace Zappy {
             std::string getName();
             int getNbEggs();
             Egg* popEgg();
-
+            const std::vector<Egg*> &getEggs() const { return _eggs; }
         private:
             std::vector<Egg*> _eggs;
             std::string _name;
