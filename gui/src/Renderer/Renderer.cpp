@@ -55,3 +55,15 @@ void Renderer::_drawEggs(const EggFactory& eggs)
         DrawSphere(pos, TILE_SIZE * 0.2f, YELLOW);
     }
 }
+
+void Renderer::_drawEggs(const EggFactory& eggs)
+{
+    for (const auto& e : eggs.getAll()) {
+        Vector3 pos = {
+            e.tileX * TILE_SIZE + TILE_SIZE / 2.f,
+            0.15f,
+            e.tileY * TILE_SIZE + TILE_SIZE / 2.f
+        };
+        DrawSphere(pos, TILE_SIZE * 0.2f, YELLOW);
+    }
+}
