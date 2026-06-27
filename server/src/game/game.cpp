@@ -249,7 +249,7 @@ namespace Zappy {
         return "ko\n";
     }
 
-    std::string Game::incantation(int clientId)
+    std::string Game::incantationStart(int clientId)
     {
         if (hasIdPlayer(clientId)) {
             Player *player = _idPlayers[clientId];
@@ -270,17 +270,33 @@ namespace Zappy {
                 }
                 return "ko\n";
             }
-            tile->resourceConsume(oldLevel);
-            player->levelUp();
-            int newLevel = player->getLevel();
-            if (_listener) {
-                Inventory inv;
-                const auto &raw = tile->resources();
-                for (int i = 0; i < 7; i++)
-                    inv.set(static_cast<TypeResource>(i), raw[i]);
-                _listener->onIncantationEnded(pos.x, pos.y, true, participants, newLevel, inv);
+            addClientAction(clientId, Zappy::Game::ActionType::INCANTATION, "");
+            return "Elevation underway\nCurrent level: " + std::to_string(player->getLevel()) + "\n";
+            // tile->resourceConsume(oldLevel);
+            // player->levelUp();
+            // int newLevel = player->getLevel();
+            // if (_listener) {
+            //     Inventory inv;
+            //     const auto &raw = tile->resources();
+            //     for (int i = 0; i < 7; i++)
+            //         inv.set(static_cast<TypeResource>(i), raw[i]);
+            //     _listener->onIncantationEnded(pos.x, pos.y, true, participants, newLevel, inv);
+            // }
+            // return "ok\n";
+        }
+        return "ko\n";
+    }
+
+    std::string Game::incantationEnd(int clientId)
+    {
+        if (hasIdPlayer(clientId)) {
+            Player *player = _idPlayers[clientId];
+            Tile *tile = map->getTile(player->getPosition());
+            if (checkLevelUp(player->getLevel(), tile)) {
+                tile->resourceConsume(player->getLevel());
+                player->levelUp();
+                return "";
             }
-            return "ok\n";
         }
         return "ko\n";
     }
@@ -536,7 +552,7 @@ namespace Zappy {
                         break;
                     case INCANTATION:
                         idOutput.first = it->first;
-                        idOutput.second = incantation(it->first);
+                        idOutput.second = incantationEnd(it->first);
                         actionResponses.push_back(idOutput);
                         break;
                 }

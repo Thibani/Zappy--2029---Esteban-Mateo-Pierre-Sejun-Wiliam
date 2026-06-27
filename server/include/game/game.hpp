@@ -53,7 +53,8 @@ namespace Zappy {
             std::string connectNbr(int clientId);
             std::string fork(int clientId);
             std::string eject(int clientId);
-            std::string incantation(int clientId);
+            std::string incantationStart(int clientId);
+            std::string incantationEnd(int clientId);
             std::string take(int clientId, const std::string obj);
             std::string set(int clientId, const std::string obj);
             bool eat(int clientId);

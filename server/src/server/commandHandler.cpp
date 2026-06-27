@@ -212,7 +212,7 @@ namespace Zappy {
 
     void CommandHandler::_handleIncantation(Client &client, const std::string &)
     {
-        _game.addClientAction(client.getFd(), Zappy::Game::ActionType::INCANTATION, "");
+        _game.incantationStart(client.getFd());
         // std::cout << "[CommandHandler] fd=" << client.getFd() << " Incantation\n";
         // bool ok = _game.incantation(client.getFd());
         // if (ok) {
