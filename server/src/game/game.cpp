@@ -231,6 +231,7 @@ namespace Zappy {
             Player* player = _idPlayers[clientId];
             Tile *tile = map->getTile(player->getPosition());
             std::vector<Player*> players = tile->getPlayers();
+            tile->deleteAllEggs();
             for (uint i = 0; i < players.size(); i++){
                 if (player == players[i])
                     continue;

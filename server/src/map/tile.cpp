@@ -121,4 +121,12 @@ namespace Zappy {
         }
     }
 
+    void Tile::deleteAllEggs()
+    {
+        for (Egg *egg : _eggs){
+            delete egg;
+        }
+        _eggs.clear();
+    }
+
 }
