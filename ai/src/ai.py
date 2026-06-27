@@ -69,7 +69,6 @@ class ZappyAI:
 
     def _tick(self) -> None:
         b = self._brain
-
         self._process_messages()
 
         # Emergency override: food is critically low
@@ -205,74 +204,82 @@ class ZappyAI:
             return
 
         self._cmd_inventory()
-
         needed_players = req.get("players", 1)
 
         if needed_players == 1:
-            # Solo incantation — go directly
             b.log("Solo incantation possible — INCANTATE")
             self._state = State.INCANTATE
             return
 
-        # Check for incoming follow-leader messages first
         self._process_messages()
         if b.follow_incantation:
             b.log(f"Leader called! Following dir={b.incantation_leader_dir}")
             self._state = State.FOLLOW_LEADER
             return
 
-        # Broadcast CALL and count ready teammates
+        # Broadcast CALL
         call_msg = f"CALL_LV{b.level}"
         self._cmd_broadcast(call_msg)
 
-        # Do a look to count players already on tile
+        # Compter les joueurs sur la tuile 0 SANS compter self
         look_raw = self._do_look_raw()
         counts = count_players_on_tiles(look_raw)
-        players_here = counts[0] if counts else 1  # includes self
+        # counts[0] inclut self → on soustrait 1 pour n'avoir que les teammates
+        teammates_on_tile = max(0, (counts[0] if counts else 1) - 1)
 
-        # Grab any ready replies
         self._process_messages()
-        ready = b.ready_teammates + players_here  # teammates already on tile
 
-        b.log(f"COORDINATE: {ready}/{needed_players} players ready")
+        # ready_teammates = ceux qui ont répondu READY depuis une autre tuile
+        # teammates_on_tile = ceux déjà arrivés (ont déjà répondu et bougé)
+        # total = self (1) + les deux catégories
+        total = 1 + b.ready_teammates + teammates_on_tile
 
-        if ready >= needed_players:
-            # Tell everyone to start
+        b.log(f"COORDINATE: {total}/{needed_players} (ready={b.ready_teammates}, on_tile={teammates_on_tile})")
+
+        if total >= needed_players:
             self._cmd_broadcast(f"START_LV{b.level}")
             b.ready_teammates = 0
             self._state = State.INCANTATE
-        else:
-            pass
 
     # ====================================== #
     # STATE: INCANTATE — trigger incantation
     # ====================================== #
 
+    
     def _state_incantate(self) -> None:
         b = self._brain
 
         if b.is_hungry:
-            b.log(f"Too hungry ({b.food}) to safely incantate — switching to FORAGE")
+            b.log(f"Too hungry ({b.food}) to safely incantate — FORAGE")
             self._state = State.FORAGE
             return
 
         b.log(f"Attempting incantation at lv{b.level}")
 
-        # Drop the resources on the current tile
+        # Seul le leader (celui qui était en COORDINATE) pose les ressources.
+        # Les followers arrivent sur la tuile vides de ressources d'incantation,
+        # donc on vérifie si on a les ressources AVANT de faire Set.
         req = b.requirements_for_next_level()
         if req:
-            for res in [Resource.LINEMATE, Resource.DERAUMERE, Resource.SIBUR,
-                        Resource.MENDIANE, Resource.PHIRAS, Resource.THYSTAME]:
-                needed = req.get(res, 0)
-                for _ in range(needed):
-                    self._cmd_set(res.name.lower())
+            has_resources = all(
+                b.inventory.get(res, 0) >= req.get(res, 0)
+                for res in [Resource.LINEMATE, Resource.DERAUMERE, Resource.SIBUR,
+                            Resource.MENDIANE, Resource.PHIRAS, Resource.THYSTAME]
+            )
+            if has_resources:
+                b.log("Leader role: dropping resources on tile")
+                for res in [Resource.LINEMATE, Resource.DERAUMERE, Resource.SIBUR,
+                            Resource.MENDIANE, Resource.PHIRAS, Resource.THYSTAME]:
+                    needed = req.get(res, 0)
+                    for _ in range(needed):
+                        self._cmd_set(res.name.lower())
+            else:
+                b.log("Follower role: resources already on tile, not dropping")
 
-        # Fire incantation
         result = self._cmd_incantation()
 
         success = False
         if result and "current level" in result.lower():
-            # Extract new level: "Current level: N"
             try:
                 new_level = int(result.split(":")[1].strip())
                 b.level = new_level
@@ -284,9 +291,7 @@ class ZappyAI:
                 success = True
         elif result == "ko":
             b.log("Incantation FAILED (ko) — re-collecting")
-            # Resources were consumed even on failure; re-collect
         else:
-            # Could be "ko" or partial string; try to detect success
             if result and result != "ko":
                 b.level += 1
                 b.log(f"Incantation result={result!r} — assuming lv{b.level}")
@@ -294,7 +299,7 @@ class ZappyAI:
 
         if success and b.is_well_fed:
             if self._cmd_fork():
-                b.log("Forked — new egg laid for the team")
+                b.log("Forked — new egg laid")
 
         b.follow_incantation = False
         b.waiting_for_incantation = False
@@ -311,23 +316,23 @@ class ZappyAI:
         self._cmd_inventory()
 
         if direction == 0:
-            # Already on the leader's tile
+            # Sur la tuile du leader — signaler qu'on est prêt et ATTENDRE START
             reply = f"READY_LV{b.level}"
             self._cmd_broadcast(reply)
-            b.incantation_leader_dir = 0
-            b.follow_incantation = False
-            self._last_leader_dir = None
+            b.log("On leader tile — waiting for START")
+            # NE PAS changer d'état ici : on reste FOLLOW_LEADER et on attend START
+            # Le START sera traité dans _handle_unsolicited → State.INCANTATE
             self._follow_stale_ticks = 0
-            self._state = State.COORDINATE
             return
 
-        # Move according to direction (1=N, 2=NE, 3=E, 4=SE, 5=S, 6=SW, 7=W, 8=NW)
         self._move_by_broadcast_dir(direction)
 
-        # Check for START signal
+        # Demander recalibrage
+        self._cmd_broadcast(f"WHERE_LV{b.level}")
+
         self._process_messages()
+
         if not b.follow_incantation:
-            # Leader cancelled or we lost track
             self._last_leader_dir = None
             self._follow_stale_ticks = 0
             self._state = State.COLLECT
@@ -339,8 +344,8 @@ class ZappyAI:
             self._follow_stale_ticks = 0
         self._last_leader_dir = b.incantation_leader_dir
 
-        if self._follow_stale_ticks >= 8:
-            b.log("Leader silent for too long — abandoning follow")
+        if self._follow_stale_ticks >= 20:
+            b.log("Leader silencieux — abandon follow")
             b.follow_incantation = False
             b.incantation_leader_dir = 0
             self._last_leader_dir = None
@@ -438,8 +443,6 @@ class ZappyAI:
         if col_in_row < center:
             self._send("Left")
             self._recv()
-            # Commit to advancing next tick instead of re-looking and
-            # potentially flipping the turn direction back and forth.
             self._pending_forward = True
         elif col_in_row > center:
             self._send("Right")
@@ -459,19 +462,30 @@ class ZappyAI:
         Broadcast direction 1-8 (0 = same tile).
         1=N(ahead), 2=NE, 3=E, 4=SE, 5=S, 6=SW, 7=W, 8=NW
         """
-        moves = {
-            1: ["Forward"],
-            2: ["Right", "Forward"],
-            3: ["Right", "Forward"],
-            4: ["Right", "Right", "Forward"],
-            5: ["Right", "Right", "Forward"],   # back = turn around
-            6: ["Left", "Left", "Forward"],
-            7: ["Left", "Forward"],
-            8: ["Left", "Forward"],
-        }
-        for move in moves.get(direction, ["Forward"]):
-            self._send(move)
-            self._recv()
+        if direction == 1:
+            self._send("Forward"); self._recv()
+        elif direction == 2:
+            self._send("Right");   self._recv()
+            self._send("Forward"); self._recv()
+        elif direction == 3:
+            self._send("Right");   self._recv()
+        elif direction == 4:
+            self._send("Right");   self._recv()
+            self._send("Right");   self._recv()
+            self._send("Forward"); self._recv()
+        elif direction == 5:
+            self._send("Right");   self._recv()
+            self._send("Right");   self._recv()
+            self._send("Forward"); self._recv()
+        elif direction == 6:
+            self._send("Left");    self._recv()
+            self._send("Left");    self._recv()
+            self._send("Forward"); self._recv()
+        elif direction == 7:
+            self._send("Left");    self._recv()
+        elif direction == 8:
+            self._send("Left");    self._recv()
+            self._send("Forward"); self._recv()
 
     # ================== #
     # Helpers — commands
@@ -538,18 +552,33 @@ class ZappyAI:
             direction, text = parsed
             b.log(f"Broadcast from dir={direction}: {text!r}")
             lv_tag = f"LV{b.level}"
+
             if text.startswith(f"CALL_{lv_tag}"):
                 if direction != 0:
                     b.log(f"Following leader (dir={direction})")
                     b.follow_incantation = True
                     b.incantation_leader_dir = direction
+                # Si direction == 0, le leader est sur notre tuile → on répond READY
+                else:
+                    b.follow_incantation = True
+                    b.incantation_leader_dir = 0
+
+            elif text.startswith(f"WHERE_{lv_tag}"):
+                # Un follower demande notre position → re-broadcast CALL
+                if self._state == State.COORDINATE:
+                    self._cmd_broadcast(f"CALL_{lv_tag}")
+
             elif text.startswith(f"READY_{lv_tag}"):
                 b.ready_teammates += 1
+                b.log(f"Teammate ready (total={b.ready_teammates})")
+
             elif text.startswith(f"START_{lv_tag}"):
-                # Leader confirmed — we should incantate now
                 b.follow_incantation = False
-                if self._state == State.FOLLOW_LEADER:
+                # Quel que soit l'état courant, on incante
+                if self._state in (State.FOLLOW_LEADER, State.COORDINATE):
+                    b.log("START received — switching to INCANTATE")
                     self._state = State.INCANTATE
+
             return
 
         eject_dir = parse_eject(line)
