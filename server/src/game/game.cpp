@@ -34,6 +34,7 @@ namespace Zappy {
 
         _freq = freq;
         _isVictory = false;
+        setNextResourcesDeadline();
         map = new Map(mapWidth, mapHeight);
         map->setRessource();
         for (uint i = 0; i < teamNames.size(); i++){
@@ -48,6 +49,11 @@ namespace Zappy {
             }
             _teams.push_back(new Team(teamNames[i], eggs));
         }
+    }
+
+    void Game::setNextResourcesDeadline()
+    {
+        _spawnResourceDeadline.deadLine = Clock::deadline(20, _freq);
     }
 
     void Game::initActionCost()
@@ -574,4 +580,13 @@ namespace Zappy {
         }
     }
 
+    void Game::executeSpawnResources()
+    {
+        if (_isVictory)
+            return;
+        if (Clock::hasPassed(_spawnResourceDeadline.deadLine)){
+            map->setRessource();
+            setNextResourcesDeadline();
+        }
+    }
 }

@@ -76,6 +76,7 @@ namespace Zappy {
             void addClientEatAction(int clientId);
             std::vector<std::pair<int, std::string>> executeAllClientActions();
             std::vector<std::pair<int, std::string>> executeAllEatActions();
+            void executeSpawnResources();
             void checkWinCondition();
 
         private:
@@ -94,7 +95,9 @@ namespace Zappy {
             std::map<int, Action> _idEatActions;
             std::vector<Player*> _players;
             IGameEventListener *_listener = nullptr;
+            Action _spawnResourceDeadline;
             Team *getTeam(const std::string teamName);
             bool hasIdPlayer(int clientId);
+            void setNextResourcesDeadline();
     };
 }
