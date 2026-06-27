@@ -50,6 +50,7 @@ namespace Zappy {
             std::string turnLeft(int clientId);
             std::string look(int clientId);
             std::string inventory(int clientId);
+            std::vector<std::pair<int, std::string>> broadcast(int clientId, const std::string obj);
             std::string connectNbr(int clientId);
             std::string fork(int clientId);
             std::string eject(int clientId);
@@ -100,5 +101,8 @@ namespace Zappy {
             Team *getTeam(const std::string teamName);
             bool hasIdPlayer(int clientId);
             void setNextResourcesDeadline();
+            int computeDirection(Pos emitter, Player *receiver);
+            Pos shortestVector(Pos emitter, Pos receiver, int width, int height);
+            Pos rotate(Pos v, Direction d);
     };
 }

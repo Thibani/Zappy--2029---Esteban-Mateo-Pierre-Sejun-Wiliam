@@ -191,10 +191,84 @@ namespace Zappy {
         return "";
     }
 
-    // void Game::broadcast(int clientId, const std::string obj)
-    // {
+    std::vector<std::pair<int, std::string>> Game::broadcast(int clientId, const std::string obj)
+    {
+        std::vector<std::pair<int, std::string>> idOutputs;
+        std::pair<int, std::string> idOutput;
 
-    // }
+        if (hasIdPlayer(clientId)){
+            Player* player = _idPlayers[clientId];
+            for (auto it = _idPlayers.begin(); it != _idPlayers.end(); it++){
+                if (player == it->second)
+                    continue;
+                int pos = computeDirection(player->getPosition(), it->second);
+                idOutput.first = it->first;
+                idOutput.second = "message " + std::to_string(pos) + ", " + obj + "\n";
+                idOutputs.push_back(idOutput);
+            }
+            return idOutputs;
+        }
+    }
+
+    int Game::computeDirection(Pos emitter, Player *receiver)
+    {
+        Pos v = shortestVector(emitter, receiver->getPosition(), map->getWidth(), map->getHeight());
+
+        if (v.x == 0 && v.y == 0)
+            return 0;
+
+        v = rotate(v, receiver->getDirection());
+
+        double angle = atan2(-v.y, v.x);
+
+        angle = M_PI / 2 - angle;
+
+        if (angle < 0)
+            angle += 2 * M_PI;
+
+        double sector = 2 * M_PI / 8.0;
+
+        int index = (int)round(angle / sector) % 8;
+
+        return index + 1;
+    }
+
+    Pos Game::shortestVector(Pos emitter, Pos receiver, int width, int height)
+    {
+        int dx = emitter.x - receiver.x;
+        int dy = emitter.y - receiver.y;
+
+        if (dx > width / 2)
+            dx -= width;
+        if (dx < -width / 2)
+            dx += width;
+
+        if (dy > height / 2)
+            dy -= height;
+        if (dy < -height / 2)
+            dy += height;
+
+        return {dx, dy};
+    }
+
+    Pos Game::rotate(Pos v, Direction d)
+    {
+        switch (d) {
+
+            case Zappy::Direction::UP:
+                return v;
+
+            case Zappy::Direction::RIGHT:
+                return {-v.y, v.x};
+
+            case Zappy::Direction::DOWN:
+                return {-v.x, -v.y};
+
+            case Zappy::Direction::LEFT:
+                return {v.y, -v.x};
+        }
+        return v;
+    }
 
     std::string Game::connectNbr(int clientId)
     {
@@ -555,6 +629,11 @@ namespace Zappy {
                         idOutput.first = it->first;
                         idOutput.second = incantationEnd(it->first);
                         actionResponses.push_back(idOutput);
+                        break;
+                    case BROADCAST:
+                        std::vector<std::pair<int, std::string>> outputs = broadcast(it->first, it->second.arg);
+                        for (std::pair<int, std::string> output : outputs)
+                            actionResponses.push_back(output);
                         break;
                 }
                 it = _idActions.erase(it);
