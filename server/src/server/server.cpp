@@ -265,9 +265,11 @@ namespace Zappy {
         client.feedReadBuffer(std::string(buf, n));
 
         // Extract and dispatch complete commands
-        std::string cmd;
-        while (client.popCommand(cmd))
-            _cmdHandler.dispatch(client, cmd);
+        if (!_game.hasIdAction(fd)) {
+            std::string cmd;
+            if (client.popCommand(cmd))
+                _cmdHandler.dispatch(client, cmd);
+        }
 
         // If CommandHandler pushed responses, enable POLLOUT
         if (!client.getWriteBuffer().empty())
