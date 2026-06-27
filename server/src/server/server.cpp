@@ -234,6 +234,10 @@ namespace Zappy {
             std::cout << " (" << reason << ")";
         std::cout << "\n";
 
+        auto it = _clients.find(fd);
+        if (it != _clients.end() && it->second.getType() == ClientType::AI)
+            _game.removePlayer(fd);
+
         _clients.erase(fd);
         _removePollFd(fd);
         close(fd);
@@ -327,6 +331,14 @@ namespace Zappy {
 
         for (std::pair<int, std::string> actionEatResult : actionEatResults)
             sendToClient(actionEatResult.first, actionEatResult.second);
+
+        for (auto &[fd, client] : _clients) {
+            if (client.getType() == ClientType::AI && !_game.hasIdAction(fd)) {
+                std::string cmd;
+                if (client.popCommand(cmd))
+                    _cmdHandler.dispatch(client, cmd);
+            }
+        }
     }
 
 }

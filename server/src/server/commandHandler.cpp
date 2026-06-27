@@ -118,7 +118,7 @@ namespace Zappy {
         client.setType(ClientType::AI);
         client.setAuthenticated(true);
         std::cout << "[CommandHandler] fd=" << client.getFd()
-                  << " authenticated as AI teal=\"" << teamName
+                  << " authenticated as AI team=\"" << teamName
                   << "\" playerId=" << playerId << "\n";
         client.pushToWriteBuffer(std::to_string(freeSlots - 1) + "\n");
         auto [w, h] = _game.getMapSize();

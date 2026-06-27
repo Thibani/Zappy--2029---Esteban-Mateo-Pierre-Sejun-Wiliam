@@ -213,6 +213,8 @@ namespace Zappy {
             idOutput.first = clientId;
             idOutput.second = "ok\n";
             idOutputs.push_back(idOutput);
+            if (_listener)
+                _listener->onPlayerBroadcast(clientId, obj);
             return idOutputs;
         }
         return idOutputs;
@@ -375,10 +377,33 @@ namespace Zappy {
         if (hasIdPlayer(clientId)) {
             Player *player = _idPlayers[clientId];
             Tile *tile = map->getTile(player->getPosition());
-            if (checkLevelUp(player->getLevel(), tile)) {
-                tile->resourceConsume(player->getLevel());
-                player->levelUp();
-                return "Current level: " + std::to_string(player->getLevel()) + "\n";
+            Pos pos = player->getPosition();
+            int oldLevel = player->getLevel();
+            std::vector<int> participants = { clientId };
+            if (checkLevelUp(oldLevel, tile)) {
+                tile->resourceConsume(oldLevel);
+                std::vector<Player*> tilePlayers = tile->getPlayers();
+                for (Player* tp : tilePlayers) {
+                    if (tp->getLevel() == oldLevel)
+                        tp->levelUp();
+                }
+                int newLevel = player->getLevel();
+                if (_listener) {
+                    Inventory inv;
+                    const auto &raw = tile->resources();
+                    for (int i = 0; i < 7; i++)
+                        inv.set(static_cast<TypeResource>(i), raw[i]);
+                    _listener->onIncantationEnded(pos.x, pos.y, true, participants, newLevel, inv);
+                }
+                checkWinCondition();
+                return "Current level " + std::to_string(newLevel) + "\n";
+            }
+            if (_listener) {
+                Inventory inv;
+                const auto &raw = tile->resources();
+                for (int i = 0; i < 7 ; i++)
+                    inv.set(static_cast<TypeResource>(i), raw[i]);
+                _listener->onIncantationEnded(pos.x, pos.y, false, participants, oldLevel, inv);
             }
         }
         return "ko\n";
@@ -637,11 +662,28 @@ namespace Zappy {
                         break;
                     }
                     case INCANTATION:
-                        idOutput.first = it->first;
-                        idOutput.second = incantationEnd(it->first);
-                        actionResponses.push_back(idOutput);
+                    {
+                        int initiatorId = it->first;
+                        Player* initiator = _idPlayers[initiatorId];
+                        Pos pos = initiator->getPosition();
+                        int levelBefore = initiator->getLevel();
+                        std::string result = incantationEnd(initiatorId);
+                        actionResponses.push_back({initiatorId, result});
+                        if (initiator->getLevel() > levelBefore) {
+                            for (auto& [id, p] : _idPlayers) {
+                                if (id != initiatorId &&
+                                    p->getPosition().x == pos.x &&
+                                    p->getPosition().y == pos.y &&
+                                    p->getLevel() == initiator->getLevel()) {
+                                    actionResponses.push_back({id, result});
+                                }
+                            }
+                        }
                         break;
+                    }
                 }
+                if (_isVictory)
+                    break;
                 it = _idActions.erase(it);
             } else {
                 ++it;
@@ -677,6 +719,8 @@ namespace Zappy {
                 _idActions.clear();
                 _idEatActions.clear();
                 std::cout << "Team " << team->getName() << " is victorious !!! Game is done." << std::endl;
+                if (_listener)
+                    _listener->onGameEnded(team->getName());
                 break;
             }
         }
@@ -689,6 +733,23 @@ namespace Zappy {
         if (Clock::hasPassed(_spawnResourceDeadline.deadLine)){
             map->setRessource();
             setNextResourcesDeadline();
+            if (_listener) {
+                int w = map->getWidth();
+                int h = map->getHeight();
+                for (int y = 0; y < h; y++) {
+                    for (int x = 0; x < w; x++) {
+                        Pos p{x, y};
+                        Tile *tile = map->getTile(p);
+                        if (!tile)
+                            continue;
+                        Inventory inv;
+                        const auto &raw = tile->resources();
+                        for (int i = 0; i < 7; i++)
+                            inv.set(static_cast<TypeResource>(i), raw[i]);
+                        _listener->onTileChanged(x, y, inv);
+                    }
+                }
+            }
         }
     }
 
