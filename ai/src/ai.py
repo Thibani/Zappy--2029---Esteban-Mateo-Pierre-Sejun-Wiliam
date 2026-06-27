@@ -191,8 +191,6 @@ class ZappyAI:
     # ================================================================= #
 
     def _state_seek_tile(self) -> None:
-        # This state is not used as a persistent state in the current design.
-        # Movement happens inline in COLLECT/FORAGE.
         self._state = State.COLLECT
 
     # =========================================================== #
