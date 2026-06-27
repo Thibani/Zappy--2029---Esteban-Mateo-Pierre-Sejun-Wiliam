@@ -73,7 +73,10 @@ namespace Zappy {
             const std::vector<Team*> &getTeamObjects() const { return _teams; }
             bool hasIdAction(int clientId);
             void addClientAction(int clientId, ActionType actionType, std::string arg);
+            void addClientEatAction(int clientId);
             std::vector<std::pair<int, std::string>> executeAllClientActions();
+            std::vector<std::pair<int, std::string>> executeAllEatActions();
+            void checkWinCondition();
 
         private:
             struct Action {
@@ -83,14 +86,15 @@ namespace Zappy {
             };
 
             int _freq;
+            bool _isVictory;
             std::vector<Team*> _teams;
             std::map<int, Player*> _idPlayers;
             std::map<int, Action> _idActions;
             std::map<ActionType, int> _actionCosts;
+            std::map<int, Action> _idEatActions;
             std::vector<Player*> _players;
             IGameEventListener *_listener = nullptr;
             Team *getTeam(const std::string teamName);
             bool hasIdPlayer(int clientId);
-            void addPlayer(Player* player);
     };
 }

@@ -321,10 +321,14 @@ namespace Zappy {
 
     void Server::_processPendingActions()
     {
+        std::vector<std::pair<int, std::string>> actionEatResults = _game.executeAllEatActions();
         std::vector<std::pair<int, std::string>> actionResults = _game.executeAllClientActions();
 
         for (std::pair<int, std::string> actionResult : actionResults)
             sendToClient(actionResult.first, actionResult.second);
+
+        for (std::pair<int, std::string> actionEatResult : actionEatResults)
+        sendToClient(actionEatResult.first, actionEatResult.second);
     }
 
 }

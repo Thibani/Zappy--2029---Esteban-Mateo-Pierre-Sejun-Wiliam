@@ -33,6 +33,7 @@ namespace Zappy {
         Tile *tile;
 
         _freq = freq;
+        _isVictory = false;
         map = new Map(mapWidth, mapHeight);
         map->setRessource();
         for (uint i = 0; i < teamNames.size(); i++){
@@ -94,12 +95,6 @@ namespace Zappy {
         return 0;
     }
 
-    void Game::addPlayer(Player* player)
-    {
-        _players.push_back(player);
-        map->addPlayerOnTile(player);
-    }
-
     bool Game::eggHatching(int clientId, const std::string teamName)
     {
         std::cout << "[eggHatching] called id=" << clientId << " team=" << teamName << " listener=" << (_listener?"yes":"no") << "\n";
@@ -110,7 +105,9 @@ namespace Zappy {
             return false;
         Egg *egg = team->popEgg();
         Player *player = map->eggHatching(egg, teamName);
+        team->addPlayer(player);
         _idPlayers[clientId] = player;
+        addClientEatAction(clientId);
         if (_listener) {
             Pos p = player->getPosition();
             _listener->onPlayerConnected(clientId, p.x, p.y, player->getDirection(), player->getLevel(), teamName);
@@ -359,6 +356,9 @@ namespace Zappy {
             Tile* tile = map->getTile(player->getPosition());
             tile->removePlayer(player);
             _idPlayers.erase(clientId);
+            _idActions.erase(clientId);
+            _idEatActions.erase(clientId);
+            getTeam(player->getTeamName())->removePlayer(player);
             if (_listener)
                 _listener->onPlayerDied(clientId);
         }
@@ -382,12 +382,27 @@ namespace Zappy {
     {
         Action action;
 
+        if (_isVictory)
+            return;
+
         if (hasIdAction(clientId) == false){
             action.actionType = actionType;
             action.arg = arg;
             action.deadLine = Clock::deadline(_actionCosts[actionType], _freq);
             _idActions[clientId] = action;
         }
+    }
+
+    void Game::addClientEatAction(int clientId)
+    {
+        Action action;
+
+        if (_isVictory)
+            return;
+
+        action.actionType = EAT;
+        action.deadLine = Clock::deadline(_actionCosts[EAT], _freq);
+        _idEatActions[clientId] = action;
     }
 
     bool Game::checkLevelUp(int level, Tile* tile)
@@ -522,6 +537,39 @@ namespace Zappy {
                 it = _idActions.erase(it);
             } else {
                 ++it;
+            }
+        }
+    }
+
+    std::vector<std::pair<int, std::string>> Game::executeAllEatActions()
+    {
+        std::pair<int, std::string> idOutput;
+        std::vector<std::pair<int, std::string>> actionResponses;
+
+        for (auto it = _idEatActions.begin(); it != _idEatActions.end(); ) {
+            if (Clock::hasPassed(it->second.deadLine)) {
+                it = _idEatActions.erase(it);
+                if (eat(it->first) == true){
+                    addClientEatAction(it->first);
+                } else {
+                    idOutput.first = it->first;
+                    idOutput.second = "dead\n";
+                    actionResponses.push_back(idOutput);
+                }
+            }
+        }
+        return actionResponses;
+    }
+
+    void Game::checkWinCondition()
+    {
+        for (Team *team : _teams){
+            if (team->checkWinCondition()){
+                _isVictory = true;
+                _idActions.clear();
+                _idEatActions.clear();
+                std::cout << "Team " << team->getName() << " is victorious !!! Game is done." << std::endl;
+                break;
             }
         }
     }
