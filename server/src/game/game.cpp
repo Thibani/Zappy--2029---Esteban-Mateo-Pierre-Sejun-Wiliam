@@ -11,6 +11,9 @@
 #include <random>
 #include <vector>
 #include <iostream>
+#include <climits>
+#include <cmath>
+
 namespace Zappy {
 
 
@@ -33,6 +36,7 @@ namespace Zappy {
         Tile *tile;
 
         _freq = freq;
+        initActionCost();
         _isVictory = false;
         setNextResourcesDeadline();
         map = new Map(mapWidth, mapHeight);
@@ -103,7 +107,6 @@ namespace Zappy {
 
     bool Game::eggHatching(int clientId, const std::string teamName)
     {
-        std::cout << "[eggHatching] called id=" << clientId << " team=" << teamName << " listener=" << (_listener?"yes":"no") << "\n";
         if (hasIdPlayer(clientId))
             return false;
         Team *team = getTeam(teamName);
@@ -167,7 +170,7 @@ namespace Zappy {
     {
         if (hasIdPlayer(clientId)){
             Player* player = _idPlayers[clientId];
-            return player->look(map);
+            return player->look(map) + "\n";
         }
         return "[]\n";
     }
@@ -186,9 +189,10 @@ namespace Zappy {
                 if (typeRes < inventory.size() - 1)
                     output += ",";
             }
-            return output += "]";
+            output += "]\n";
+            return output;
         }
-        return "";
+        return "ko\n";
     }
 
     std::vector<std::pair<int, std::string>> Game::broadcast(int clientId, const std::string obj)
@@ -206,8 +210,12 @@ namespace Zappy {
                 idOutput.second = "message " + std::to_string(pos) + ", " + obj + "\n";
                 idOutputs.push_back(idOutput);
             }
+            idOutput.first = clientId;
+            idOutput.second = "ok\n";
+            idOutputs.push_back(idOutput);
             return idOutputs;
         }
+        return idOutputs;
     }
 
     int Game::computeDirection(Pos emitter, Player *receiver)
@@ -346,7 +354,7 @@ namespace Zappy {
                 return "ko\n";
             }
             addClientAction(clientId, Zappy::Game::ActionType::INCANTATION, "");
-            return "Elevation underway\nCurrent level: " + std::to_string(player->getLevel()) + "\n";
+            return "Elevation underway\n";
             // tile->resourceConsume(oldLevel);
             // player->levelUp();
             // int newLevel = player->getLevel();
@@ -370,7 +378,7 @@ namespace Zappy {
             if (checkLevelUp(player->getLevel(), tile)) {
                 tile->resourceConsume(player->getLevel());
                 player->levelUp();
-                return "";
+                return "Current level: " + std::to_string(player->getLevel()) + "\n";
             }
         }
         return "ko\n";
@@ -478,10 +486,6 @@ namespace Zappy {
     void Game::addClientAction(int clientId, ActionType actionType, std::string arg)
     {
         Action action;
-
-        if (_isVictory)
-            return;
-
         if (hasIdAction(clientId) == false){
             action.actionType = actionType;
             action.arg = arg;
@@ -625,15 +629,17 @@ namespace Zappy {
                         idOutput.second = fork(it->first);
                         actionResponses.push_back(idOutput);
                         break;
+                    case BROADCAST:
+                    {
+                        auto msgs = broadcast(it->first, it->second.arg);
+                        for (auto &m : msgs)
+                            actionResponses.push_back(m);
+                        break;
+                    }
                     case INCANTATION:
                         idOutput.first = it->first;
                         idOutput.second = incantationEnd(it->first);
                         actionResponses.push_back(idOutput);
-                        break;
-                    case BROADCAST:
-                        std::vector<std::pair<int, std::string>> outputs = broadcast(it->first, it->second.arg);
-                        for (std::pair<int, std::string> output : outputs)
-                            actionResponses.push_back(output);
                         break;
                 }
                 it = _idActions.erase(it);
@@ -641,23 +647,23 @@ namespace Zappy {
                 ++it;
             }
         }
+        return actionResponses;
     }
 
     std::vector<std::pair<int, std::string>> Game::executeAllEatActions()
     {
-        std::pair<int, std::string> idOutput;
         std::vector<std::pair<int, std::string>> actionResponses;
-
         for (auto it = _idEatActions.begin(); it != _idEatActions.end(); ) {
             if (Clock::hasPassed(it->second.deadLine)) {
+                int id = it->first;
                 it = _idEatActions.erase(it);
-                if (eat(it->first) == true){
-                    addClientEatAction(it->first);
+                if (eat(id) == true) {
+                    addClientEatAction(id);
                 } else {
-                    idOutput.first = it->first;
-                    idOutput.second = "dead\n";
-                    actionResponses.push_back(idOutput);
+                    actionResponses.push_back({id, "dead\n"});
                 }
+            } else {
+                ++it;
             }
         }
         return actionResponses;
@@ -684,5 +690,28 @@ namespace Zappy {
             map->setRessource();
             setNextResourcesDeadline();
         }
+    }
+
+    int Game::nearestDeadlineMs()
+    {
+        int smallest = INT_MAX;
+        for (auto &[id, action] : _idActions) {
+            int ms = Clock::msUntil(action.deadLine);
+            if (ms < smallest)
+                smallest = ms;
+        }
+        for (auto &[id, action] : _idEatActions) {
+            int ms = Clock::msUntil(action.deadLine);
+            if (ms < smallest)
+                smallest = ms;
+        }
+        if (!_isVictory) {
+            int ms = Clock::msUntil(_spawnResourceDeadline.deadLine);
+            if (ms < smallest)
+                smallest = ms;
+        }
+        if (smallest == INT_MAX)
+            return -1;
+        return smallest > 0 ? smallest : 0;
     }
 }

@@ -212,14 +212,8 @@ namespace Zappy {
 
     void CommandHandler::_handleIncantation(Client &client, const std::string &)
     {
-        _game.incantationStart(client.getFd());
-        // std::cout << "[CommandHandler] fd=" << client.getFd() << " Incantation\n";
-        // bool ok = _game.incantation(client.getFd());
-        // if (ok) {
-        //     client.pushToWriteBuffer("Current level: " + std::to_string(_game.getPlayers()[client.getFd()]->getLevel()) + "\n");
-        // } else {
-        //     client.pushToWriteBuffer("ko\n");
-        // }
+        std::string result = _game.incantationStart(client.getFd());
+        client.pushToWriteBuffer(result);
     }
 
     void CommandHandler::_handleTake(Client &client, const std::string &args)

@@ -2,6 +2,7 @@
 
 #include "map/map.hpp"
 #include "events/gameEvents.hpp"
+#include "player/player.hpp"
 
 #include <vector>
 #include <map>
@@ -70,7 +71,6 @@ namespace Zappy {
             // void setListener(IGameEventListener *_listener) { _listener = _listener; }
             void setListener(IGameEventListener *listener) {
                 _listener = listener;
-                std::cout << "[Game::setListener] called listener=" << (listener ? "non-null" : "null") << "\n";
             }
             const std::vector<Team*> &getTeamObjects() const { return _teams; }
             bool hasIdAction(int clientId);
@@ -80,6 +80,7 @@ namespace Zappy {
             std::vector<std::pair<int, std::string>> executeAllEatActions();
             void executeSpawnResources();
             void checkWinCondition();
+            int nearestDeadlineMs();
 
         private:
             struct Action {

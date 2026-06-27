@@ -27,9 +27,8 @@ namespace Zappy {
     // -------------------------------------------------------------------------
 
     Server::Server(const Args &args, Game &game)
-        : _args(args), _serverFd(-1), _guiProtocol(*this), _cmdHandler(game, _guiProtocol)
+        : _args(args), _serverFd(-1), _guiProtocol(*this), _cmdHandler(game, _guiProtocol), _game(game)
     {
-        _game = game;
         game.setListener(&_guiProtocol);
         _guiProtocol.setGame(game);
         _initSocket();
@@ -313,10 +312,7 @@ namespace Zappy {
 
     int Server::_nearestDeadlineMs()
     {
-        // TODO: iterate over clients, find the nearest pending action deadline,
-        // return Clock::msUntil(nearest) cast to int.
-        // For now return -1 (block forever) until Game/CommandHandler exist.
-        return -1;
+        return _game.nearestDeadlineMs();
     }
 
     void Server::_processPendingActions()

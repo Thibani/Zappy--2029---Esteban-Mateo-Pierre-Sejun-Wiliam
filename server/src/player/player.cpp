@@ -209,7 +209,7 @@ namespace Zappy {
         Pos lookPos;
 
         for (int i = 1; i <= _level; i++){
-            lookPos.x = _position.x + 1;
+            lookPos.x = _position.x + i;
             lookPos.y = _position.y;
             map->correctPos(&lookPos);
             result = lookUp(map, lookPos, i);
@@ -227,7 +227,7 @@ namespace Zappy {
         Pos lookPos;
 
         for (int i = 1; i <= _level; i++){
-            lookPos.x = _position.x - 1;
+            lookPos.x = _position.x - i;
             lookPos.y = _position.y;
             map->correctPos(&lookPos);
             result = lookDown(map, lookPos, i);

@@ -62,7 +62,7 @@ namespace Zappy {
         std::vector<struct pollfd>       _pollfds;
         GUIProtocol                      _guiProtocol;
         CommandHandler                   _cmdHandler;
-        Game _game;
+        Game &_game;
     };
 
 } // namespace Zappy

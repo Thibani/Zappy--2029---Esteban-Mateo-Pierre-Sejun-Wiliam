@@ -72,7 +72,7 @@ namespace Zappy {
                     return FOOD;
                 if (resourceString == "linemate")
                     return LINEMATE;
-                if (resourceString == "debaumere")
+                if (resourceString == "deraumere")
                     return DERAUMERE;
                 if (resourceString == "sibur")
                     return SIBUR;
