@@ -1,5 +1,6 @@
 #include <raylib.h>
 #include <iostream>
+#include <cstring>
 #include "Core/Window.hpp"
 #include "Character/CharacterFactory.hpp"
 #include "Map/Map.hpp"
@@ -57,4 +58,33 @@ void gameSetup(const char* host, int port)
     network.send("GRAPHIC\n");
 
     gameLoop(factory, map, eggs, camera, renderer, network);
+}
+
+int argsParser(int argc, char **argv)
+{
+    if (argc == 2 && std::strcmp(argv[1], "--help") == 0) {
+        std::cerr << "USAGE: " << argv[0] << " -p port -h machine\n";
+        return 0;
+    }
+
+    const char* host = nullptr;
+    int         port = -1;
+
+    for (int i = 1; i < argc; i++) {
+        if (std::strcmp(argv[i], "-p") == 0 && i + 1 < argc) {
+            port = std::atoi(argv[++i]);
+        } else if (std::strcmp(argv[i], "-h") == 0 && i + 1 < argc) {
+            host = argv[++i];
+        } else {
+            std::cerr << "USAGE: " << argv[0] << " -p port -h machine\n";
+            return 84;
+        }
+    }
+
+    if (host == nullptr || port == -1) {
+        std::cerr << "USAGE: " << argv[0] << " -p port -h machine\n";
+        return 84;
+    }
+    gameSetup(host, port);
+    return 0;
 }
