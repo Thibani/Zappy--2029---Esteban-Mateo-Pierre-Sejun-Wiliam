@@ -16,7 +16,7 @@ namespace Zappy {
             void addPlayer(Player *player);
             void removePlayer(const Player *player);
 
-            std::string getName();
+            const std::string &getName() const;
             int getNbEggs();
             Egg* popEgg();
             const std::vector<Egg*> &getEggs() const { return _eggs; }

@@ -42,39 +42,43 @@ namespace Zappy {
 
             Game();
             ~Game();
+
+            Game(const Game &) = delete;
+            Game &operator=(const Game &) = delete;
+
             Map* map;
-            void initialize(int freq, int mapWidth, int mapHeight, std::vector<std::string> teamNames, int nbEggs);
+            void initialize(int freq, int mapWidth, int mapHeight, const std::vector<std::string> &teamNames, int nbEggs);
             void initActionCost();
-            bool eggHatching(int clientId, const std::string teamName);
+            bool eggHatching(int clientId, const std::string &teamName);
             std::string moveForward(int clientId);
             std::string turnRight(int clientId);
             std::string turnLeft(int clientId);
             std::string look(int clientId);
             std::string inventory(int clientId);
-            std::vector<std::pair<int, std::string>> broadcast(int clientId, const std::string obj);
+            std::vector<std::pair<int, std::string>> broadcast(int clientId, const std::string &obj);
             std::string connectNbr(int clientId);
             std::string fork(int clientId);
             std::string eject(int clientId);
             std::string incantationStart(int clientId);
             std::string incantationEnd(int clientId);
-            std::string take(int clientId, const std::string obj);
-            std::string set(int clientId, const std::string obj);
+            std::string take(int clientId, const std::string &obj);
+            std::string set(int clientId, const std::string &obj);
             bool eat(int clientId);
             void removePlayer(int clientId);
-            bool checkLevelUp(int level, Tile* tile);
+            static bool checkLevelUp(int level, Tile* tile);
             std::vector<std::string> getTeams();
             std::pair<int, int> getMapSize();
-            int getTeamNbEggs(const std::string teamName);
+            int getTeamNbEggs(const std::string &teamName);
             int getMapWidth() { return map->getWidth(); }
             int getMapHeight() { return map->getHeight(); }
-            std::map<int, Player*> getPlayers() { return _idPlayers; }
+            const std::map<int, Player*> &getPlayers() const { return _idPlayers; }
             // void setListener(IGameEventListener *_listener) { _listener = _listener; }
             void setListener(IGameEventListener *listener) {
                 _listener = listener;
             }
             const std::vector<Team*> &getTeamObjects() const { return _teams; }
             bool hasIdAction(int clientId);
-            void addClientAction(int clientId, ActionType actionType, std::string arg);
+            void addClientAction(int clientId, ActionType actionType, const std::string &arg);
             void addClientEatAction(int clientId);
             std::vector<std::pair<int, std::string>> executeAllClientActions();
             std::vector<std::pair<int, std::string>> executeAllEatActions();
@@ -98,11 +102,11 @@ namespace Zappy {
             std::map<int, Action> _idEatActions;
             IGameEventListener *_listener = nullptr;
             Action _spawnResourceDeadline;
-            Team *getTeam(const std::string teamName);
+            Team *getTeam(const std::string &teamName);
             bool hasIdPlayer(int clientId);
             void setNextResourcesDeadline();
-            int computeDirection(Pos emitter, Player *receiver);
-            Pos shortestVector(Pos emitter, Pos receiver, int width, int height);
-            Pos rotate(Pos v, Direction d);
+            int computeDirection(Pos emitter, const Player *receiver);
+            static Pos shortestVector(Pos emitter, Pos receiver, int width, int height);
+            static Pos rotate(Pos v, Direction d);
     };
 }

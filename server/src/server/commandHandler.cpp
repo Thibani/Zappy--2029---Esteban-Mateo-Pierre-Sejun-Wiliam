@@ -23,18 +23,18 @@ namespace Zappy {
         : _game(game), _guiProtocol(guiProtocol), _guiCmdHandler(guiProtocol, game)
     {
         // Build dispatch table — keys are lowercase for case-insensitive matching
-        _aiHandlers["forward"]     = [this](Client &c, const std::string &a) { _handleForward(c, a);     };
-        _aiHandlers["right"]       = [this](Client &c, const std::string &a) { _handleRight(c, a);       };
-        _aiHandlers["left"]        = [this](Client &c, const std::string &a) { _handleLeft(c, a);        };
-        _aiHandlers["look"]        = [this](Client &c, const std::string &a) { _handleLook(c, a);        };
-        _aiHandlers["inventory"]   = [this](Client &c, const std::string &a) { _handleInventory(c, a);   };
-        _aiHandlers["broadcast"]   = [this](Client &c, const std::string &a) { _handleBroadcast(c, a);   };
-        _aiHandlers["connect_nbr"] = [this](Client &c, const std::string &a) { _handleConnectNbr(c, a);  };
-        _aiHandlers["fork"]        = [this](Client &c, const std::string &a) { _handleFork(c, a);        };
-        _aiHandlers["eject"]       = [this](Client &c, const std::string &a) { _handleEject(c, a);       };
+        _aiHandlers["forward"]     = [this](const Client &c, const std::string &a) { _handleForward(c, a);     };
+        _aiHandlers["right"]       = [this](const Client &c, const std::string &a) { _handleRight(c, a);       };
+        _aiHandlers["left"]        = [this](const Client &c, const std::string &a) { _handleLeft(c, a);        };
+        _aiHandlers["look"]        = [this](const Client &c, const std::string &a) { _handleLook(c, a);        };
+        _aiHandlers["inventory"]   = [this](const Client &c, const std::string &a) { _handleInventory(c, a);   };
+        _aiHandlers["broadcast"]   = [this](const Client &c, const std::string &a) { _handleBroadcast(c, a);   };
+        _aiHandlers["connect_nbr"] = [this](const Client &c, const std::string &a) { _handleConnectNbr(c, a);  };
+        _aiHandlers["fork"]        = [this](const Client &c, const std::string &a) { _handleFork(c, a);        };
+        _aiHandlers["eject"]       = [this](const Client &c, const std::string &a) { _handleEject(c, a);       };
         _aiHandlers["incantation"] = [this](Client &c, const std::string &a) { _handleIncantation(c, a); };
-        _aiHandlers["take"]        = [this](Client &c, const std::string &a) { _handleTake(c, a);        };
-        _aiHandlers["set"]         = [this](Client &c, const std::string &a) { _handleSet(c, a);         };
+        _aiHandlers["take"]        = [this](const Client &c, const std::string &a) { _handleTake(c, a);        };
+        _aiHandlers["set"]         = [this](const Client &c, const std::string &a) { _handleSet(c, a);         };
     }
 
     // -------------------------------------------------------------------------

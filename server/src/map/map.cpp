@@ -24,7 +24,7 @@ namespace Zappy {
 
     Map::~Map()
     {
-        for (auto &row : _tiles)
+        for (const auto &row : _tiles)
             for (Tile *t : row)
                 delete t;
     }
@@ -36,14 +36,13 @@ namespace Zappy {
 
     void Map::setRessource()
     {
-        int quantity;
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<int> dist(0, _width - 1);
         std::uniform_int_distribution<int> larg(0, _height - 1);
 
         for (int i = 0; i < 7; i++){
-            quantity = _height * _width * _densities[i];
+            int quantity = _height * _width * _densities[i];
             while (quantity > 0){
                 int x = dist(gen);
                 int y = larg(gen);
@@ -62,7 +61,7 @@ namespace Zappy {
             {
                 p.x = x;
                 p.y = y;
-                Tile *tile = getTile(p);
+                (void)getTile(p);
                 //std::printf("[ %d ]", tile->_resources[FOOD]);
                 //std::printf("[ %d ]", getTile(p)->_eggs.size());
             }
@@ -88,7 +87,7 @@ namespace Zappy {
         tile->addPlayer(player);
     }
 
-    Player* Map::eggHatching(Egg* egg, const std::string teamName)
+    Player* Map::eggHatching(Egg* egg, const std::string &teamName)
     {
         Tile* tile = getTile(egg->getPosition());
         tile->removeEgg(egg);

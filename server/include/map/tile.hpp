@@ -11,18 +11,18 @@ namespace Zappy {
 
     class Tile {
         public:
-            Tile() : _resources(7) {}
+            Tile() : _resources(7), position{} {}
 
             void addPlayer(Player *player);
-            void removePlayer(Player *player);
+            void removePlayer(const Player *player);
             void addResource(TypeResource typeResource);
             void removeResource(TypeResource typeResource);
             bool hasRessource(TypeResource typeResource);
             std::string toString();
             void addEgg(Egg *egg);
-            void removeEgg(Egg* egg);
-            std::vector<Player*> getPlayers() { return _players; }
-            std::vector<Egg*> getEggs() { return _eggs; }
+            void removeEgg(const Egg* egg);
+            const std::vector<Player*> &getPlayers() const { return _players; }
+            const std::vector<Egg*> &getEggs() const { return _eggs; }
             int getNbPlayers();
             int getNbResources(TypeResource typeResource);
             void resourceConsume(int level);

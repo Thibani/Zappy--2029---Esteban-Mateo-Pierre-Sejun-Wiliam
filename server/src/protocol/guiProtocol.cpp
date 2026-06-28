@@ -51,7 +51,7 @@ namespace Zappy {
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 Pos p{x, y};
-                Tile *tile = _game->map->getTile(p);
+                const Tile *tile = _game->map->getTile(p);
                 if (tile) {
                     Inventory inv;
                     const auto &raw = tile->resources();

@@ -7,10 +7,12 @@
 #include "types/resource.hpp"
 #include "utils/clock.hpp"
 
+#include <algorithm>
 #include <cstdlib>
 #include <random>
 #include <vector>
 #include <iostream>
+#include <iterator>
 #include <climits>
 #include <cmath>
 
@@ -18,8 +20,8 @@ namespace Zappy {
 
 
     Game::Game()
+        : map(nullptr), _freq(0), _isVictory(false), _spawnResourceDeadline{}
     {
-
     }
 
     Game::~Game()
@@ -31,7 +33,7 @@ namespace Zappy {
         delete map;
     }
 
-    void Game::initialize(int freq, int mapWidth, int mapHeight, std::vector<std::string> teamNames, int nbEggs)
+    void Game::initialize(int freq, int mapWidth, int mapHeight, const std::vector<std::string> &teamNames, int nbEggs)
     {
         Pos eggPos;
         std::vector<Egg*> eggs;
@@ -98,7 +100,7 @@ namespace Zappy {
         return sizeMap;
     }
 
-    int Game::getTeamNbEggs(const std::string teamName)
+    int Game::getTeamNbEggs(const std::string &teamName)
     {
         for (uint i = 0; i < _teams.size(); i++){
             if (teamName == _teams[i]->getName()){
@@ -108,7 +110,7 @@ namespace Zappy {
         return 0;
     }
 
-    bool Game::eggHatching(int clientId, const std::string teamName)
+    bool Game::eggHatching(int clientId, const std::string &teamName)
     {
         if (hasIdPlayer(clientId))
             return false;
@@ -180,16 +182,15 @@ namespace Zappy {
 
     std::string Game::inventory(int clientId)
     {
-        std::string output = "[";
-
         if (hasIdPlayer(clientId)){
-            Player* player = _idPlayers[clientId];
-            std::vector<int> inventory = player->getInventory();
-            for (uint typeRes = 0; typeRes < inventory.size(); typeRes++){
+            std::string output = "[";
+            const Player* player = _idPlayers[clientId];
+            const std::vector<int> &inv = player->getInventory();
+            for (uint typeRes = 0; typeRes < inv.size(); typeRes++){
                 output += Resource::typeResourceToString((TypeResource)typeRes);
                 output += " ";
-                output += std::to_string(inventory[typeRes]);
-                if (typeRes < inventory.size() - 1)
+                output += std::to_string(inv[typeRes]);
+                if (typeRes < inv.size() - 1)
                     output += ",";
             }
             output += "]\n";
@@ -198,13 +199,13 @@ namespace Zappy {
         return "ko\n";
     }
 
-    std::vector<std::pair<int, std::string>> Game::broadcast(int clientId, const std::string obj)
+    std::vector<std::pair<int, std::string>> Game::broadcast(int clientId, const std::string &obj)
     {
         std::vector<std::pair<int, std::string>> idOutputs;
         std::pair<int, std::string> idOutput;
 
         if (hasIdPlayer(clientId)){
-            Player* player = _idPlayers[clientId];
+            const Player* player = _idPlayers[clientId];
             for (auto it = _idPlayers.begin(); it != _idPlayers.end(); it++){
                 if (player == it->second)
                     continue;
@@ -223,7 +224,7 @@ namespace Zappy {
         return idOutputs;
     }
 
-    int Game::computeDirection(Pos emitter, Player *receiver)
+    int Game::computeDirection(Pos emitter, const Player *receiver)
     {
         Pos v = shortestVector(emitter, receiver->getPosition(), map->getWidth(), map->getHeight());
 
@@ -286,7 +287,7 @@ namespace Zappy {
     std::string Game::connectNbr(int clientId)
     {
         if (hasIdPlayer(clientId)){
-            Player* player = _idPlayers[clientId];
+            const Player* player = _idPlayers[clientId];
             return std::to_string(getTeamNbEggs(player->getTeamName())) + "\n";
         }
         return "ko\n";
@@ -295,8 +296,7 @@ namespace Zappy {
     std::string Game::fork(int clientId)
     {
         if (hasIdPlayer(clientId)){
-            Player* player = _idPlayers[clientId];
-            Pos pos = player->getPosition();
+            const Player* player = _idPlayers[clientId];
             Egg *egg = new Egg(player->getTeamName(), player->getPosition());
             getTeam(player->getTeamName())->addEgg(egg);
             Tile* tile = map->getTile(player->getPosition());
@@ -304,6 +304,7 @@ namespace Zappy {
             if (_listener) {
                 static int nextEggId = 1;
                 int eggId = nextEggId++;
+                Pos pos = player->getPosition();
                 _listener->onPlayerForked(clientId);
                 _listener->onEggLaid(eggId, clientId, pos.x, pos.y);
             }
@@ -315,11 +316,11 @@ namespace Zappy {
     std::string Game::eject(int clientId)
     {
         if (hasIdPlayer(clientId)){
-            Player* player = _idPlayers[clientId];
+            const Player* player = _idPlayers[clientId];
             Tile *tile = map->getTile(player->getPosition());
             std::vector<Player*> players = tile->getPlayers();
             std::vector<Egg*> eggs = tile->getEggs();
-            for (Egg *egg : eggs) {
+            for (const Egg *egg : eggs) {
                 Team *team = getTeam(egg->getTeamName());
                 if (team)
                     team->removeEgg(egg);
@@ -346,7 +347,7 @@ namespace Zappy {
     std::string Game::incantationStart(int clientId)
     {
         if (hasIdPlayer(clientId)) {
-            Player *player = _idPlayers[clientId];
+            const Player *player = _idPlayers[clientId];
             Tile *tile = map->getTile(player->getPosition());
             Pos pos = player->getPosition();
             int oldLevel = player->getLevel();
@@ -384,7 +385,7 @@ namespace Zappy {
     std::string Game::incantationEnd(int clientId)
     {
         if (hasIdPlayer(clientId)) {
-            Player *player = _idPlayers[clientId];
+            const Player *player = _idPlayers[clientId];
             Tile *tile = map->getTile(player->getPosition());
             Pos pos = player->getPosition();
             int oldLevel = player->getLevel();
@@ -418,7 +419,7 @@ namespace Zappy {
         return "ko\n";
     }
 
-    std::string Game::take(int clientId, const std::string obj)
+    std::string Game::take(int clientId, const std::string &obj)
     {
         if (hasIdPlayer(clientId)){
             Player* player = _idPlayers[clientId];
@@ -442,7 +443,7 @@ namespace Zappy {
         return "ko\n";
     }
 
-    std::string Game::set(int clientId, const std::string obj)
+    std::string Game::set(int clientId, const std::string &obj)
     {
         if (hasIdPlayer(clientId)){
             Player* player = _idPlayers[clientId];
@@ -478,7 +479,7 @@ namespace Zappy {
         return false;//throw peut être
     }
 
-    Team *Game::getTeam(const std::string teamName)
+    Team *Game::getTeam(const std::string &teamName)
     {
         for (uint i = 0; i < _teams.size(); i++){
             if (teamName == _teams[i]->getName()){
@@ -491,7 +492,7 @@ namespace Zappy {
     void Game::removePlayer(int clientId)
     {
         if (hasIdPlayer(clientId)){
-            Player* player = _idPlayers[clientId];
+            const Player* player = _idPlayers[clientId];
             Tile* tile = map->getTile(player->getPosition());
             tile->removePlayer(player);
             _idPlayers.erase(clientId);
@@ -517,7 +518,7 @@ namespace Zappy {
         return it != _idActions.end();
     }
 
-    void Game::addClientAction(int clientId, ActionType actionType, std::string arg)
+    void Game::addClientAction(int clientId, ActionType actionType, const std::string &arg)
     {
         Action action;
         if (hasIdAction(clientId) == false){
@@ -666,20 +667,18 @@ namespace Zappy {
                     case BROADCAST:
                     {
                         auto msgs = broadcast(it->first, it->second.arg);
-                        for (auto &m : msgs)
-                            actionResponses.push_back(m);
+                        std::copy(msgs.begin(), msgs.end(), std::back_inserter(actionResponses));
                         break;
                     }
                     case INCANTATION:
                     {
                         int initiatorId = it->first;
-                        Player* initiator = _idPlayers[initiatorId];
-                        Pos pos = initiator->getPosition();
-                        int levelBefore = initiator->getLevel();
+                        const Player* initiator = _idPlayers[initiatorId];
                         std::string result = incantationEnd(initiatorId);
                         actionResponses.push_back({initiatorId, result});
-                        if (initiator->getLevel() > levelBefore) {
-                            for (auto& [id, p] : _idPlayers) {
+                        if (result.rfind("Current level", 0) == 0) {
+                            Pos pos = initiator->getPosition();
+                            for (const auto& [id, p] : _idPlayers) {
                                 if (id != initiatorId &&
                                     p->getPosition().x == pos.x &&
                                     p->getPosition().y == pos.y &&
@@ -724,16 +723,16 @@ namespace Zappy {
 
     void Game::checkWinCondition()
     {
-        for (Team *team : _teams){
-            if (team->checkWinCondition()){
-                _isVictory = true;
-                _idActions.clear();
-                _idEatActions.clear();
-                std::cout << "Team " << team->getName() << " is victorious !!! Game is done." << std::endl;
-                if (_listener)
-                    _listener->onGameEnded(team->getName());
-                break;
-            }
+        auto it = std::find_if(_teams.begin(), _teams.end(),
+            [](Team *team) { return team->checkWinCondition(); });
+        if (it != _teams.end()) {
+            const Team *team = *it;
+            _isVictory = true;
+            _idActions.clear();
+            _idEatActions.clear();
+            std::cout << "Team " << team->getName() << " is victorious !!! Game is done." << std::endl;
+            if (_listener)
+                _listener->onGameEnded(team->getName());
         }
     }
 
@@ -750,7 +749,7 @@ namespace Zappy {
                 for (int y = 0; y < h; y++) {
                     for (int x = 0; x < w; x++) {
                         Pos p{x, y};
-                        Tile *tile = map->getTile(p);
+                        const Tile *tile = map->getTile(p);
                         if (!tile)
                             continue;
                         Inventory inv;

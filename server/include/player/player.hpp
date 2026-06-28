@@ -19,15 +19,15 @@ namespace Zappy {
     class Player {
 
         public:
-            Player(std::string teamName);
+            explicit Player(const std::string &teamName);
             ~Player() = default;
             int getLevel() const { return _level; }
             Direction getDirection() const { return _direction; }
             Pos getPosition() const { return _position; }
-            std::string getTeamName() const { return _teamName; }
-            std::vector<int> getInventory() const { return _inventory; }
+            const std::string &getTeamName() const { return _teamName; }
+            const std::vector<int> &getInventory() const { return _inventory; }
 
-            void setTeamName(std::string teamName) { _teamName = teamName; }
+            void setTeamName(const std::string &teamName) { _teamName = teamName; }
             void setPosition(Pos position) { _position = position; }
 
             void turnLeft();
@@ -51,10 +51,10 @@ namespace Zappy {
             std::vector<Pos> lookDownVision(Map* map);
             std::vector<Pos> lookRightVision(Map* map);
             std::vector<Pos> lookLeftVision(Map* map);
-            std::vector<Pos> lookUp(Map* map, Pos startPos, int distance);
-            std::vector<Pos> lookDown(Map* map, Pos startPos, int distance);
-            std::vector<Pos> lookRight(Map* map, Pos startPos, int distance);
-            std::vector<Pos> lookLeft(Map* map, Pos startPos, int distance);
-            std::string tilesToString(Map* map, std::vector<Pos> vision);
+            static std::vector<Pos> lookUp(Map* map, Pos startPos, int distance);
+            static std::vector<Pos> lookDown(Map* map, Pos startPos, int distance);
+            static std::vector<Pos> lookRight(Map* map, Pos startPos, int distance);
+            static std::vector<Pos> lookLeft(Map* map, Pos startPos, int distance);
+            static std::string tilesToString(Map* map, const std::vector<Pos> &vision);
     };
 }

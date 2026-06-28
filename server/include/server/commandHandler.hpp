@@ -51,7 +51,7 @@ namespace Zappy {
         void _handleSet(const Client &client, const std::string &args);
 
         // Sends "ko\n" back to the client
-        void _sendKo(Client &client);
+        static void _sendKo(Client &client);
 
         // Command dispatch table: command string -> handler function
         using Handler = std::function<void(Client &, const std::string &)>;

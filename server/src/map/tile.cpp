@@ -1,6 +1,7 @@
 #include "../../include/map/tile.hpp"
 #include "../../include/types/resource.hpp"
 #include "../../include/egg/egg.hpp"
+#include <algorithm>
 #include <cstdio>
 
 namespace Zappy {
@@ -10,14 +11,11 @@ namespace Zappy {
         _players.push_back(player);
     }
 
-    void Tile::removePlayer(Player *player)
+    void Tile::removePlayer(const Player *player)
     {
-        for (std::vector<Player*>::iterator it = _players.begin(); it != _players.end(); it++) {
-            if (*it == player){
-                _players.erase(it);
-                break;
-            }
-        }
+        auto it = std::find(_players.begin(), _players.end(), player);
+        if (it != _players.end())
+            _players.erase(it);
     }
 
     void Tile::addResource(TypeResource typeResource)
@@ -54,14 +52,11 @@ namespace Zappy {
         _eggs.push_back(egg);
     }
 
-    void Tile::removeEgg(Egg* egg)
+    void Tile::removeEgg(const Egg* egg)
     {
-        for (auto it = _eggs.begin(); it != _eggs.end(); it++) {
-            if (*it == egg) {
-                _eggs.erase(it);
-                return;
-            }
-        }
+        auto it = std::find(_eggs.begin(), _eggs.end(), egg);
+        if (it != _eggs.end())
+            _eggs.erase(it);
     }
 
     int Tile::getNbPlayers()

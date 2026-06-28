@@ -7,7 +7,7 @@
 
 namespace Zappy {
     Team::Team(const std::string &name, const std::vector<Egg*> &eggs)
-        : _name(name), _eggs(eggs)
+        : _eggs(eggs), _name(name)
     {
     }
 
@@ -35,7 +35,7 @@ namespace Zappy {
             _eggs.erase(it);
     }
 
-    std::string Team::getName()
+    const std::string &Team::getName() const
     {
         return _name;
     }

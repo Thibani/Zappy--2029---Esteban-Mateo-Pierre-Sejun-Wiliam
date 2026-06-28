@@ -66,7 +66,7 @@ namespace Zappy {
                 return "";
             }
 
-            static TypeResource stringToTypeResource(std::string resourceString)
+            static TypeResource stringToTypeResource(const std::string &resourceString)
             {
                 if (resourceString == "food")
                     return FOOD;

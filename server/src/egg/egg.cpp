@@ -2,9 +2,8 @@
 
 namespace Zappy {
 
-    Egg::Egg(std::string teamName, Pos position)
+    Egg::Egg(const std::string &teamName, Pos position)
+        : _teamName(teamName), _position(position)
     {
-        _teamName = teamName;
-        _position = position;
     }
 }

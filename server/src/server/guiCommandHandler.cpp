@@ -87,7 +87,7 @@ namespace Zappy {
             return;
         }
         Pos p{x, y};
-        Tile *tile = _game.map->getTile(p);
+        const Tile *tile = _game.map->getTile(p);
         Inventory inv;
         if (tile) {
             const auto &raw = tile->resources();
@@ -108,7 +108,7 @@ namespace Zappy {
         for (int y = 0; y < h; y++) {
             for (int x = 0; x < w; x++) {
                 Pos p{x, y};
-                Tile *tile = _game.map->getTile(p);
+                const Tile *tile = _game.map->getTile(p);
                 Inventory inv;
                 if (tile) {
                     const auto &raw = tile->resources();
@@ -145,7 +145,7 @@ namespace Zappy {
             _guiProtocol.emitBadParameters(client.getFd());
             return;
         }
-        Player *p = it->second;
+        const Player *p = it->second;
         Pos pos = p->getPosition();
         _guiProtocol.emitPlayerPosition(playerId, pos.x, pos.y, p->getDirection(), client.getFd());
     }
@@ -164,7 +164,7 @@ namespace Zappy {
             _guiProtocol.emitBadParameters(client.getFd());
             return;
         }
-        Player *p = it->second;
+        const Player *p = it->second;
         _guiProtocol.emitPlayerLevel(playerId, p->getLevel(), client.getFd());
     }
 
@@ -182,7 +182,7 @@ namespace Zappy {
             _guiProtocol.emitBadParameters(client.getFd());
             return;
         }
-        Player *p = it->second;
+        const Player *p = it->second;
         Pos pos = p->getPosition();
         const auto &raw = p->getInventory();
         Inventory inv;
@@ -237,10 +237,9 @@ namespace Zappy {
     {
         if (arg.size() < 2 || arg[0] != '#')
             return false;
-        for (size_t i = 1; i < arg.size(); i++) {
-            if (!std::isdigit(static_cast<unsigned char>(arg[i])))
-                return false;
-        }
+        if (std::any_of(arg.begin() + 1, arg.end(),
+            [](unsigned char ch) { return !std::isdigit(ch); }))
+            return false;
         try {
             out = std::stoi(arg.substr(1));
         } catch (const std::exception &) {
