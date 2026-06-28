@@ -55,9 +55,7 @@ namespace Zappy {
 
     std::vector<int> Map::countResources()
     {
-        std::vector<int> resources;
-
-        resources.reserve(7);
+        std::vector<int> resources(7, 0);
         for (int i = 0; i < _height; i++){
             for (int j = 0; j < _width; j++){
                 resources[FOOD] += _tiles[i][j]->getNbResources(FOOD);
