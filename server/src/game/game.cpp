@@ -632,7 +632,7 @@ namespace Zappy {
 
         for (auto it = _idActions.begin(); it != _idActions.end(); ) {
             Player *player = _idPlayers[it->first];
-            if (player->getRitualId() >= 0)
+            if (player->getRitualId() >= 0 && it->second.actionType != INCANTATION)
                 continue;
             if (Clock::hasPassed(it->second.deadLine)) {
                 switch (it->second.actionType) {
