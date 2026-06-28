@@ -12,6 +12,20 @@ void Renderer::drawMap(const Map& map, const CharacterFactory& factory, const Eg
 
 void Renderer::_drawTiles(const Map& map, PlayerView& camera)
 {
+    struct Offset { float dx; float dz; };
+    static const Offset offsets[7] = {
+        { -0.25f, -0.25f }, // q0 food
+        {  0.25f, -0.25f }, // q1 linemate
+        { -0.25f,  0.25f }, // q2 deraumere
+        {  0.25f,  0.25f }, // q3 sibur
+        {  0.0f,  -0.25f }, // q4 mendiane
+        { -0.25f,  0.0f  }, // q5 phiras
+        {  0.25f,  0.0f  }, // q6 thystame
+    };
+    static const char* resKeys[7] = {
+        "food", "GoldOre", "IronOre", "Stone", "Fang", "Ruby", "Starshard"
+    };
+
     for (int y = 0; y < map.getHeight(); y++) {
         for (int x = 0; x < map.getWidth(); x++) {
             const Tile& tile = map.getTile(x, y);
@@ -20,18 +34,24 @@ void Renderer::_drawTiles(const Map& map, PlayerView& camera)
                 0.f,
                 y * TILE_SIZE + TILE_SIZE / 2.f
             };
-            Color color = DARKGREEN;
-            DrawCube(pos, TILE_SIZE, 0.1f, TILE_SIZE, color);
+
+            DrawCube(pos, TILE_SIZE, 0.1f, TILE_SIZE, DARKGREEN);
             DrawCubeWires(pos, TILE_SIZE, 0.1f, TILE_SIZE, BLACK);
 
-            Vector3 resPos = { pos.x, 0.15f, pos.z };
-            if (tile.q0 > 0) DrawBillboard(camera.get(), _assets.get("food"),       resPos, TILE_SIZE * 0.4f, WHITE);
-            if (tile.q1 > 0) DrawBillboard(camera.get(), _assets.get("GoldOre"),    resPos, TILE_SIZE * 0.4f, WHITE);
-            if (tile.q2 > 0) DrawBillboard(camera.get(), _assets.get("IronOre"),    resPos, TILE_SIZE * 0.4f, WHITE);
-            if (tile.q3 > 0) DrawBillboard(camera.get(), _assets.get("Stone"),      resPos, TILE_SIZE * 0.4f, WHITE);
-            if (tile.q4 > 0) DrawBillboard(camera.get(), _assets.get("Fang"),       resPos, TILE_SIZE * 0.4f, WHITE);
-            if (tile.q5 > 0) DrawBillboard(camera.get(), _assets.get("Ruby"),       resPos, TILE_SIZE * 0.4f, WHITE);
-            if (tile.q6 > 0) DrawBillboard(camera.get(), _assets.get("Starshard"),  resPos, TILE_SIZE * 0.4f, WHITE);
+            int quantities[7] = {
+                tile.q0, tile.q1, tile.q2, tile.q3, tile.q4, tile.q5, tile.q6
+            };
+
+            for (int i = 0; i < 7; i++) {
+                if (quantities[i] > 0) {
+                    Vector3 resPos = {
+                        pos.x + offsets[i].dx,
+                        0.15f,
+                        pos.z + offsets[i].dz
+                    };
+                    DrawBillboard(camera.get(), _assets.get(resKeys[i]), resPos, TILE_SIZE * 0.3f, WHITE);
+                }
+            }
         }
     }
 }
