@@ -17,6 +17,7 @@ Tile indices in Look response: row-major, left to right per row.
 
 import sys
 import random
+import subprocess
 from typing import Optional
 
 from connection import Connection
@@ -563,10 +564,20 @@ class ZappyAI:
         self._recv()
 
     def _cmd_fork(self) -> bool:
-        """Lay an egg on the current tile to open a new player slot, and return True if the server accepted the command."""
+        """Lay an egg on the current tile, then spawn a new AI process that will connect on that slot."""
         self._send("Fork")
         resp = self._recv()
-        return resp == "ok"
+        if resp != "ok":
+            return False
+        from pathlib import Path
+        main_py = Path(__file__).resolve().parent / "main.py"
+        subprocess.Popen([
+            sys.executable, str(main_py),
+            "-p", str(self._conn._port),
+            "-n", self._conn._team,
+            "-h", self._conn._host,
+        ])
+        return True
 
     def _cmd_incantation(self) -> str:
         """Trigger an incantation and return the final server response, reading a second line if the first is only the elevation preamble."""
