@@ -30,5 +30,6 @@ namespace Zappy {
             int _height;
             int _width;
             float _densities[7] = {0.5, 0.3, 0.15, 0.1, 0.1, 0.08, 0.05};
+            std::vector<int> countResources();
     };
 }
