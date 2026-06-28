@@ -130,7 +130,7 @@ namespace Zappy {
     // All stubs send "ko" until Game is wired in (person 2)
     // -------------------------------------------------------------------------
 
-    void CommandHandler::_handleForward(Client &client, const std::string &)
+    void CommandHandler::_handleForward(const Client &client, const std::string &)
     {
         _game.addClientAction(client.getFd(), Zappy::Game::ActionType::FORWARD, "");
         // TODO: Game::moveForward(client) — takes 7/f seconds
@@ -139,7 +139,7 @@ namespace Zappy {
         // client.pushToWriteBuffer("ok\n");
     }
 
-    void CommandHandler::_handleRight(Client &client, const std::string &)
+    void CommandHandler::_handleRight(const Client &client, const std::string &)
     {
         _game.addClientAction(client.getFd(), Zappy::Game::ActionType::RIGHT, "");
         // TODO: Game::turnRight(client) — takes 7/f seconds
@@ -148,7 +148,7 @@ namespace Zappy {
         // client.pushToWriteBuffer("ok\n");
     }
 
-    void CommandHandler::_handleLeft(Client &client, const std::string &)
+    void CommandHandler::_handleLeft(const Client &client, const std::string &)
     {
         _game.addClientAction(client.getFd(), Zappy::Game::ActionType::LEFT, "");
         // TODO: Game::turnLeft(client) — takes 7/f seconds
@@ -157,7 +157,7 @@ namespace Zappy {
         // client.pushToWriteBuffer("ok\n");
     }
 
-    void CommandHandler::_handleLook(Client &client, const std::string &)
+    void CommandHandler::_handleLook(const Client &client, const std::string &)
     {
         _game.addClientAction(client.getFd(), Zappy::Game::ActionType::LOOK, "");
         // std::cout << "[CommandHandler] fd=" << client.getFd() << " Look\n";
@@ -167,7 +167,7 @@ namespace Zappy {
         // client.pushToWriteBuffer(result);
     }
 
-    void CommandHandler::_handleInventory(Client &client, const std::string &)
+    void CommandHandler::_handleInventory(const Client &client, const std::string &)
     {
         _game.addClientAction(client.getFd(), Zappy::Game::ActionType::INVENTORY, "");
         // std::cout << "[CommandHandler] fd=" << client.getFd() << " Inventory\n";
@@ -177,7 +177,7 @@ namespace Zappy {
         // client.pushToWriteBuffer(result);
     }
 
-    void CommandHandler::_handleBroadcast(Client &client, const std::string &args)
+    void CommandHandler::_handleBroadcast(const Client &client, const std::string &args)
     {
         _game.addClientAction(client.getFd(), Zappy::Game::ActionType::BROADCAST, args);
         // std::cout << "[CommandHandler] fd=" << client.getFd()
@@ -186,7 +186,7 @@ namespace Zappy {
         // client.pushToWriteBuffer("ok\n");
     }
 
-    void CommandHandler::_handleConnectNbr(Client &client, const std::string &)
+    void CommandHandler::_handleConnectNbr(const Client &client, const std::string &)
     {
         _game.addClientAction(client.getFd(), Zappy::Game::ActionType::CONNECT_NBR, "");
         // std::cout << "[CommandHandler] fd=" << client.getFd() << " Connect_nbr\n";
@@ -194,7 +194,7 @@ namespace Zappy {
         // client.pushToWriteBuffer(std::to_string(n) + "\n");
     }
 
-    void CommandHandler::_handleFork(Client &client, const std::string &)
+    void CommandHandler::_handleFork(const Client &client, const std::string &)
     {
         _game.addClientAction(client.getFd(), Zappy::Game::ActionType::FORK, "");
         // std::cout << "[CommandHandler] fd=" << client.getFd() << " Fork\n";
@@ -202,7 +202,7 @@ namespace Zappy {
         // client.pushToWriteBuffer("ok\n");
     }
 
-    void CommandHandler::_handleEject(Client &client, const std::string &)
+    void CommandHandler::_handleEject(const Client &client, const std::string &)
     {
         _game.addClientAction(client.getFd(), Zappy::Game::ActionType::EJECT, "");
         // std::cout << "[CommandHandler] fd=" << client.getFd() << " Eject\n";
@@ -216,7 +216,7 @@ namespace Zappy {
         client.pushToWriteBuffer(result);
     }
 
-    void CommandHandler::_handleTake(Client &client, const std::string &args)
+    void CommandHandler::_handleTake(const Client &client, const std::string &args)
     {
         _game.addClientAction(client.getFd(), Zappy::Game::ActionType::TAKE, args);
         // TODO: Game::take(client, args) — takes 7/f seconds
@@ -226,7 +226,7 @@ namespace Zappy {
         // client.pushToWriteBuffer(ok ? "ok\n" : "ko\n");
     }
 
-    void CommandHandler::_handleSet(Client &client, const std::string &args)
+    void CommandHandler::_handleSet(const Client &client, const std::string &args)
     {
         _game.addClientAction(client.getFd(), Zappy::Game::ActionType::SET, args);
         // TODO: Game::set(client, args) — takes 7/f seconds

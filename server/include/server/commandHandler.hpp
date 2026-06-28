@@ -37,18 +37,18 @@ namespace Zappy {
         void _handleAuth(Client &client, const std::string &teamName);
 
         // AI command dispatchers
-        void _handleForward(Client &client, const std::string &args);
-        void _handleRight(Client &client, const std::string &args);
-        void _handleLeft(Client &client, const std::string &args);
-        void _handleLook(Client &client, const std::string &args);
-        void _handleInventory(Client &client, const std::string &args);
-        void _handleBroadcast(Client &client, const std::string &args);
-        void _handleConnectNbr(Client &client, const std::string &args);
-        void _handleFork(Client &client, const std::string &args);
-        void _handleEject(Client &client, const std::string &args);
+        void _handleForward(const Client &client, const std::string &args);
+        void _handleRight(const Client &client, const std::string &args);
+        void _handleLeft(const Client &client, const std::string &args);
+        void _handleLook(const Client &client, const std::string &args);
+        void _handleInventory(const Client &client, const std::string &args);
+        void _handleBroadcast(const Client &client, const std::string &args);
+        void _handleConnectNbr(const Client &client, const std::string &args);
+        void _handleFork(const Client &client, const std::string &args);
+        void _handleEject(const Client &client, const std::string &args);
         void _handleIncantation(Client &client, const std::string &args);
-        void _handleTake(Client &client, const std::string &args);
-        void _handleSet(Client &client, const std::string &args);
+        void _handleTake(const Client &client, const std::string &args);
+        void _handleSet(const Client &client, const std::string &args);
 
         // Sends "ko\n" back to the client
         void _sendKo(Client &client);
