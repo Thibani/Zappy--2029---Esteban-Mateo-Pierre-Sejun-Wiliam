@@ -124,7 +124,6 @@ namespace Zappy {
         _idPlayers[clientId] = player;
         addClientEatAction(clientId);
         if (_listener) {
-            _listener->onEggHatched(egg->getId());
             Pos p = player->getPosition();
             _listener->onPlayerConnected(clientId, p.x, p.y, player->getDirection(), player->getLevel(), teamName);
         }
@@ -304,9 +303,11 @@ namespace Zappy {
             Tile* tile = map->getTile(player->getPosition());
             tile->addEgg(egg);
             if (_listener) {
+                static int nextEggId = 1;
+                int eggId = nextEggId++;
                 Pos pos = player->getPosition();
                 _listener->onPlayerForked(clientId);
-                _listener->onEggLaid(egg->getId(), clientId, pos.x, pos.y);
+                _listener->onEggLaid(eggId, clientId, pos.x, pos.y);
             }
             return "ok\n";
         }
@@ -320,12 +321,10 @@ namespace Zappy {
             Tile *tile = map->getTile(player->getPosition());
             std::vector<Player*> players = tile->getPlayers();
             std::vector<Egg*> eggs = tile->getEggs();
-            for (Egg *egg : eggs) {
+            for (const Egg *egg : eggs) {
                 Team *team = getTeam(egg->getTeamName());
                 if (team)
                     team->removeEgg(egg);
-                if (_listener)
-                    _listener->onEggDied(egg->getId());
             }
             tile->deleteAllEggs();
             for (uint i = 0; i < players.size(); i++){
@@ -353,8 +352,15 @@ namespace Zappy {
             Tile *tile = map->getTile(player->getPosition());
             Pos pos = player->getPosition();
             int oldLevel = player->getLevel();
-            //TODO: Add all players on the tile to participants
-            std::vector<int> participants = { clientId };
+            std::vector<int> participants;
+            for (Player *p : tile->getPlayers()) {
+                for (auto &[id, pl] : _idPlayers) {
+                    if (pl == p) {
+                        participants.push_back(id);
+                        break;
+                    }
+                }
+            }
             if (_listener)
                 _listener->onIncantationStarted(pos.x, pos.y, oldLevel, participants);
             if (checkLevelUp(oldLevel, tile) == false) {
@@ -380,7 +386,15 @@ namespace Zappy {
             Tile *tile = map->getTile(player->getPosition());
             Pos pos = player->getPosition();
             int oldLevel = player->getLevel();
-            std::vector<int> participants = { clientId };
+            std::vector<int> participants;
+            for (Player *p : tile->getPlayers()) {
+                for (auto &[id, pl] : _idPlayers) {
+                    if (pl == p) {
+                        participants.push_back(id);
+                        break;
+                    }
+                }
+            }
             if (checkLevelUp(oldLevel, tile)) {
                 tile->resourceConsume(oldLevel);
                 std::vector<Player*> tilePlayers = tile->getPlayers();
@@ -732,23 +746,18 @@ namespace Zappy {
         if (_isVictory)
             return;
         if (Clock::hasPassed(_spawnResourceDeadline.deadLine)){
-            map->setRessource();
+            std::vector<Pos> modified = map->setRessource();
             setNextResourcesDeadline();
             if (_listener) {
-                int w = map->getWidth();
-                int h = map->getHeight();
-                for (int y = 0; y < h; y++) {
-                    for (int x = 0; x < w; x++) {
-                        Pos p{x, y};
-                        const Tile *tile = map->getTile(p);
-                        if (!tile)
-                            continue;
-                        Inventory inv;
-                        const auto &raw = tile->resources();
-                        for (int i = 0; i < 7; i++)
-                            inv.set(static_cast<TypeResource>(i), raw[i]);
-                        _listener->onTileChanged(x, y, inv);
-                    }
+                for (const Pos &p : modified) {
+                    const Tile *tile = map->getTile(p);
+                    if (!tile)
+                        continue;
+                    Inventory inv;
+                    const auto &raw = tile->resources();
+                    for (int i = 0; i < 7; i++)
+                        inv.set(static_cast<TypeResource>(i), raw[i]);
+                    _listener->onTileChanged(p.x, p.y, inv);
                 }
             }
         }
