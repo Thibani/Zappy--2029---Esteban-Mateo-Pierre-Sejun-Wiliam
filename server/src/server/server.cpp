@@ -7,6 +7,7 @@
 #include "server/server.hpp"
 #include "exceptions/serverException.hpp"
 #include "utils/clock.hpp"
+#include "game/game.hpp"
 
 #include <iostream>
 #include <cerrno>
@@ -26,8 +27,10 @@ namespace Zappy {
     // -------------------------------------------------------------------------
 
     Server::Server(const Args &args, Game &game)
-        : _args(args), _serverFd(-1), _guiProtocol(*this), _cmdHandler(game, _guiProtocol)
+        : _args(args), _serverFd(-1), _guiProtocol(*this), _cmdHandler(game, _guiProtocol), _game(game)
     {
+        game.setListener(&_guiProtocol);
+        _guiProtocol.setGame(game);
         _initSocket();
     }
 
@@ -231,6 +234,10 @@ namespace Zappy {
             std::cout << " (" << reason << ")";
         std::cout << "\n";
 
+        auto it = _clients.find(fd);
+        if (it != _clients.end() && it->second.getType() == ClientType::AI)
+            _game.removePlayer(fd);
+
         _clients.erase(fd);
         _removePollFd(fd);
         close(fd);
@@ -261,9 +268,11 @@ namespace Zappy {
         client.feedReadBuffer(std::string(buf, n));
 
         // Extract and dispatch complete commands
-        std::string cmd;
-        while (client.popCommand(cmd))
-            _cmdHandler.dispatch(client, cmd);
+        if (!_game.hasIdAction(fd)) {
+            std::string cmd;
+            if (client.popCommand(cmd))
+                _cmdHandler.dispatch(client, cmd);
+        }
 
         // If CommandHandler pushed responses, enable POLLOUT
         if (!client.getWriteBuffer().empty())
@@ -307,17 +316,29 @@ namespace Zappy {
 
     int Server::_nearestDeadlineMs()
     {
-        // TODO: iterate over clients, find the nearest pending action deadline,
-        // return Clock::msUntil(nearest) cast to int.
-        // For now return -1 (block forever) until Game/CommandHandler exist.
-        return -1;
+        return _game.nearestDeadlineMs();
     }
 
     void Server::_processPendingActions()
     {
-        // TODO: iterate over clients, check if their current action deadline
-        // has passed via Clock::hasPassed(), and if so dispatch the result
-        // to CommandHandler / Game.
+        _game.executeSpawnResources();
+
+        std::vector<std::pair<int, std::string>> actionEatResults = _game.executeAllEatActions();
+        std::vector<std::pair<int, std::string>> actionResults = _game.executeAllClientActions();
+
+        for (std::pair<int, std::string> actionResult : actionResults)
+            sendToClient(actionResult.first, actionResult.second);
+
+        for (std::pair<int, std::string> actionEatResult : actionEatResults)
+            sendToClient(actionEatResult.first, actionEatResult.second);
+
+        for (auto &[fd, client] : _clients) {
+            if (client.getType() == ClientType::AI && !_game.hasIdAction(fd)) {
+                std::string cmd;
+                if (client.popCommand(cmd))
+                    _cmdHandler.dispatch(client, cmd);
+            }
+        }
     }
 
 }
