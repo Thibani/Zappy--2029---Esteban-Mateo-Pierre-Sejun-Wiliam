@@ -1,11 +1,12 @@
-#include "../../include/team/team.hpp"
-#include "../../include/egg/egg.hpp"
-#include "../../include/player/player.hpp"
+#include "team/team.hpp"
+#include "egg/egg.hpp"
+#include "player/player.hpp"
+
 #include <vector>
+#include <algorithm>
 
 namespace Zappy {
-
-    Team::Team(std::string name, std::vector<Egg*> eggs)
+    Team::Team(const std::string &name, const std::vector<Egg*> &eggs)
     {
         _name = name;
         _eggs = eggs;
@@ -16,14 +17,11 @@ namespace Zappy {
         _players.push_back(player);
     }
 
-    void Team::removePlayer(Player *playerToRemove)
+    void Team::removePlayer(const Player *playerToRemove)
     {
-        for (std::vector<Player*>::iterator it = _players.begin(); it != _players.end(); it++){
-            if (playerToRemove == *it){
-                _players.erase(it);
-                break;
-            }
-        }
+        auto it = std::find(_players.begin(), _players.end(), playerToRemove);
+        if (it != _players.end())
+            _players.erase(it);
     }
 
     void Team::addEgg(Egg *egg)
@@ -31,14 +29,11 @@ namespace Zappy {
         _eggs.push_back(egg);
     }
 
-    void Team::removeEgg(Egg *egg)
+    void Team::removeEgg(const Egg *egg)
     {
-        for (auto it = _eggs.begin(); it != _eggs.end(); it++) {
-            if (*it == egg) {
-                _eggs.erase(it);
-                return;
-            }
-        }
+        auto it = std::find(_eggs.begin(), _eggs.end(), egg);
+        if (it != _eggs.end())
+            _eggs.erase(it);
     }
 
     std::string Team::getName()
@@ -60,12 +55,8 @@ namespace Zappy {
 
     bool Team::checkWinCondition()
     {
-        int nbPlayerLevelMax = 0;
-
-        for (Player *player : _players){
-            if (player->getLevel() >= 8)
-                nbPlayerLevelMax++;
-        }
+        int nbPlayerLevelMax = std::count_if(_players.begin(), _players.end(),
+            [](const Player *p) { return p->getLevel() >= 8; });
         return nbPlayerLevelMax >= 6;
     }
 }

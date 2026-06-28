@@ -21,11 +21,11 @@ namespace Zappy {
         public:
             Player(std::string teamName);
             ~Player() = default;
-            int getLevel() { return _level; }
-            Direction getDirection() { return _direction; }
-            Pos getPosition() { return _position; }
-            std::string getTeamName() { return _teamName; }
-            std::vector<int> getInventory() { return _inventory; }
+            int getLevel() const { return _level; }
+            Direction getDirection() const { return _direction; }
+            Pos getPosition() const { return _position; }
+            std::string getTeamName() const { return _teamName; }
+            std::vector<int> getInventory() const { return _inventory; }
 
             void setTeamName(std::string teamName) { _teamName = teamName; }
             void setPosition(Pos position) { _position = position; }
