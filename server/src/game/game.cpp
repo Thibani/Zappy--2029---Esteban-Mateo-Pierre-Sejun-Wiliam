@@ -40,6 +40,7 @@ namespace Zappy {
         Egg *egg;
         Tile *tile;
 
+        std::srand(std::time(nullptr));
         _freq = freq;
         initActionCost();
         _isVictory = false;
