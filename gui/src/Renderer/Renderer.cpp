@@ -14,13 +14,13 @@ void Renderer::_drawTiles(const Map& map, PlayerView& camera)
 {
     struct Offset { float dx; float dz; };
     static const Offset offsets[7] = {
-        { -0.25f, -0.25f }, // q0 food
-        {  0.25f, -0.25f }, // q1 linemate
-        { -0.25f,  0.25f }, // q2 deraumere
-        {  0.25f,  0.25f }, // q3 sibur
-        {  0.0f,  -0.25f }, // q4 mendiane
-        { -0.25f,  0.0f  }, // q5 phiras
-        {  0.25f,  0.0f  }, // q6 thystame
+        { -0.25f, -0.25f },
+        {  0.25f, -0.25f },
+        { -0.25f,  0.25f },
+        {  0.25f,  0.25f },
+        {  0.0f,  -0.25f },
+        { -0.25f,  0.0f  },
+        {  0.25f,  0.0f  },
     };
     static const char* resKeys[7] = {
         "food", "GoldOre", "IronOre", "Stone", "Fang", "Ruby", "Starshard"
