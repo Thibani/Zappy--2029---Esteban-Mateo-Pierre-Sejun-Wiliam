@@ -14,7 +14,7 @@ Formats:
 """
 
 import re
-from typing import Dict, List
+from typing import Dict, List, Optional
 from constants import Resource, RESOURCE_NAMES
 
 
@@ -29,30 +29,57 @@ def parse_inventory(line: str) -> Inventory:
     """
     Parse: [ food 9, linemate 0, deraumere 0, sibur 0,
              mendiane 0, phiras 0, thystame 0 ]
+    Returns empty inventory on malformed input (never raises).
     """
     inv = empty_inventory()
     content = line.strip().strip("[]")
 
     for part in content.split(","):
         part = part.strip()
-
         if not part:
             continue
-
         tokens = part.split()
+        # Expect exactly "name quantity" — skip malformed tokens
         if len(tokens) == 2:
-            name, qty = tokens
+            name, qty_str = tokens
             name = name.lower()
             if name in RESOURCE_NAMES:
-                inv[RESOURCE_NAMES[name]] = int(qty)
+                try:
+                    inv[RESOURCE_NAMES[name]] = int(qty_str)
+                except ValueError:
+                    pass  # ignore malformed quantity
     return inv
+
+
+def is_look_response(line: str) -> bool:
+    """Return True if *line* looks like a Look response (bracketed tile list)."""
+    stripped = line.strip()
+    return stripped.startswith("[") and "," in stripped
+
+
+def is_inventory_response(line: str) -> bool:
+    """Return True if *line* looks like an Inventory response."""
+    stripped = line.strip()
+    if not (stripped.startswith("[") and stripped.endswith("]")):
+        return False
+    # Inventory entries are "name number" pairs separated by commas
+    content = stripped.strip("[]")
+    for part in content.split(","):
+        tokens = part.strip().split()
+        if len(tokens) == 2 and tokens[0].lower() in RESOURCE_NAMES:
+            try:
+                int(tokens[1])
+                return True  # at least one valid pair → likely inventory
+            except ValueError:
+                pass
+    return False
 
 
 def parse_look(line: str) -> List[Inventory]:
     """
     Parse: [ player food, linemate, food player, ... ]
-    Returns list of tile inventories.
-    Tile 0 is the player's current tile.
+    Returns list of tile inventories (empty tile becomes empty_inventory()).
+    Never raises — malformed tiles produce empty_inventory().
     """
     content = line.strip().strip("[]")
     tiles: List[Inventory] = []
@@ -60,12 +87,15 @@ def parse_look(line: str) -> List[Inventory]:
     for tile_str in content.split(","):
         tile_str = tile_str.strip()
         inv = empty_inventory()
-
         for token in tile_str.split():
             token = token.lower()
             if token in RESOURCE_NAMES:
                 inv[RESOURCE_NAMES[token]] += 1
         tiles.append(inv)
+
+    # Always return at least one tile
+    if not tiles:
+        tiles.append(empty_inventory())
     return tiles
 
 
