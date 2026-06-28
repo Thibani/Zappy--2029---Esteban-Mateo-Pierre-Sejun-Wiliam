@@ -7,7 +7,7 @@ namespace Zappy {
 
     Player::Player(const std::string &teamName)
         : _level(1), _direction(static_cast<Direction>(rand() % 4)),
-          _position{0, 0}, _teamName(teamName), _inventory(7)
+          _position{0, 0}, _teamName(teamName), _inventory(7), _ritualId(-1)
     {
         _inventory[FOOD] = 10;
     }

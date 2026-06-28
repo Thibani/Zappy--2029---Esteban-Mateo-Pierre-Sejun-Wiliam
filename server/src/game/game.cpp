@@ -6,6 +6,7 @@
 #include "player/player.hpp"
 #include "types/resource.hpp"
 #include "utils/clock.hpp"
+#include "types/position.hpp"
 
 #include <algorithm>
 #include <cstdlib>
@@ -348,8 +349,10 @@ namespace Zappy {
 
     std::string Game::incantationStart(int clientId)
     {
+        static int ritualId = 0;
+
         if (hasIdPlayer(clientId)) {
-            const Player *player = _idPlayers[clientId];
+            Player *player = _idPlayers[clientId];
             Tile *tile = map->getTile(player->getPosition());
             Pos pos = player->getPosition();
             int oldLevel = player->getLevel();
@@ -367,16 +370,28 @@ namespace Zappy {
                 }
                 return "ko\n";
             }
+            addPlayersToRitual(player, ritualId);
+            ritualId++;
             addClientAction(clientId, Zappy::Game::ActionType::INCANTATION, "");
             return "Elevation underway\n";
         }
         return "ko\n";
     }
 
+    void Game::addPlayersToRitual(Player *player_initiator, int ritualId) {
+        Tile *tile = map->getTile(player_initiator->getPosition());
+        std::vector<Player*> players = tile->getPlayers();
+        for (Player *player : players) {
+            if (player->getLevel() == player_initiator->getLevel()) {
+                player->setRitualId(ritualId);
+            }
+        }
+    }
+
     std::string Game::incantationEnd(int clientId)
     {
         if (hasIdPlayer(clientId)) {
-            const Player *player = _idPlayers[clientId];
+            Player *player = _idPlayers[clientId];
             Tile *tile = map->getTile(player->getPosition());
             Pos pos = player->getPosition();
             int oldLevel = player->getLevel();
@@ -385,7 +400,7 @@ namespace Zappy {
                 tile->resourceConsume(oldLevel);
                 std::vector<Player*> tilePlayers = tile->getPlayers();
                 for (Player* tp : tilePlayers) {
-                    if (tp->getLevel() == oldLevel)
+                    if (tp->getRitualId() == player->getRitualId())
                         tp->levelUp();
                 }
                 int newLevel = player->getLevel();
@@ -397,6 +412,7 @@ namespace Zappy {
                     _listener->onIncantationEnded(pos.x, pos.y, true, participants, newLevel, inv);
                 }
                 checkWinCondition();
+                removePlayersFromRitual(player->getRitualId(), player->getPosition());
                 return "Current level " + std::to_string(newLevel) + "\n";
             }
             if (_listener) {
@@ -406,8 +422,18 @@ namespace Zappy {
                     inv.set(static_cast<TypeResource>(i), raw[i]);
                 _listener->onIncantationEnded(pos.x, pos.y, false, participants, oldLevel, inv);
             }
+            removePlayersFromRitual(player->getRitualId(), player->getPosition());
         }
         return "ko\n";
+    }
+
+    void Game::removePlayersFromRitual(int ritualId, Pos position) {
+        Tile *tile = map->getTile(position);
+        std::vector<Player*> tilePlayers = tile->getPlayers();
+        for (Player* tp : tilePlayers) {
+            if (tp->getRitualId() == ritualId)
+                tp->setRitualId(-1);
+        }
     }
 
     std::string Game::take(int clientId, const std::string &obj)
@@ -483,7 +509,7 @@ namespace Zappy {
     void Game::removePlayer(int clientId)
     {
         if (hasIdPlayer(clientId)){
-            const Player* player = _idPlayers[clientId];
+            Player* player = _idPlayers[clientId];
             Tile* tile = map->getTile(player->getPosition());
             tile->removePlayer(player);
             _idPlayers.erase(clientId);
@@ -492,6 +518,8 @@ namespace Zappy {
             getTeam(player->getTeamName())->removePlayer(player);
             if (_listener)
                 _listener->onPlayerDied(clientId);
+            if (player->getRitualId() >= 0)
+                removePlayersFromRitual(player->getRitualId(), player->getPosition());
         }
     }
 
@@ -535,13 +563,13 @@ namespace Zappy {
     bool Game::checkLevelUp(int level, Tile* tile)
     {
         if (level == 1){
-            if (tile->getNbPlayers() >= 1){
+            if (tile->getNbPlayersWithLevel(level) >= 1){
                 if (tile->getNbResources(LINEMATE) >= 1)
                     return true;
             }
         }
         if (level == 2){
-            if (tile->getNbPlayers() >= 2){
+            if (tile->getNbPlayersWithLevel(level) >= 2){
                 if (tile->getNbResources(LINEMATE) >= 1
                 && tile->getNbResources(DERAUMERE) >= 1
                 && tile->getNbResources(SIBUR) >= 1)
@@ -549,7 +577,7 @@ namespace Zappy {
             }
         }
         if (level == 3){
-            if (tile->getNbPlayers() >= 2){
+            if (tile->getNbPlayersWithLevel(level) >= 2){
                 if (tile->getNbResources(LINEMATE) >= 2
                 && tile->getNbResources(SIBUR) >= 1
                 && tile->getNbResources(PHIRAS) >= 2)
@@ -557,7 +585,7 @@ namespace Zappy {
             }
         }
         if (level == 4){
-            if (tile->getNbPlayers() >= 4){
+            if (tile->getNbPlayersWithLevel(level) >= 4){
                 if (tile->getNbResources(LINEMATE) >= 1
                 && tile->getNbResources(DERAUMERE) >= 1
                 && tile->getNbResources(SIBUR) >= 2
@@ -566,7 +594,7 @@ namespace Zappy {
             }
         }
         if (level == 5){
-            if (tile->getNbPlayers() >= 4){
+            if (tile->getNbPlayersWithLevel(level) >= 4){
                 if (tile->getNbResources(LINEMATE) >= 1
                 && tile->getNbResources(DERAUMERE) >= 2
                 && tile->getNbResources(SIBUR) >= 1
@@ -575,7 +603,7 @@ namespace Zappy {
             }
         }
         if (level == 6){
-            if (tile->getNbPlayers() >= 6){
+            if (tile->getNbPlayersWithLevel(level) >= 6){
                 if (tile->getNbResources(LINEMATE) >= 1
                 && tile->getNbResources(DERAUMERE) >= 2
                 && tile->getNbResources(SIBUR) >= 3
@@ -584,7 +612,7 @@ namespace Zappy {
             }
         }
         if (level == 7){
-            if (tile->getNbPlayers() >= 6){
+            if (tile->getNbPlayersWithLevel(level) >= 6){
                 if (tile->getNbResources(LINEMATE) >= 2
                 && tile->getNbResources(DERAUMERE) >= 2
                 && tile->getNbResources(SIBUR) >= 2
@@ -603,6 +631,9 @@ namespace Zappy {
         std::vector<std::pair<int, std::string>> actionResponses;
 
         for (auto it = _idActions.begin(); it != _idActions.end(); ) {
+            Player *player = _idPlayers[it->first];
+            if (player->getRitualId() >= 0)
+                continue;
             if (Clock::hasPassed(it->second.deadLine)) {
                 switch (it->second.actionType) {
                     case FORWARD:
@@ -697,6 +728,9 @@ namespace Zappy {
     {
         std::vector<std::pair<int, std::string>> actionResponses;
         for (auto it = _idEatActions.begin(); it != _idEatActions.end(); ) {
+            Player *player = _idPlayers[it->first];
+            if (player->getRitualId() >= 0)
+                continue;
             if (Clock::hasPassed(it->second.deadLine)) {
                 int id = it->first;
                 it = _idEatActions.erase(it);

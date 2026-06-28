@@ -3,6 +3,7 @@
 #include "map/map.hpp"
 #include "events/gameEvents.hpp"
 #include "player/player.hpp"
+#include "types/position.hpp"
 
 #include <vector>
 #include <map>
@@ -105,5 +106,7 @@ namespace Zappy {
             int computeDirection(Pos emitter, const Player *receiver);
             static Pos shortestVector(Pos emitter, Pos receiver, int width, int height);
             static Pos rotate(Pos v, Direction d);
+            void addPlayersToRitual(Player *player, int ritualId);
+            void removePlayersFromRitual(int ritualId, Pos position);
     };
 }

@@ -28,6 +28,7 @@ namespace Zappy {
             void resourceConsume(int level);
             const std::vector<int>& resources() const { return _resources; }
             void deleteAllEggs();
+            int getNbPlayersWithLevel(int level);
 
         private:
             std::vector<Player*> _players;

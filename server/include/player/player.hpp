@@ -39,6 +39,8 @@ namespace Zappy {
             std::string look(Map* map);
             void getEject(Map *map, Direction direction);
             void levelUp() { _level++; };
+            int getRitualId() { return _ritualId; }
+            void setRitualId(int id) { _ritualId = id; }
 
         private:
             int _level;
@@ -46,6 +48,7 @@ namespace Zappy {
             Pos _position;
             std::string _teamName;
             std::vector<int>_inventory;
+            int _ritualId;
 
             std::vector<Pos> lookUpVision(Map* map);
             std::vector<Pos> lookDownVision(Map* map);

@@ -1,6 +1,7 @@
 #include "../../include/map/tile.hpp"
 #include "../../include/types/resource.hpp"
 #include "../../include/egg/egg.hpp"
+#include "player/player.hpp"
 #include <algorithm>
 #include <cstdio>
 
@@ -118,6 +119,19 @@ namespace Zappy {
             delete egg;
         }
         _eggs.clear();
+    }
+
+    int Tile::getNbPlayersWithLevel(int level)
+    {
+        int count = 0;
+
+        std::vector<Player*> players = getPlayers();
+        for (Player *player : players) {
+            if (player->getLevel() == level) {
+                count++;
+            }
+        }
+        return count;
     }
 
 }
