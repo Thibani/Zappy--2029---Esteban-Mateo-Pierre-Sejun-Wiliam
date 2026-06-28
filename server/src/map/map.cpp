@@ -41,8 +41,9 @@ namespace Zappy {
         std::uniform_int_distribution<int> dist(0, _width - 1);
         std::uniform_int_distribution<int> larg(0, _height - 1);
 
+        std::vector<int> resources = countResources();
         for (int i = 0; i < 7; i++){
-            int quantity = _height * _width * _densities[i];
+            int quantity = _height * _width * _densities[i] - resources[i];
             while (quantity > 0){
                 int x = dist(gen);
                 int y = larg(gen);
@@ -50,6 +51,23 @@ namespace Zappy {
                 quantity--;
             }
         }
+    }
+
+    std::vector<int> Map::countResources()
+    {
+        std::vector<int> resources(7, 0);
+        for (int i = 0; i < _height; i++){
+            for (int j = 0; j < _width; j++){
+                resources[FOOD] += _tiles[i][j]->getNbResources(FOOD);
+                resources[LINEMATE] += _tiles[i][j]->getNbResources(LINEMATE);
+                resources[DERAUMERE] += _tiles[i][j]->getNbResources(DERAUMERE);
+                resources[SIBUR] += _tiles[i][j]->getNbResources(SIBUR);
+                resources[MENDIANE] += _tiles[i][j]->getNbResources(MENDIANE);
+                resources[PHIRAS] += _tiles[i][j]->getNbResources(PHIRAS);
+                resources[THYSTAME] += _tiles[i][j]->getNbResources(THYSTAME);
+            }
+        }
+        return resources;
     }
 
     void Map::debugDisplayMap()
