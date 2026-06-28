@@ -49,7 +49,7 @@ namespace Zappy {
         map->setRessource();
         for (uint i = 0; i < teamNames.size(); i++){
             eggs.clear();
-            for (uint j = 0; j < nbEggs; j++){
+            for (int j = 0; j < nbEggs; j++){
                 eggPos.x = rand() % mapWidth;
                 eggPos.y = rand() % mapHeight;
                 egg = new Egg(teamNames[i], eggPos);
