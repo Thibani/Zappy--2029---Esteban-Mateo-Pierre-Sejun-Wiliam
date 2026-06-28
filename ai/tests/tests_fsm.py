@@ -22,7 +22,7 @@ import time
 
 from tests_runner import section, run_test, log, summary
 from tests_server import MockServer, Expect, Push, Done
-from zappyAI import ZappyAI
+from ai import ZappyAI
 from fsm import State
 from brain import Brain
 from constants import Resource
