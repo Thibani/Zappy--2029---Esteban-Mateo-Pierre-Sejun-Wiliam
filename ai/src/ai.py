@@ -7,11 +7,6 @@ Implements the FSM loop:
   3. Update Brain state
   4. Transition to next state
 
-Command pipeline:
-The server allows up to 10 queued commands per client.
-We use a simple 1-command-at-a-time model here for correctness
-(easier to reason about state). Pipelining can be added later.
-
 Look field of view (for reference):
 Level 1: tile 0 (self), tiles 1-3 (row ahead)
 Level 2: + tiles 4-8 (two rows ahead)
@@ -33,7 +28,8 @@ from parser import (
     parse_look,
     count_players_on_tiles,
     parse_broadcast,
-    parse_eject
+    parse_eject,
+    is_look_response,
 )
 
 
@@ -45,12 +41,16 @@ class ZappyAI:
         self._pending_forward = False
         self._last_leader_dir = None
         self._follow_stale_ticks = 0
+        self._follow_absolute_ticks = 0
+        self._ticks_since_fork = 0
+        self._coordinate_ticks = 0
 
     # =========== #
     # Entry point
     # =========== #
 
     def run(self) -> None:
+        """Connect to the server, initialise the Brain, and enter the main FSM loop."""
         self._conn.connect()
         self._brain = Brain(
             team=self._conn._team,
@@ -68,10 +68,10 @@ class ZappyAI:
     # ============= #
 
     def _tick(self) -> None:
+        """Run one FSM cycle: process pending messages, apply emergency overrides, then dispatch to the active state handler."""
         b = self._brain
         self._process_messages()
 
-        # Emergency override: food is critically low
         if b.is_hungry and self._state not in (State.FORAGE,):
             b.log(f"Food low ({b.food}) — switching to FORAGE")
             self._state = State.FORAGE
@@ -79,9 +79,11 @@ class ZappyAI:
         elif (b.follow_incantation
               and self._state not in (State.FOLLOW_LEADER, State.INCANTATE)):
             b.log(f"Leader called! Following dir={b.incantation_leader_dir}")
+            self._follow_absolute_ticks = 0
+            self._follow_stale_ticks = 0
+            self._last_leader_dir = None
             self._state = State.FOLLOW_LEADER
 
-        # Dispatch 
         if   self._state == State.FORAGE:        self._state_forage()
         elif self._state == State.COLLECT:       self._state_collect()
         elif self._state == State.SEEK_TILE:     self._state_seek_tile()
@@ -95,33 +97,51 @@ class ZappyAI:
     # =========================================== #
 
     def _state_forage(self) -> None:
+        """Consume food from nearby tiles until the inventory reaches a safe threshold, then return to COLLECT."""
         b = self._brain
 
         if self._pending_forward:
             self._pending_forward = False
-            self._send("Forward")
-            self._recv()
+            look = self._cmd_look()
+            if look and look[0][Resource.FOOD] > 0:
+                grabbed = 0
+                while look[0][Resource.FOOD] > 0:
+                    if not self._cmd_take("food"):
+                        break
+                    look[0][Resource.FOOD] -= 1
+                    grabbed += 1
+                b.log(f"Forage: grabbed {grabbed} food from tile")
+            else:
+                self._send("Forward")
+                self._recv()
             inv = self._cmd_inventory()
             if inv[Resource.FOOD] >= 20:
                 b.log("Food replenished — back to COLLECT")
                 self._state = State.COLLECT
             return
 
-        # Look around
         look = self._cmd_look()
-        # Try to grab food on current tile first
         if look and look[0][Resource.FOOD] > 0:
-            self._cmd_take("food")
+            grabbed = 0
+            while look[0][Resource.FOOD] > 0:
+                if not self._cmd_take("food"):
+                    break
+                look[0][Resource.FOOD] -= 1
+                grabbed += 1
+            b.log(f"Forage: grabbed {grabbed} food from tile")
+            inv = self._cmd_inventory()
+            b.inventory = inv
+            if inv[Resource.FOOD] >= 20:
+                b.log("Food replenished — back to COLLECT")
+                self._state = State.COLLECT
             return
-        # Find food on visible tiles
+
         food_tile = self._nearest_tile_with(look, Resource.FOOD)
         if food_tile is not None:
             self._move_toward_tile(food_tile, len(look))
         else:
-            # Explore randomly
             self._random_move()
 
-        # Re-check food
         inv = self._cmd_inventory()
         if inv[Resource.FOOD] >= 20:
             b.log("Food replenished — back to COLLECT")
@@ -132,6 +152,7 @@ class ZappyAI:
     # ====================================================== #
 
     def _state_collect(self) -> None:
+        """Gather the resources required for the next incantation, periodically fork, and transition to COORDINATE when ready."""
         b = self._brain
 
         if b.is_max_level:
@@ -141,11 +162,24 @@ class ZappyAI:
 
         if self._pending_forward:
             self._pending_forward = False
-            self._send("Forward")
-            self._recv()
+            look = self._cmd_look()
+            missing = b.missing_resources()
+            if look and any(look[0].get(res, 0) > 0 for res in missing):
+                for res in missing:
+                    if look[0].get(res, 0) > 0:
+                        self._cmd_take(res.name.lower())
+                        break
+            else:
+                self._send("Forward")
+                self._recv()
             return
 
-        # Pick up any useful resource on current tile first
+        self._ticks_since_fork += 1
+        if self._ticks_since_fork >= 50 and b.level >= 2:
+            b.log("Fork périodique — pose d'un oeuf")
+            self._cmd_fork()
+            self._ticks_since_fork = 0
+
         inv = self._cmd_inventory()
         look = self._cmd_look()
 
@@ -156,25 +190,22 @@ class ZappyAI:
         current_tile = look[0]
         missing = b.missing_resources()
 
-        # Grab what we need from the current tile
         grabbed = False
-        for res, needed in missing.items():
+        for res in missing:
             if current_tile.get(res, 0) > 0:
-                name = res.name.lower()
-                self._cmd_take(name)
+                self._cmd_take(res.name.lower())
                 grabbed = True
-                break  # one take per tick; loop will re-check
+                break
 
         if grabbed:
             return
 
-        # Check if we have everything
         if b.has_enough_resources():
             b.log(f"Resources ready for lv{b.level+1} — coordinating")
+            self._coordinate_ticks = 0
             self._state = State.COORDINATE
             return
 
-        # Find a vi"sible tile with a needed resource
         target_res = b.best_resource_to_collect()
         if target_res:
             tile_idx = self._nearest_tile_with(look, target_res)
@@ -182,7 +213,6 @@ class ZappyAI:
                 self._move_toward_tile(tile_idx, len(look))
                 return
 
-        # Nothing visible — explore
         self._random_move()
 
     # ================================================================= #
@@ -190,6 +220,7 @@ class ZappyAI:
     # ================================================================= #
 
     def _state_seek_tile(self) -> None:
+        """Placeholder state that immediately falls back to COLLECT."""
         self._state = State.COLLECT
 
     # =========================================================== #
@@ -197,13 +228,22 @@ class ZappyAI:
     # =========================================================== #
 
     def _state_coordinate(self) -> None:
+        """Broadcast readiness to teammates and wait until enough players are gathered on the tile before starting the incantation."""
         b = self._brain
         req = b.requirements_for_next_level()
         if req is None:
             self._state = State.IDLE
             return
 
-        self._cmd_inventory()
+        self._coordinate_ticks += 1
+
+        if self._coordinate_ticks > 200:
+            b.log("COORDINATE timeout — restarting COLLECT")
+            b.ready_teammates = 0
+            self._coordinate_ticks = 0
+            self._state = State.COLLECT
+            return
+
         needed_players = req.get("players", 1)
 
         if needed_players == 1:
@@ -211,42 +251,42 @@ class ZappyAI:
             self._state = State.INCANTATE
             return
 
-        self._process_messages()
         if b.follow_incantation:
             b.log(f"Leader called! Following dir={b.incantation_leader_dir}")
+            self._follow_absolute_ticks = 0
+            self._follow_stale_ticks = 0
+            self._last_leader_dir = None
             self._state = State.FOLLOW_LEADER
             return
 
-        # Broadcast CALL
         call_msg = f"CALL_LV{b.level}"
         self._cmd_broadcast(call_msg)
 
-        # Compter les joueurs sur la tuile 0 SANS compter self
-        look_raw = self._do_look_raw()
-        counts = count_players_on_tiles(look_raw)
-        # counts[0] inclut self → on soustrait 1 pour n'avoir que les teammates
-        teammates_on_tile = max(0, (counts[0] if counts else 1) - 1)
-
+        inv = self._cmd_inventory()
+        b.inventory = inv
         self._process_messages()
 
-        # ready_teammates = ceux qui ont répondu READY depuis une autre tuile
-        # teammates_on_tile = ceux déjà arrivés (ont déjà répondu et bougé)
-        # total = self (1) + les deux catégories
-        total = 1 + b.ready_teammates + teammates_on_tile
+        look_raw = self._do_look_raw()
+        counts = count_players_on_tiles(look_raw)
+        teammates_on_tile = max(0, (counts[0] if counts else 1) - 1)
+        self._process_messages()
 
-        b.log(f"COORDINATE: {total}/{needed_players} (ready={b.ready_teammates}, on_tile={teammates_on_tile})")
+        total = 1 + b.ready_teammates + teammates_on_tile
+        b.log(f"COORDINATE: {total}/{needed_players} "
+              f"(ready_acks={b.ready_teammates}, on_tile={teammates_on_tile})")
 
         if total >= needed_players:
             self._cmd_broadcast(f"START_LV{b.level}")
             b.ready_teammates = 0
+            self._coordinate_ticks = 0
             self._state = State.INCANTATE
 
     # ====================================== #
     # STATE: INCANTATE — trigger incantation
     # ====================================== #
 
-    
     def _state_incantate(self) -> None:
+        """Drop required resources on the tile, trigger the incantation, update the level on success, and optionally fork afterward."""
         b = self._brain
 
         if b.is_hungry:
@@ -256,9 +296,6 @@ class ZappyAI:
 
         b.log(f"Attempting incantation at lv{b.level}")
 
-        # Seul le leader (celui qui était en COORDINATE) pose les ressources.
-        # Les followers arrivent sur la tuile vides de ressources d'incantation,
-        # donc on vérifie si on a les ressources AVANT de faire Set.
         req = b.requirements_for_next_level()
         if req:
             has_resources = all(
@@ -299,11 +336,14 @@ class ZappyAI:
 
         if success and b.is_well_fed:
             if self._cmd_fork():
-                b.log("Forked — new egg laid")
+                b.log("Forked after incantation — new egg laid")
 
         b.follow_incantation = False
         b.waiting_for_incantation = False
         b.ready_teammates = 0
+        self._follow_absolute_ticks = 0
+        self._ticks_since_fork = 0
+        self._coordinate_ticks = 0
         self._state = State.COLLECT
 
     # ======================================================= #
@@ -311,31 +351,39 @@ class ZappyAI:
     # ======================================================= #
 
     def _state_follow_leader(self) -> None:
+        """Move toward the broadcast source tile by tile, sending READY once on the same tile, and abort if the leader goes silent or a timeout is reached."""
         b = self._brain
         direction = b.incantation_leader_dir
         self._cmd_inventory()
 
+        self._follow_absolute_ticks += 1
+
+        if self._follow_absolute_ticks >= 60:
+            b.log("Timeout absolu FOLLOW_LEADER — leader probablement mort, retour COLLECT")
+            self._reset_follow()
+            self._state = State.COLLECT
+            return
+
+        if b.is_hungry:
+            b.log("Trop faim pour suivre le leader — FORAGE")
+            self._reset_follow()
+            self._state = State.FORAGE
+            return
+
         if direction == 0:
-            # Sur la tuile du leader — signaler qu'on est prêt et ATTENDRE START
             reply = f"READY_LV{b.level}"
             self._cmd_broadcast(reply)
             b.log("On leader tile — waiting for START")
-            # NE PAS changer d'état ici : on reste FOLLOW_LEADER et on attend START
-            # Le START sera traité dans _handle_unsolicited → State.INCANTATE
             self._follow_stale_ticks = 0
+            self._process_messages()
             return
 
         self._move_by_broadcast_dir(direction)
-
-        # Demander recalibrage
         self._cmd_broadcast(f"WHERE_LV{b.level}")
-
         self._process_messages()
 
         if not b.follow_incantation:
-            self._last_leader_dir = None
-            self._follow_stale_ticks = 0
-            self._state = State.COLLECT
+            self._reset_follow()
             return
 
         if b.incantation_leader_dir == self._last_leader_dir:
@@ -345,18 +393,26 @@ class ZappyAI:
         self._last_leader_dir = b.incantation_leader_dir
 
         if self._follow_stale_ticks >= 20:
-            b.log("Leader silencieux — abandon follow")
-            b.follow_incantation = False
-            b.incantation_leader_dir = 0
-            self._last_leader_dir = None
-            self._follow_stale_ticks = 0
+            b.log("Leader silencieux — abandon follow, retour COLLECT")
+            self._reset_follow()
             self._state = State.COLLECT
+
+    def _reset_follow(self) -> None:
+        """Clear all follow-leader state and transition back to COLLECT."""
+        b = self._brain
+        b.follow_incantation = False
+        b.incantation_leader_dir = 0
+        self._last_leader_dir = None
+        self._follow_stale_ticks = 0
+        self._follow_absolute_ticks = 0
+        self._state = State.COLLECT
 
     # ================================ #
     # STATE: IDLE — random exploration
     # ================================ #
 
     def _state_idle(self) -> None:
+        """Wander randomly and switch back to COLLECT if the player has not yet reached the maximum level."""
         b = self._brain
         self._random_move()
         inv = self._cmd_inventory()
@@ -368,6 +424,7 @@ class ZappyAI:
     # =========================== #
 
     def _cmd_look(self):
+        """Send a Look command, parse the tile and player data, store results in Brain, and return the tile list."""
         raw = self._do_look_raw()
         tiles = parse_look(raw)
         counts = count_players_on_tiles(raw)
@@ -376,11 +433,12 @@ class ZappyAI:
         return tiles
 
     def _do_look_raw(self) -> str:
+        """Send a Look command and return the raw unparsed response string."""
         self._send("Look")
         return self._recv()
 
     def _tile_row_col(self, idx: int):
-        """Return (row, col_in_row, center_col) for a Look tile index."""
+        """Convert a flat Look tile index into (row, col_in_row, center_col)."""
         row = 0
         acc = 0
         while acc + (2 * row + 1) <= idx:
@@ -389,23 +447,11 @@ class ZappyAI:
         return row, idx - acc, row
 
     def _nearest_tile_with(self, look, resource: Resource) -> Optional[int]:
-        """Return the index of the tile with this resource that is truly
-        closest to the player, not just the first match found while
-        scanning the Look list left-to-right.
-
-        Bug this fixes: scanning order means index 1 (front-left of row 1)
-        is always checked before index 2 (straight ahead, actually closer)
-        or index 3 (front-right). When a resource is common (e.g. food),
-        the leftmost tile in every row almost always matches first, so the
-        bot always turns Left and never Forward. Turning Left + advancing
-        every single tick walks the bot in a perpetual square, never
-        closing the distance to anything — exactly the death-by-starvation
-        loop seen while standing right next to visible food.
-        """
+        """Return the index of the closest tile in the Look result that contains at least one unit of the given resource, or None if none is visible."""
         if not look:
             return None
         best_idx = None
-        best_key = None  # (row distance, lateral offset from straight-ahead)
+        best_key = None
         for i, tile in enumerate(look):
             if tile.get(resource, 0) <= 0:
                 continue
@@ -417,28 +463,21 @@ class ZappyAI:
         return best_idx
 
     def _move_toward_tile(self, tile_idx: int, total_tiles: int) -> None:
-        """
-        Given a tile index from Look, move toward it.
+        """Issue one movement command (Forward, Left, or Right) toward the tile at the given Look index.
 
-        Look layout for level L (total 1 + 3 + 5 + ... = (L+1)^2 tiles):
-          Row 0: tile 0 (self)
-          Row 1: tiles 1, 2, 3  (left, center, right)
-          Row 2: tiles 4, 5, 6, 7, 8
-          ...
-
-        Strategy: go forward if tile is ahead (center of row), turn then forward otherwise.
+        If a turn is needed, _pending_forward is set so the next tick re-checks
+        tile contents before advancing.
         """
         if tile_idx == 0:
-            return  # already here
+            return
 
-        # Determine which row and column the tile is in
         row = 0
         acc = 0
         while acc + (2 * row + 1) <= tile_idx:
             acc += 2 * row + 1
             row += 1
-        col_in_row = tile_idx - acc      # 0-based within this row
-        center     = row                 # center column of this row
+        col_in_row = tile_idx - acc
+        center     = row
 
         if col_in_row < center:
             self._send("Left")
@@ -453,14 +492,16 @@ class ZappyAI:
             self._recv()
 
     def _random_move(self) -> None:
+        """Issue a random movement command, weighted toward Forward."""
         action = random.choice(["Forward", "Forward", "Forward", "Left", "Right"])
         self._send(action)
         self._recv()
 
     def _move_by_broadcast_dir(self, direction: int) -> None:
-        """
-        Broadcast direction 1-8 (0 = same tile).
-        1=N(ahead), 2=NE, 3=E, 4=SE, 5=S, 6=SW, 7=W, 8=NW
+        """Translate a broadcast direction (1-8) into the appropriate sequence of movement commands.
+
+        Direction mapping: 1=N (ahead), 2=NE, 3=E, 4=SE, 5=S (behind),
+        6=SW, 7=W, 8=NW. Direction 0 means same tile and is a no-op.
         """
         if direction == 1:
             self._send("Forward"); self._recv()
@@ -492,60 +533,66 @@ class ZappyAI:
     # ================== #
 
     def _cmd_inventory(self):
+        """Send an Inventory command, parse the response, update Brain, and return the inventory dict."""
         self._send("Inventory")
         raw = self._recv()
+        if raw.startswith("[") and "," in raw and not any(
+            c.isdigit() for c in raw[:40]
+        ):
+            self._brain.log(f"WARNING: expected inventory, got look-like response, retrying")
+            raw = self._recv()
         inv = parse_inventory(raw)
         self._brain.inventory = inv
         return inv
 
     def _cmd_take(self, resource_name: str) -> bool:
+        """Send a Take command for the given resource and return True if the server acknowledged with 'ok'."""
         self._send(f"Take {resource_name}")
         resp = self._recv()
-        if resp == "ok":
-            # Refresh inventory lazily next tick
-            return True
-        return False
+        return resp == "ok"
 
     def _cmd_set(self, resource_name: str) -> bool:
+        """Send a Set command to drop the given resource on the current tile and return True on success."""
         self._send(f"Set {resource_name}")
         resp = self._recv()
         return resp == "ok"
 
     def _cmd_broadcast(self, text: str) -> None:
+        """Broadcast a message to all players and consume the server acknowledgement."""
         self._send(f"Broadcast {text}")
-        self._recv()  # "ok"
+        self._recv()
 
     def _cmd_fork(self) -> bool:
-        """Lay an egg on the current tile so a new teammate can connect
-        and grow the team's player slots. Costs no resources, just time."""
+        """Lay an egg on the current tile to open a new player slot, and return True if the server accepted the command."""
         self._send("Fork")
         resp = self._recv()
         return resp == "ok"
 
     def _cmd_incantation(self) -> str:
+        """Trigger an incantation and return the final server response, reading a second line if the first is only the elevation preamble."""
         self._send("Incantation")
-        # First response: "Elevation underway" or "ko"
         resp1 = self._recv()
         if resp1 == "ko":
             return "ko"
-        # Second response: "Current level: N" after the incantation resolves
+        if "current level" in resp1.lower():
+            return resp1
         resp2 = self._recv()
         return resp2
-
+    
     # ======================= #
     # Helpers — message queue
     # ======================= #
 
     def _process_messages(self) -> None:
-        """Check for any incoming broadcast messages (non-blocking peek)."""
+        """Drain all complete lines already buffered in the TCP receive buffer and dispatch each to _handle_unsolicited."""
         b = self._brain
-        # Peek at what's in the read buffer already
         while "\n" in self._conn._rbuf:
             line, self._conn._rbuf = self._conn._rbuf.split("\n", 1)
             line = line.rstrip("\r")
             self._handle_unsolicited(line)
 
     def _handle_unsolicited(self, line: str) -> None:
+        """Process an unsolicited server message (broadcast, eject, dead, elevation) and update Brain state accordingly."""
         b = self._brain
         parsed = parse_broadcast(line)
         if parsed:
@@ -558,13 +605,11 @@ class ZappyAI:
                     b.log(f"Following leader (dir={direction})")
                     b.follow_incantation = True
                     b.incantation_leader_dir = direction
-                # Si direction == 0, le leader est sur notre tuile → on répond READY
                 else:
                     b.follow_incantation = True
                     b.incantation_leader_dir = 0
 
             elif text.startswith(f"WHERE_{lv_tag}"):
-                # Un follower demande notre position → re-broadcast CALL
                 if self._state == State.COORDINATE:
                     self._cmd_broadcast(f"CALL_{lv_tag}")
 
@@ -574,7 +619,6 @@ class ZappyAI:
 
             elif text.startswith(f"START_{lv_tag}"):
                 b.follow_incantation = False
-                # Quel que soit l'état courant, on incante
                 if self._state in (State.FOLLOW_LEADER, State.COORDINATE):
                     b.log("START received — switching to INCANTATE")
                     self._state = State.INCANTATE
@@ -586,29 +630,31 @@ class ZappyAI:
             b.log(f"Ejected! direction={eject_dir}")
             return
 
+        if "elevation" in line.lower() or "current level" in line.lower():
+            b.log(f"Unsolicited elevation message: {line!r}")
+            return
+
         if line.startswith("dead"):
             b.log("We died!")
             raise SystemExit(0)
+
+    def _send(self, cmd: str) -> None:
+        """Log and transmit a command string to the server."""
+        self._brain.log(f"→ {cmd}")
+        self._conn.send_command(cmd)
 
     # ===================== #
     # Low-level send / recv
     # ===================== #
 
-    def _send(self, cmd: str) -> None:
-        self._brain.log(f"→ {cmd}")
-        self._conn.send_command(cmd)
-
     def _recv(self) -> str:
-        """
-        Read the next line, handling unsolicited messages (broadcasts, dead)
-        transparently — they are queued in brain.messages and we keep reading.
-        """
+        """Read the next non-unsolicited line from the server, transparently dispatching any broadcasts, ejects, or elevation messages encountered along the way."""
         while True:
             line = self._conn.read_line()
-            # Unsolicited server push?
             if (line.startswith("message ") or
                 line.startswith("eject:")   or
-                line == "dead"):
+                line == "dead"             or
+                "elevation" in line.lower()):
                 self._handle_unsolicited(line)
                 if line == "dead":
                     raise SystemExit(0)
