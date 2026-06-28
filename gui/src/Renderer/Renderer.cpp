@@ -31,7 +31,6 @@ void Renderer::_drawTiles(const Map& map)
 
 void Renderer::_drawCharacters(const CharacterFactory& factory, PlayerView& camera)
 {
-    // In _drawCharacters
     for (const auto& c : factory.getAll()) {
         Vector3 pos = {
             c.tileX * TILE_SIZE + TILE_SIZE / 2.f,

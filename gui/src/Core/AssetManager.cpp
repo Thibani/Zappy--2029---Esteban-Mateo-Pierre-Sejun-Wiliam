@@ -2,8 +2,9 @@
 #include <iostream>
 #include <vector>
 
-AssetManager::AssetManager(const std::string& assetRoot) : _root(assetRoot)
+AssetManager::AssetManager() : _root(std::string(GetApplicationDirectory()) + "gui/assets")
 {
+    std::cout << "[AssetManager] Loading from: " << _root << "\n";
     _loadAll();
 }
 
