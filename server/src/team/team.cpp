@@ -7,9 +7,8 @@
 
 namespace Zappy {
     Team::Team(const std::string &name, const std::vector<Egg*> &eggs)
+        : _name(name), _eggs(eggs)
     {
-        _name = name;
-        _eggs = eggs;
     }
 
     void Team::addPlayer(Player *player)
