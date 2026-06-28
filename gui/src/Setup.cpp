@@ -37,14 +37,12 @@ void gameSetup(const char* host, int port)
 {
     Window window(1280, 720, "Zappy GUI");
 
-    std::string assetRoot = std::string(GetApplicationDirectory()) + "assets";
-
     Map map(20, 20);
     CharacterFactory factory;
     EggFactory eggs;
     PlayerView camera;
     camera.init(map.getWidth() * TILE_SIZE, map.getHeight() * TILE_SIZE);
-    AssetManager assets(assetRoot);
+    AssetManager assets;
     Renderer renderer(assets);
 
     NetworkClient network;

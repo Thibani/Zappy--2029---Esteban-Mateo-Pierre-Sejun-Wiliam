@@ -5,7 +5,7 @@
 
 class AssetManager {
 public:
-    explicit AssetManager(const std::string& assetRoot);
+    AssetManager();
     ~AssetManager();
 
     Texture2D& get(const std::string& name);
