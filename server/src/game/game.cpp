@@ -325,7 +325,7 @@ namespace Zappy {
                 if (team)
                     team->removeEgg(egg);
                 if (_listener)
-                    _listener->onEggHatched(egg->getId());
+                    _listener->onEggDied(egg->getId());
             }
             tile->deleteAllEggs();
             for (uint i = 0; i < players.size(); i++){
