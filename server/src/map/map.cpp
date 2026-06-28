@@ -34,13 +34,14 @@ namespace Zappy {
         return _tiles[position.y][position.x];
     }
 
-    void Map::setRessource()
+    std::vector<Pos> Map::setRessource()
     {
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<int> dist(0, _width - 1);
         std::uniform_int_distribution<int> larg(0, _height - 1);
 
+        std::vector<Pos> modified;
         std::vector<int> resources = countResources();
         for (int i = 0; i < 7; i++){
             int quantity = _height * _width * _densities[i] - resources[i];
@@ -48,26 +49,11 @@ namespace Zappy {
                 int x = dist(gen);
                 int y = larg(gen);
                 _tiles[y][x]->addResource((TypeResource)i);
+                modified.push_back(Pos{x, y});
                 quantity--;
-            }
+            }   
         }
-    }
-
-    std::vector<int> Map::countResources()
-    {
-        std::vector<int> resources(7, 0);
-        for (int i = 0; i < _height; i++){
-            for (int j = 0; j < _width; j++){
-                resources[FOOD] += _tiles[i][j]->getNbResources(FOOD);
-                resources[LINEMATE] += _tiles[i][j]->getNbResources(LINEMATE);
-                resources[DERAUMERE] += _tiles[i][j]->getNbResources(DERAUMERE);
-                resources[SIBUR] += _tiles[i][j]->getNbResources(SIBUR);
-                resources[MENDIANE] += _tiles[i][j]->getNbResources(MENDIANE);
-                resources[PHIRAS] += _tiles[i][j]->getNbResources(PHIRAS);
-                resources[THYSTAME] += _tiles[i][j]->getNbResources(THYSTAME);
-            }
-        }
-        return resources;
+        return modified;
     }
 
     void Map::debugDisplayMap()
@@ -114,5 +100,22 @@ namespace Zappy {
         addPlayerOnTile(player);
         delete egg;
         return player;
+    }
+
+    std::vector<int> Map::countResources()
+    {
+        std::vector<int> resources(7, 0);
+        for (int i = 0; i < _height; i++) {
+            for (int j = 0; j < _width; j++) {
+                resources[FOOD]      += _tiles[i][j]->getNbResources(FOOD);
+                resources[LINEMATE]  += _tiles[i][j]->getNbResources(LINEMATE);
+                resources[DERAUMERE] += _tiles[i][j]->getNbResources(DERAUMERE);
+                resources[SIBUR]     += _tiles[i][j]->getNbResources(SIBUR);
+                resources[MENDIANE]  += _tiles[i][j]->getNbResources(MENDIANE);
+                resources[PHIRAS]    += _tiles[i][j]->getNbResources(PHIRAS);
+                resources[THYSTAME]  += _tiles[i][j]->getNbResources(THYSTAME);
+            }
+        }
+        return resources;
     }
 }
