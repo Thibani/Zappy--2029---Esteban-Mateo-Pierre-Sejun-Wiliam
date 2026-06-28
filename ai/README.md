@@ -55,7 +55,7 @@ PYTHONPATH=src:tests python3 tests/run.py fsm      # intégration seulement
 ai/
 ├── src/
 │   ├── main.py          # entry point, argparse
-│   ├── zappyAI.py       # boucle FSM principale
+│   ├── ai.py            # boucle FSM principale (ZappyAI)
 │   ├── brain.py         # état mutable du joueur
 │   ├── connection.py    # socket TCP + handshake
 │   ├── parser.py        # parse les réponses serveur
@@ -75,10 +75,10 @@ ai/
 ## Machine à états (FSM)
 
 ```
-                    food ≤ 10
+                    food ≤ 20
          ┌─────────────────────────────┐
          ▼                             │
-      FORAGE ──── food ≥ 20 ────► COLLECT ◄─── (défaut)
+      FORAGE ──── food ≥ 20 ────► COLLECT ◄─── (défaut / après incantation)
                                    │    ▲
                   ressources OK    │    │ incantation terminée
                                    ▼    │
@@ -87,16 +87,27 @@ ai/
                assez joueurs   │      │ reçoit CALL_LVn
                                ▼      ▼
                           INCANTATE  FOLLOW_LEADER
+                                          │
+                              dir == 0    │ (sur la case du leader)
+                                          ▼
+                                      COORDINATE
 ```
 
 | État | Déclencheur | Comportement |
 |------|-------------|--------------|
-| `FORAGE` | `food ≤ 10` (override global) | cherche et ramasse de la nourriture |
-| `COLLECT` | état par défaut | ramasse les pierres manquantes pour l'incantation |
-| `COORDINATE` | ressources complètes | broadcast `CALL_LVn`, attend les coéquipiers |
-| `INCANTATE` | assez de joueurs sur la case | pose les pierres + lance l'incantation |
-| `FOLLOW_LEADER` | reçoit `CALL_LVn` d'un leader | se déplace vers la source du broadcast |
+| `FORAGE` | `food ≤ FOOD_DANGER_THRESHOLD` (20) | cherche et ramasse de la nourriture |
+| `COLLECT` | état par défaut | ramasse les pierres manquantes pour l'incantation ; fork périodique tous les 50 ticks (niveau ≥ 2) |
+| `COORDINATE` | ressources complètes | broadcast `CALL_LVn`, attend les coéquipiers (timeout 200 ticks) |
+| `INCANTATE` | assez de joueurs sur la case | pose les pierres (rôle leader) + lance l'incantation ; fork si nourriture suffisante après succès |
+| `FOLLOW_LEADER` | reçoit `CALL_LVn` d'un leader | se déplace vers la source du broadcast ; abandonne après 60 ticks sans réponse |
 | `IDLE` | niveau max atteint (lv8) | exploration aléatoire |
+
+### Priorités de transition
+
+À chaque tick, deux overrides globaux sont vérifiés **avant** le dispatch d'état :
+
+1. **Food critique** (`food ≤ 20`) → bascule immédiatement en `FORAGE`, quel que soit l'état courant.
+2. **Appel leader** (`CALL_LVn` reçu) → bascule immédiatement en `FOLLOW_LEADER` si pas déjà en train d'incanter.
 
 ---
 
@@ -106,9 +117,23 @@ Les IAs se coordonnent via `Broadcast` avec ces messages :
 
 ```
 Leader   → "CALL_LV2"    # appelle les joueurs de niveau 2
-Follower → "READY_LV2"   # je suis sur ta case
+Follower → "WHERE_LV2"   # demande la position du leader en marchant vers lui
+Follower → "READY_LV2"   # je suis sur ta case (dir == 0)
 Leader   → "START_LV2"   # tout le monde est là, on incante
 ```
+
+Le leader comptabilise les coéquipiers de deux façons : les `READY_LVn` reçus par broadcast **et** les joueurs visibles sur sa case lors du `Look`. Il démarre dès que le total atteint le nombre requis.
+
+---
+
+## Fork automatique
+
+L'IA fork dans deux situations :
+
+- **Périodiquement** : tous les 50 ticks en état `COLLECT` (niveau ≥ 2), pour alimenter le pool de connexions disponibles.
+- **Après incantation réussie** : si la nourriture est suffisante (`food ≥ FOOD_SAFE_THRESHOLD`), un œuf est pondu et un nouveau processus est lancé automatiquement.
+
+Chaque fork spawne un sous-processus `main.py` avec les mêmes arguments `-p`, `-n`, `-h`.
 
 ---
 
@@ -123,6 +148,16 @@ Leader   → "START_LV2"   # tout le monde est là, on incante
 | 5 → 6  | 4       | 1        | 2         | 1     | 3        | 0      | 0        |
 | 6 → 7  | 6       | 1        | 2         | 3     | 0        | 1      | 0        |
 | 7 → 8  | 6       | 2        | 2         | 2     | 2        | 2      | 1        |
+
+---
+
+## Constantes clés
+
+| Constante | Valeur | Rôle |
+|-----------|--------|------|
+| `FOOD_DANGER_THRESHOLD` | 20 | Déclenche le mode `FORAGE` |
+| `FOOD_SAFE_THRESHOLD` | 40 | Fin du mode `FORAGE` / seuil fork post-incantation |
+| `FOOD_LIFE_UNITS` | 126 | Unités de vie par item nourriture |
 
 ---
 
