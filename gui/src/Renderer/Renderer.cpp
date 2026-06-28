@@ -38,7 +38,7 @@ void Renderer::_drawTiles(const Map& map, PlayerView& camera)
             DrawCube(pos, TILE_SIZE, 0.1f, TILE_SIZE, DARKGREEN);
             DrawCubeWires(pos, TILE_SIZE, 0.1f, TILE_SIZE, BLACK);
 
-            int quantities[7] = {
+            const int quantities[7] = {
                 tile.q0, tile.q1, tile.q2, tile.q3, tile.q4, tile.q5, tile.q6
             };
 
@@ -78,6 +78,6 @@ void Renderer::_drawEggs(const EggFactory& eggs, PlayerView& camera)
             0.15f,
             e.tileY * TILE_SIZE + TILE_SIZE / 2.f
         };
-        DrawBillboard(camera.get(), _assets.get("HeiseneggBaby"), pos, TILE_SIZE * 0.6f, WHITE);
+        DrawBillboard(camera.get(), _assets.get("egg"), pos, TILE_SIZE * 0.6f, WHITE);
     }
 }
