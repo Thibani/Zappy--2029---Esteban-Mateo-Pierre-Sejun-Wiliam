@@ -15,6 +15,10 @@
 
 #include "protocol/guiProtocol.hpp"
 #include "server/server.hpp"
+#include "game/game.hpp"
+#include "map/tile.hpp"
+#include "team/team.hpp"
+#include "egg/egg.hpp"
 
 namespace Zappy {
     GUIProtocol::GUIProtocol(Server &server)
@@ -34,19 +38,47 @@ namespace Zappy {
     // ---------------------------------------------------------------------
     void GUIProtocol::sendInitialState(int guidFd)
     {
-        // TODO: replace with a full world dump once Game exposes:
-        //   - _game.width(), _game.height(), _game.frequency()
-        //   - _game.teams(), _game.tiles(), _game.eggs(), _game.players()
-        // Order per protocol:
-        //   1. msz X Y
-        //   2. sgt T
-        //   3. tna N (per team)
-        //   4. bct X Y q0..q6 (per tile — reply to mct)
-        //   5. enw #e #n X Y (per existing egg)
-        //   6. pnw #n X Y O L N + pin + plv (per existing player)
-        //
-        emitMapSize(10, 10, guidFd);
+        if (!_game) {
+            emitMapSize(10, 10, guidFd);
+            emitTimeUnit(100, guidFd);
+            return;
+        }
+        auto [w, h] = _game->getMapSize();
+        emitMapSize(w, h, guidFd);
         emitTimeUnit(100, guidFd);
+        for (const auto &teamName : _game->getTeams())
+            emitTeamName(teamName, guidFd);
+        for (int y = 0; y < h; y++) {
+            for (int x = 0; x < w; x++) {
+                Pos p{x, y};
+                const Tile *tile = _game->map->getTile(p);
+                if (tile) {
+                    Inventory inv;
+                    const auto &raw = tile->resources();
+                    for (int i = 0; i < 7; i++)
+                        inv.set(static_cast<TypeResource>(i), raw[i]);
+                    emitTileContent(x, y, inv, guidFd);
+                }
+            }
+        }
+        int syntheticEggId = 1;
+        for (const auto *team : _game->getTeamObjects()) {
+            for (const auto *egg : team->getEggs()) {
+                Pos p = egg->getPosition();
+                emitNewEgg(syntheticEggId++, 0, p.x, p.y, guidFd);
+            }
+        }
+        for (const auto &[id, player] : _game->getPlayers()) {
+            if (!player)
+                continue;
+            Pos p = player->getPosition();
+            emitNewPlayer(id, p.x, p.y, player->getDirection(), player->getLevel(), player->getTeamName(), guidFd);
+            Inventory inv;
+            const auto &raw = player->getInventory();
+            for (int i = 0; i < 7; i++)
+                inv.set(static_cast<TypeResource>(i), raw[i]);
+            emitPlayerInventory(id, p.x, p.y, inv, guidFd);
+        }
     }
 
 
@@ -68,7 +100,7 @@ namespace Zappy {
         _send(fmtTna(name), guiFd);
     }
 
-    void GUIProtocol::emitPlayerPosition(int playerId, int x, int y, Orientation o, int guiFd)
+    void GUIProtocol::emitPlayerPosition(int playerId, int x, int y, Direction o, int guiFd)
     {
         _send(fmtPpo(playerId, x, y, o), guiFd);
     }
@@ -86,6 +118,16 @@ namespace Zappy {
     void GUIProtocol::emitTimeUnit(int frequency, int guiFd)
     {
         _send(fmtSgt(frequency), guiFd);
+    }
+
+    void GUIProtocol::emitNewPlayer(int playerId, int x, int y, Direction o, int level, const std::string &team, int guiFd)
+    {
+        _send(fmtPnw(playerId, x, y, o, level, team), guiFd);
+    }
+
+    void GUIProtocol::emitNewEgg(int eggId, int parentId, int x, int y, int guiFd)
+    {
+        _send(fmtEnw(eggId, parentId, x, y), guiFd);
     }
 
     // ---------------------------------------------------------------------
@@ -119,12 +161,12 @@ namespace Zappy {
         _send(fmtBct(x, y, contents), -1);
     }
 
-    void GUIProtocol::onPlayerConnected(int playerId, int x, int y, Orientation orientation, int level, const std::string &teamName)
+    void GUIProtocol::onPlayerConnected(int playerId, int x, int y, Direction orientation, int level, const std::string &teamName)
     {
         _send(fmtPnw(playerId, x, y, orientation, level, teamName), -1);
     }
 
-    void GUIProtocol::onPlayerMoved(int playerId, int x, int y, Orientation orientation)
+    void GUIProtocol::onPlayerMoved(int playerId, int x, int y, Direction orientation)
     {
         _send(fmtPpo(playerId, x, y, orientation), -1);
     }
@@ -149,14 +191,14 @@ namespace Zappy {
         _send(fmtPdi(playerId), -1);
     }
 
-    void GUIProtocol::onPlayerTookResource(int playerId, Resource resource, int x, int y, const Inventory &newTileContents, const Inventory &newPlayerInventory)
+    void GUIProtocol::onPlayerTookResource(int playerId, TypeResource resource, int x, int y, const Inventory &newTileContents, const Inventory &newPlayerInventory)
     {
         _send(fmtPgt(playerId, resource), -1);
         _send(fmtBct(x, y, newTileContents), -1);
         _send(fmtPin(playerId, x, y, newPlayerInventory), -1);
     }
 
-    void GUIProtocol::onPlayerDroppedResource(int playerId, Resource resource, int x, int y, const Inventory &newTileContents, const Inventory &newPlayerInventory)
+    void GUIProtocol::onPlayerDroppedResource(int playerId, TypeResource resource, int x, int y, const Inventory &newTileContents, const Inventory &newPlayerInventory)
     {
         _send(fmtPdr(playerId, resource), -1);
         _send(fmtBct(x, y, newTileContents), -1);

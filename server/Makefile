@@ -10,7 +10,8 @@ NAME		=	zappy_server
 
 # Compiler & flags
 CXX			=	g++
-CXXFLAGS	=	-Wall -Wextra -Werror -std=c++20
+#CXXFLAGS	=	-Wall -Wextra -Werror -std=c++20
+CXXFLAGS	=	-Wall -Wextra -std=c++20
 CXXFLAGS	+=	-I./include
 LDFLAGS		=
 
@@ -20,12 +21,20 @@ OBJ_DIR		=	obj
 INC_DIR		=	include
 
 # Sources — adjust paths to match your actual file tree
-SRCS		=	$(SRC_DIR)/main.cpp					\
-				$(SRC_DIR)/utils/args.cpp			\
+SRCS		=	$(SRC_DIR)/main.cpp						\
+				$(SRC_DIR)/utils/args.cpp				\
+				$(SRC_DIR)/utils/clock.cpp				\
 				$(SRC_DIR)/server/server.cpp			\
 				$(SRC_DIR)/server/client.cpp			\
 				$(SRC_DIR)/server/commandHandler.cpp	\
-				$(SRC_DIR)/protocol/guiProtocol.cpp	
+				$(SRC_DIR)/server/guiCommandHandler.cpp	\
+				$(SRC_DIR)/protocol/guiProtocol.cpp		\
+				$(SRC_DIR)/map/map.cpp					\
+				$(SRC_DIR)/map/tile.cpp					\
+				$(SRC_DIR)/player/player.cpp			\
+				$(SRC_DIR)/team/team.cpp				\
+				$(SRC_DIR)/egg/egg.cpp					\
+				$(SRC_DIR)/game/game.cpp
 
 OBJS		=	$(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SRCS))
 
