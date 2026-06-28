@@ -22,10 +22,11 @@
 
 namespace Zappy {
     class GUIProtocol;
+    class Game;
 
     class GUICommandHandler {
         public:
-            explicit GUICommandHandler(GUIProtocol &guiProtocol);
+            GUICommandHandler(GUIProtocol &guiProtocol, Game &game);
             ~GUICommandHandler() = default;
 
             // Non-copyable
@@ -65,5 +66,6 @@ namespace Zappy {
             std::unordered_map<std::string, Handler> _handlers;
 
             GUIProtocol &_guiProtocol;
+            Game        &_game;
     };
 } // namespace Zappy
