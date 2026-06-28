@@ -6,7 +6,7 @@ Usage: ./zappy_ai -p <port> -n <team> -h <host>
 
 import argparse
 import sys
-from zappyAI import ZappyAI
+from ai import ZappyAI
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Zappy AI client")
