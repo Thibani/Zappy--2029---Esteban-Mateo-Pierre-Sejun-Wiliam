@@ -42,6 +42,8 @@ class Brain:
         # Flag set when we receive "START_INCANTATION" from a leader
         self.follow_incantation: bool = False
         self.incantation_leader_dir: int = 0  # direction to follow leader
+        self.follow_incantation_since: int = 0  # tick counter
+        self.tick_count: int = 0
 
         # Misc
         self.steps_without_food: int = 0
