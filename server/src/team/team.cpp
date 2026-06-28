@@ -31,6 +31,16 @@ namespace Zappy {
         _eggs.push_back(egg);
     }
 
+    void Team::removeEgg(Egg *egg)
+    {
+        for (auto it = _eggs.begin(); it != _eggs.end(); it++) {
+            if (*it == egg) {
+                _eggs.erase(it);
+                return;
+            }
+        }
+    }
+
     std::string Team::getName()
     {
         return _name;

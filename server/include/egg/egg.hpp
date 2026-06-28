@@ -9,6 +9,7 @@ namespace Zappy {
         public:
             Egg(std::string teamName, Pos position);
             Pos getPosition() const { return _position; }
+            const std::string &getTeamName() const { return _teamName; }
 
         private:
             std::string _teamName;

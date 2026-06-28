@@ -22,6 +22,13 @@ namespace Zappy {
         }
     }
 
+    Map::~Map()
+    {
+        for (auto &row : _tiles)
+            for (Tile *t : row)
+                delete t;
+    }
+
     Tile* Map::getTile(Pos position)
     {
         return _tiles[position.y][position.x];

@@ -66,11 +66,7 @@ namespace Zappy {
 
     int Tile::getNbPlayers()
     {
-        int i = 0;
-
-        while(i < (int)_players.size())
-            i++;
-        return i;
+        return _players.size();
     }
 
     int Tile::getNbResources(TypeResource typeResource)

@@ -12,6 +12,7 @@ namespace Zappy {
         public:
             Team(std::string name, std::vector<Egg*> eggs);
             void addEgg(Egg *egg);
+            void removeEgg(Egg *egg);
             void addPlayer(Player *player);
             void removePlayer(Player *player);
             std::string getName();

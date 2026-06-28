@@ -96,7 +96,6 @@ namespace Zappy {
             std::map<int, Action> _idActions;
             std::map<ActionType, int> _actionCosts;
             std::map<int, Action> _idEatActions;
-            std::vector<Player*> _players;
             IGameEventListener *_listener = nullptr;
             Action _spawnResourceDeadline;
             Team *getTeam(const std::string teamName);

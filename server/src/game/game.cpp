@@ -24,8 +24,11 @@ namespace Zappy {
 
     Game::~Game()
     {
-        for (Player* p : _players)
+        for (auto &[id, p] : _idPlayers)
             delete p;
+        for (Team* t : _teams)
+            delete t;
+        delete map;
     }
 
     void Game::initialize(int freq, int mapWidth, int mapHeight, std::vector<std::string> teamNames, int nbEggs)
@@ -315,6 +318,12 @@ namespace Zappy {
             Player* player = _idPlayers[clientId];
             Tile *tile = map->getTile(player->getPosition());
             std::vector<Player*> players = tile->getPlayers();
+            std::vector<Egg*> eggs = tile->getEggs();
+            for (Egg *egg : eggs) {
+                Team *team = getTeam(egg->getTeamName());
+                if (team)
+                    team->removeEgg(egg);
+            }
             tile->deleteAllEggs();
             for (uint i = 0; i < players.size(); i++){
                 if (player == players[i])
@@ -681,6 +690,8 @@ namespace Zappy {
                         }
                         break;
                     }
+                    case EAT:
+                        break;
                 }
                 if (_isVictory)
                     break;

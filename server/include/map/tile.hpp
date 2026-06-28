@@ -22,6 +22,7 @@ namespace Zappy {
             void addEgg(Egg *egg);
             void removeEgg(Egg* egg);
             std::vector<Player*> getPlayers() { return _players; }
+            std::vector<Egg*> getEggs() { return _eggs; }
             int getNbPlayers();
             int getNbResources(TypeResource typeResource);
             void resourceConsume(int level);

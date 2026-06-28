@@ -15,7 +15,7 @@ namespace Zappy {
 
         public:
             Map(int width, int height);
-            ~Map() = default;
+            ~Map();
             Tile* getTile(Pos position);
             void setRessource();
             int getHeight() { return _height; }
