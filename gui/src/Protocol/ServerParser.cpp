@@ -61,12 +61,11 @@ void ServerParser::_parseBct(std::istringstream& ss, Map& map)
 
 void ServerParser::_parsePnw(std::istringstream& ss, CharacterFactory& factory)
 {
-    std::string idStr, name;
+    std::string idStr, team;
     int x, y, o, l;
-    ss >> idStr >> x >> y >> o >> l >> name;
+    ss >> idStr >> x >> y >> o >> l >> team;
     int id = std::stoi(idStr.substr(1));
-    factory.createCharacter(id, name, x, y, l);
-    std::cout << "[ServerParser] Player #" << id << " spawned at " << x << "," << y << "\n";
+    factory.createCharacter(id, "Player#" + std::to_string(id), team, x, y, l);
 }
 
 void ServerParser::_parsePpo(std::istringstream& ss, CharacterFactory& factory)

@@ -26,6 +26,7 @@ static void gameLoop(CharacterFactory& factory, Map& map, EggFactory& eggs, Play
         BeginMode3D(camera.get());
         renderer.drawMap(map, factory, eggs, camera);
         EndMode3D();
+        renderer.drawCharacterLabels(factory, camera);
         DrawFPS(10, 10);
         DrawText("WASD: pan | RMB drag / Q-E: orbit | R-F: tilt | Scroll: zoom",
             10, 40, 16, RAYWHITE);
