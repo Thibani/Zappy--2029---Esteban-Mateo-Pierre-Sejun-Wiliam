@@ -9,10 +9,11 @@ import sys
 from ai import ZappyAI
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Zappy AI client")
+    parser = argparse.ArgumentParser(description="Zappy AI client", add_help=False)
+    parser.add_argument("--help", action="help", help="Show this help message and exit")
     parser.add_argument("-p", type=int, required=True,  dest="port", help="Server port")
     parser.add_argument("-n", type=str, required=True,  dest="team", help="Team name")
-    parser.add_argument("-H", type=str, default="localhost", dest="host", help="Server host")
+    parser.add_argument("-h", type=str, default="localhost", dest="host", help="Server host")
     return parser.parse_args()
 
 
