@@ -14,5 +14,5 @@ private:
     AssetManager& _assets;
     void _drawTiles(const Map& map);
     void _drawCharacters(const CharacterFactory& factory, PlayerView& camera);
-    void _drawEggs(const EggFactory& eggs);
+    void _drawEggs(const EggFactory& eggs, PlayerView& camera);
 };

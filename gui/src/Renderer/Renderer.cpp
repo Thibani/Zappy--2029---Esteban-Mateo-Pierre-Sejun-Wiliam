@@ -6,7 +6,7 @@ Renderer::Renderer(AssetManager& assets) : _assets(assets) {}
 void Renderer::drawMap(const Map& map, const CharacterFactory& factory, const EggFactory& eggs, PlayerView& camera)
 {
     _drawTiles(map);
-    _drawEggs(eggs);
+    _drawEggs(eggs, camera);
     _drawCharacters(factory, camera);
 }
 
@@ -43,7 +43,7 @@ void Renderer::_drawCharacters(const CharacterFactory& factory, PlayerView& came
     }
 }
 
-void Renderer::_drawEggs(const EggFactory& eggs)
+void Renderer::_drawEggs(const EggFactory& eggs, PlayerView& camera)
 {
     for (const auto& e : eggs.getAll()) {
         Vector3 pos = {
@@ -51,6 +51,6 @@ void Renderer::_drawEggs(const EggFactory& eggs)
             0.15f,
             e.tileY * TILE_SIZE + TILE_SIZE / 2.f
         };
-        DrawSphere(pos, TILE_SIZE * 0.2f, YELLOW);
+        DrawBillboard(camera.get(), _assets.get("HeiseneggBaby"), pos, TILE_SIZE * 0.6f, WHITE);
     }
 }
