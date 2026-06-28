@@ -72,10 +72,7 @@ namespace Zappy {
             int getMapWidth() { return map->getWidth(); }
             int getMapHeight() { return map->getHeight(); }
             const std::map<int, Player*> &getPlayers() const { return _idPlayers; }
-            // void setListener(IGameEventListener *_listener) { _listener = _listener; }
-            void setListener(IGameEventListener *listener) {
-                _listener = listener;
-            }
+            void setListener(IGameEventListener *listener) { _listener = listener; }
             const std::vector<Team*> &getTeamObjects() const { return _teams; }
             bool hasIdAction(int clientId);
             void addClientAction(int clientId, ActionType actionType, const std::string &arg);

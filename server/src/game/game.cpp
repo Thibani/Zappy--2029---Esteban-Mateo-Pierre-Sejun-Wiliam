@@ -124,6 +124,7 @@ namespace Zappy {
         _idPlayers[clientId] = player;
         addClientEatAction(clientId);
         if (_listener) {
+            _listener->onEggHatched(egg->getId());
             Pos p = player->getPosition();
             _listener->onPlayerConnected(clientId, p.x, p.y, player->getDirection(), player->getLevel(), teamName);
         }
@@ -303,11 +304,9 @@ namespace Zappy {
             Tile* tile = map->getTile(player->getPosition());
             tile->addEgg(egg);
             if (_listener) {
-                static int nextEggId = 1;
-                int eggId = nextEggId++;
                 Pos pos = player->getPosition();
                 _listener->onPlayerForked(clientId);
-                _listener->onEggLaid(eggId, clientId, pos.x, pos.y);
+                _listener->onEggLaid(egg->getId(), clientId, pos.x, pos.y);
             }
             return "ok\n";
         }
@@ -321,10 +320,12 @@ namespace Zappy {
             Tile *tile = map->getTile(player->getPosition());
             std::vector<Player*> players = tile->getPlayers();
             std::vector<Egg*> eggs = tile->getEggs();
-            for (const Egg *egg : eggs) {
+            for (Egg *egg : eggs) {
                 Team *team = getTeam(egg->getTeamName());
                 if (team)
                     team->removeEgg(egg);
+                if (_listener)
+                    _listener->onEggHatched(egg->getId());
             }
             tile->deleteAllEggs();
             for (uint i = 0; i < players.size(); i++){
@@ -368,17 +369,6 @@ namespace Zappy {
             }
             addClientAction(clientId, Zappy::Game::ActionType::INCANTATION, "");
             return "Elevation underway\n";
-            // tile->resourceConsume(oldLevel);
-            // player->levelUp();
-            // int newLevel = player->getLevel();
-            // if (_listener) {
-            //     Inventory inv;
-            //     const auto &raw = tile->resources();
-            //     for (int i = 0; i < 7; i++)
-            //         inv.set(static_cast<TypeResource>(i), raw[i]);
-            //     _listener->onIncantationEnded(pos.x, pos.y, true, participants, newLevel, inv);
-            // }
-            // return "ok\n";
         }
         return "ko\n";
     }
