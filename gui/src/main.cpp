@@ -1,8 +1,8 @@
 #include <raylib.h>
 
-void gameSetup();
+int argsParser(int argc, char** argv);
 
-int main() {
-    gameSetup();
-    return 0;
+int main(int argc, char** argv)
+{
+    return argsParser(argc, argv);
 }
