@@ -1,9 +1,9 @@
 #include "CharacterFactory.hpp"
 #include <algorithm>
 
-Character& CharacterFactory::createCharacter(int id, const std::string& name, int tileX, int tileY, int level)
-{
-    _characters.push_back({id, name, tileX, tileY, level});
+
+Character& CharacterFactory::createCharacter(int id, const std::string& name, const std::string& team, int tileX, int tileY, int level) {
+    _characters.push_back({id, name, team, tileX, tileY, level});
     return _characters.back();
 }
 

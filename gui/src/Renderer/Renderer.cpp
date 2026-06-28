@@ -5,9 +5,28 @@ Renderer::Renderer(AssetManager& assets) : _assets(assets) {}
 
 void Renderer::drawMap(const Map& map, const CharacterFactory& factory, const EggFactory& eggs, PlayerView& camera)
 {
+    // 3D pass — everything inside BeginMode3D
     _drawTiles(map, camera);
     _drawEggs(eggs, camera);
     _drawCharacters(factory, camera);
+}
+
+void Renderer::drawCharacterLabels(const CharacterFactory& factory, PlayerView& camera)
+{
+    for (const auto& c : factory.getAll()) {
+        Vector3 pos = {
+            c.tileX * TILE_SIZE + TILE_SIZE / 2.f,
+            0.55f + TILE_SIZE * 0.9f * (1.0f + (c.level - 1) * 0.1f),
+            c.tileY * TILE_SIZE + TILE_SIZE / 2.f
+        };
+        Vector2 screenPos = GetWorldToScreen(pos, camera.get());
+        std::string label = "Player#" + std::to_string(c.id) + " [" + c.team + "]";
+        int textWidth = MeasureText(label.c_str(), 10);
+        DrawText(label.c_str(),
+            (int)(screenPos.x - (float)textWidth / 2),
+            (int)(screenPos.y),
+            10, WHITE);
+    }
 }
 
 void Renderer::_drawTiles(const Map& map, PlayerView& camera)
@@ -67,6 +86,18 @@ void Renderer::_drawCharacters(const CharacterFactory& factory, PlayerView& came
         float size = TILE_SIZE * 0.9f * (1.0f + (c.level - 1) * 0.1f);
         std::string key = "character_l" + std::to_string(c.level);
         DrawBillboard(camera.get(), _assets.get(key), pos, size, WHITE);
+
+        // Convert 3D position to 2D screen coords
+        Vector3 labelPos = { pos.x, pos.y + size, pos.z }; // above the sprite
+        Vector2 screenPos = GetWorldToScreen(labelPos, camera.get());
+
+        // Draw name and team centered above the character
+        std::string label = c.name + " [" + c.team + "]";
+        int textWidth = MeasureText(label.c_str(), 10);
+        DrawText(label.c_str(),
+            (int)(screenPos.x - (float)textWidth / 2),
+            (int)(screenPos.y - 10),
+            10, WHITE);
     }
 }
 

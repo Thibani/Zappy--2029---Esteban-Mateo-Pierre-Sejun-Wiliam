@@ -10,6 +10,7 @@ class Renderer {
 public:
     explicit Renderer(AssetManager& assets);
     void drawMap(const Map& map, const CharacterFactory& factory, const EggFactory& eggs, PlayerView& camera);
+    void drawCharacterLabels(const CharacterFactory& factory, PlayerView& camera);
 private:
     AssetManager& _assets;
     void _drawTiles(const Map& map, PlayerView& camera);
