@@ -55,7 +55,7 @@ namespace Zappy {
     bool Team::checkWinCondition()
     {
         int nbPlayerLevelMax = std::count_if(_players.begin(), _players.end(),
-            [](const Player *p) { return p->getLevel() >= 8; });
-        return nbPlayerLevelMax >= 6;
+            [](const Player *p) { return p->getLevel() >= 4; });
+        return nbPlayerLevelMax >= 4;
     }
 }
