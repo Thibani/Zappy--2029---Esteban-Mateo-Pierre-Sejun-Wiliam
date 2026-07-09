@@ -45,7 +45,7 @@ The winning team is the first to have **at least 6 players reach elevation level
 |--------|----------|------|
 | `zappy_server` | C++20 | TCP server, game logic, resource spawning, time management |
 | `zappy_gui` | C++ / raylib | Real-time graphical client |
-| `zappy_ai` | C++ | Autonomous AI player client |
+| `zappy_ai` | Python | Autonomous AI player client |
 
 ---
 
