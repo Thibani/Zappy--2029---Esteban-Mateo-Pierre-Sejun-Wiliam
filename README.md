@@ -45,7 +45,7 @@ The winning team is the first to have **at least 6 players reach elevation level
 |--------|----------|------|
 | `zappy_server` | C++20 | TCP server, game logic, resource spawning, time management |
 | `zappy_gui` | C++ / raylib | Real-time graphical client |
-| `zappy_ai` | Python | Autonomous AI player client |
+| `zappy_ai` | Python 3 | Autonomous AI player client |
 
 ---
 
@@ -54,11 +54,12 @@ The winning team is the first to have **at least 6 players reach elevation level
 - `g++` ≥ 12 with C++20 support
 - `make`
 - `raylib` ≥ 5.0 (for the GUI)
+- `python3` ≥ 3.10 (for the AI)
 - `libcriterion-dev` (for tests only)
 
 Install dependencies on Ubuntu/Debian:
 ```bash
-sudo apt-get install -y build-essential make cmake git \
+sudo apt-get install -y build-essential make cmake git python3 \
     libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
     libgl1-mesa-dev
 ```
@@ -69,6 +70,11 @@ git clone --depth 1 --branch 5.0 https://github.com/raysan5/raylib.git
 cd raylib && mkdir build && cd build
 cmake .. -DBUILD_SHARED_LIBS=OFF
 sudo make install
+```
+
+Install AI Python dependencies (if any):
+```bash
+pip3 install -r ai/requirements.txt
 ```
 
 ---
@@ -257,7 +263,7 @@ A lower `-f` slows the game (useful for debugging); the default is `100`.
 .
 ├── server/          # TCP server — game logic, resource management, time
 ├── gui/             # Graphical client (raylib)
-├── ai/              # Autonomous AI player
+├── ai/              # Autonomous AI player (Python)
 ├── docs/            # Documentation and meeting notes
 └── tests/           # CI unit tests (Criterion)
 ```
@@ -286,3 +292,4 @@ The GUI authenticates by sending `GRAPHIC` as its team name. AI clients authenti
 ---
 
 *Epitech — 2025 — Promotion 2029*
+*Epitech student, be aware of -42 !*
